@@ -1,0 +1,36 @@
+#!/usr/bin/php
+<?php
+
+namespace Cougar\Util;
+
+/**
+ * Obfuscates a string so that it can be stored in the code without risks of
+ * it being stolen as easily.
+ * 
+ * Usage: ./obfuscate_string
+ *        php obfuscate_string
+ *
+ * The program wil not accept strings from the command line to avoid strings
+ * being stored in a shell history. You must type in the string when prompted.
+ *
+ * @history
+ * 2013.09.30:
+ *   (AT)  Initial release
+ *
+ * @version 2013.09.30
+ * @package Cougar
+ * @licence MIT
+ *
+ * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+ */
+
+# Initialize the framework
+require_once("cougar.php");
+
+# Ask the user for the string:
+echo("\nEnter the string: ");
+$string = trim(fgets(STDIN));
+
+# Display the obfuscated password
+echo("\nObfuscated string: " . StringObfuscator::encode($string) . "\n");
+?>

@@ -1,0 +1,359 @@
+#!/usr/bin/php
+<?php
+
+namespace Cougar\Model;
+
+use Cougar\PDO\PDOFactory;
+use Cougar\Util\Config;
+
+/**
+ * Generates Base and PDO models from a SQL database schema.
+ *
+ * @history
+ * 2013.09.30:
+ *   (AT)  Initial release
+ *
+ * @version 2013.09.30
+ * @package Cougar
+ * @license MIT
+ *
+ * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+ */
+
+# Make sure we have the right number of arguments
+if ($argc < 2)
+{
+    echo("
+Usage:
+
+  ". $argv[0] . " pdo_connection.conf
+
+    Lists all tables in the current schema
+
+
+  ". $argv[0] . " pdo_connection.conf [table1 [table2 [...]]]
+
+    Creates models for table1, table2, and so forth
+
+  
+  ". $argv[0] . " pdo_connection.conf *all*
+
+    Creates models for all tables in the schema
+    
+    
+The PDO connection can be in schema.environment notation or full path to a
+connection file.
+
+All Model files will be written to the current directory
+
+");
+    exit(1);
+}
+
+# Initialize the Cougar framework
+require_once("cougar.php");
+
+# Try to find the file
+$pdo_file = $argv[1];
+$conf_pos = strpos($pdo_file, ".conf");
+if ($conf_pos)
+{
+    $pdo_file = substr($pdo_file, 0, $conf_pos);
+}
+
+$slash_pos = strrpos($pdo_file, "/");
+if ($slash_pos !== false)
+{
+    $path = substr($pdo_file, 0, $slash_pos);
+    $pdo_file = substr($pdo_file, $slash_pos + 1);
+    Config::$subdirList[] = $path;
+}
+
+# Load the database connection
+$pdo = PDOFactory::getConnection($pdo_file);
+
+# Create the PDOEnumeration class
+$pdo_enum = new PdoEnumeration($pdo);
+
+# See if we have a list of tables
+$show_tables = true;
+if ($argc > 2)
+{
+    $tables = array_splice($argv, 2);
+    $show_tables = false;
+    
+    if ($tables[0] == "*all*")
+    {
+        $tables = $pdo_enum->getTables();
+    }
+}
+else
+{
+    $tables = $pdo_enum->getTables();
+}
+
+# See if we are listing the tables
+if ($show_tables)
+{
+    echo("Tables in current schema:\n");
+    
+    foreach($tables as $table)
+    {
+        echo("  " . $table . "\n");
+    }
+    
+    exit(0);
+}
+
+# Define the date
+$date = date("Y.m.d");
+
+# Go through each table
+foreach($tables as $table)
+{
+    # Get the columns
+    $columns = $pdo_enum->getColumns($table);
+    
+    # Define the name of the class
+    $class = toPascalCase($table);
+    
+    # Define the list of primary key properties
+    $primary_key = array();
+    
+    # Start writing the code
+    $code =
+'<?php
+namespace PUT_YOUR_NAMESAPCE_HERE;
+
+use Cougar\Autoload\FlexAutoload;
+use Cougar\Model\iModel;
+use Cougar\Model    Model;
+use Cougar\Model\Model;
+
+# Initialize Cougar framework and add application directory to FlexAutoload
+require_once("cougar.php");
+FlexAutoload::addPath(__DIR__, 2);
+
+/**
+ * Defines the properties and data constraints of the ' . $table . ' table in
+ * the ??? database.
+ * 
+ * @history
+ * ' . $date . ':
+ *   (Initials) Initial implementation
+ *
+ * @version ' . $date . ':
+ * @package ???
+ * @license ???
+ *
+ * @author (Initials) Full Name, Organization <email_address@nowhere.com>
+ * 
+ * @CaseInsensitive
+ */
+abstract class ' . $class . 'BaseModel
+{
+';
+    
+    # Go through the columns
+    foreach($columns as $column)
+    {
+        # Get the name of the property
+        $property = toCamelCase($column["name"]);
+        
+        $code .= "    /**\n";
+        $code .= "     * @Column " . $column["name"] . "\n";
+        foreach($column["flags"] as $flag)
+        {
+            switch ($flag)
+            {
+                case "primary_key":
+                    $primary_key[] = $property;
+                    break;
+                case "not_null":
+                    $code .= "     * @NotNull\n";
+                    break;
+                case "multiple_key":
+                    break;
+                default:
+                    echo("  ** Unknown flag: " . $flag . "\n");
+                    break;
+            }
+        }
+        switch(strtolower($column["native_type"]))
+        {
+            case "int":
+            case "tiny":
+            case "int16":
+            case "int24":
+            case "int32":
+            case "long":
+            case "longlong":
+                $type = "int";
+                break;
+            case "float":
+            case "double":
+                $type = "float";
+                break;
+            case "bool":
+                $type = "bool";
+                break;
+            case "date":
+            case "datetime":
+            case "timestamp":
+                $type = "DateTime";
+                break;
+            default:
+                echo("  ** Unknown native type: " . $column["native_type"] .
+                    "\n");
+            case "string":
+            case "var_string":
+            case "blob":
+                $type = "string";
+                break;
+        }
+        $code .= "     * @var " . $type . " (Description...)\n";
+        $code .= "     */\n";
+        $code .= "    public \$" . $property . " = null;\n";
+        $code .= "\n";
+    }
+
+    $code .=
+'    /**
+     * Performs additional property validation
+     * 
+     * @history
+     * ' . $date . ':
+     *   (Initials) Initial implementation
+     *
+     * @version ' . $date . ':
+     * @author (Initials) Full Name, Organization <email_address@nowhere.com>
+     */
+    protected function __postValidate()
+    {
+        // TODO: Put any additional property validations here
+    }
+}
+
+/**
+ * Defines the ' . $class . ' model.
+ * 
+ * @history
+ * ' . $date . ':
+ *   (Initials) Initial implementation
+ *
+ * @version ' . $date . ':
+ * @package ???
+ * @license ???
+ *
+ * @author (Initials) Full Name, Organization <email_address@nowhere.com>
+ */
+class ' . $class . 'Model extends ' . $class . 'BaseModel
+implements \Cougar\Model\iModel
+{
+    use \Cougar\Model\tModel;
+}
+
+
+/**
+ * Defines the ' . $class . ' PDO model.
+ * 
+ * @history
+ * ' . $date . ':
+ *   (Initials) Initial implementation
+ *
+ * @version ' . $date . ':
+ * @package ???
+ * @license ???
+ *
+ * @author (Initials) Full Name, Organization <email_address@nowhere.com>
+ *
+ * @Table ' . $table . '
+ * @Allow CREATE READ UPDATE DELETE QUERY
+ * @PrimaryKey ' . implode(" ", $primary_key) . '
+ * @CacheTime 3600
+ */
+class ' . $class . 'PdoModel extends ' . $class . 'BaseModel
+implements \Cougar\Model\iStoredModel
+{
+    use \Cougar\Model\iStoredModel;
+    
+    /**
+     * Sets primary key values and performs additional property validation
+     * 
+     * @history
+     * ' . $date . ':
+     *   (Initials) Initial implementation
+     *
+     * @version ' . $date . ':
+     * @author (Initials) Full Name, Organization <email_address@nowhere.com>
+     */
+    protected function __preValidate()
+    {
+        // See if we are inserting a new record
+        if ($this->__insertMode)
+        {
+            // TODO: This is the perfect place to set new IDs
+        }
+    }
+}
+?>
+';
+    
+    echo("Creating " . $class . "Model.php\n");
+    file_put_contents($class . "Model.php", $code);
+}
+
+/**
+ * Converts the given value into camel case. Underscores or dashes will be
+ * considered spaces.
+ * 
+ * @param string $value
+ * @return string Converted value
+ */
+function toCamelCase($value)
+{
+    # See if this is an all lowercase or uppercase word
+    if ($value == mb_strtoupper($value) || $value == mb_strtolower($value))
+    {
+        $value = mb_strtolower($value);
+    }
+    
+    # Turn spaces, dashes and underscores and their next letters to uppercase
+    $value = str_replace(array("_", "-"), array(" ", " "), $value);
+    $value = trim($value);
+    while($pos = mb_strpos($value, " "))
+    {
+        $value = mb_substr($value, 0, $pos - 1) .
+            mb_strtoupper(mb_substr($value, $pos + 1, 1)) .
+            mb_substr($value, $pos + 2);
+    }
+    
+    # Change ID to Id
+    $value = str_replace("ID", "Id", $value);
+    
+    # Turn the first letter into lowercase
+    $value = mb_strtolower(mb_substr($value, 0, 1)) . mb_substr($value, 1);
+    
+    # Return the new string
+    return $value;
+}
+
+/**
+ * Converts the given value into pascal case. Underscores or dashes will be
+ * considered spaces.
+ * 
+ * @param string $value
+ * @return string Converted value
+ */
+function toPascalCase($value)
+{
+    # Conver the value to camel case
+    $value = toCamelCase($value);
+    
+    # Turn the first letter into uppercase
+    $value = mb_strtoupper(mb_substr($value, 0, 1)) . mb_substr($value, 1);
+    
+    # Return the new string
+    return $value;
+}
+?>

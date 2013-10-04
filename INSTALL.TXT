@@ -1,0 +1,15 @@
+INSTALLATION INSTRUCTIONS
+-------------------------
+
+Until we get the full PEAR package.xml defintion sorted out, install the Cougar
+Framework as follows:
+
+1. Copy cougar.php and Cougar subdirectory into your PEAR directory.
+
+2. Copy or symlink the following files to /usr/bin or /usr/local/bin:
+
+  Cougar\Model\cougar-model-builder
+  Cougar\PDO\cougar-create-pdo-connection-file
+  Cougar\Util\cougar-obfuscate-string
+
+Enjoy!

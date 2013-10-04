@@ -1,0 +1,33 @@
+<?php
+/**
+ * Provides a simple response with information about the request. This is used
+ * by the RestClient unit tests to verify the RestClient module is working
+ * properly.
+ */
+if (strpos(getallheaders(), "json") !== false)
+{
+	header("Content-Type: application/json");
+}
+else
+{
+	header("Content-Type: text/plain");
+}
+
+$response = array();
+$response["Method"] = $_SERVER["REQUEST_METHOD"];
+$uri = str_replace(dirname($_SERVER["SCRIPT_NAME"]) . "/", "",
+	parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+if ($uri)
+{
+	$response["URL"] = explode("/", $uri);
+}
+else
+{
+	$response["URL"] = array();
+}
+$response["GET"] = $_GET;
+$response["POST"] = $_POST;
+$response["BODY"] = file_get_contents("php://input");
+
+echo(json_encode($response));
+?>

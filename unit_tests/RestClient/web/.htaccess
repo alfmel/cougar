@@ -1,0 +1,3 @@
+ForceType application/x-httpd-php
+RewriteEngine on
+RewriteRule .* request_handler
