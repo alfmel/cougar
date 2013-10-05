@@ -150,6 +150,6 @@ require_once("cougar.php");
  */
 abstract class WsModel implements iStoredModel
 {
-	use tWsModel;
+    use tWsModel;
 }
 ?>

@@ -29,6 +29,6 @@ require_once("cougar.php");
  */
 abstract class StrictModel implements iModel
 {
-	use tStrictModel;
+    use tStrictModel;
 }
 ?>

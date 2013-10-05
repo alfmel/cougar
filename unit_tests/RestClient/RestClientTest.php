@@ -15,8 +15,8 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class RestClientTest extends \PHPUnit_Framework_TestCase {
 
-	protected $rest = null;
-	protected $restUrl = "http://localhost/RestClientTest/";
+    protected $rest = null;
+    protected $restUrl = "http://localhost/RestClientTest/";
 
     /**
      * Creates the RestClient
@@ -27,402 +27,402 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-	 * @covers \Cougar\RestClient\RestClient::get
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__get()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->get($this->restUrl);
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("GET", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("", $object["BODY"]);
-	}
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__get()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->get($this->restUrl);
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("GET", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("", $object["BODY"]);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\RestClient::get
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__getWithUrlFields()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->get($this->restUrl,
-			array("abc", "def", "ghi"));
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("GET", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(3, $object["URL"]);
-		$this->assertEquals("abc", $object["URL"][0]);
-		$this->assertEquals("def", $object["URL"][1]);
-		$this->assertEquals("ghi", $object["URL"][2]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::get
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__getWithGetFields()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->get($this->restUrl, null,
-			array("value1" => "one",
-				"value2" => "two",
-				"value3" => "three"));
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("GET", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(3, $object["GET"]);
-		$this->assertArrayHasKey("value1", $object["GET"]);
-		$this->assertEquals("one", $object["GET"]["value1"]);
-		$this->assertArrayHasKey("value2", $object["GET"]);
-		$this->assertEquals("two", $object["GET"]["value2"]);
-		$this->assertArrayHasKey("value3", $object["GET"]);
-		$this->assertEquals("three", $object["GET"]["value3"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::get
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__getWithUrlFieldsAndGetFields()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->get($this->restUrl,
-			array("abc", "def", "ghi"),
-			array("value1" => "one",
-				"value2" => "two",
-				"value3" => "three"));
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("GET", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(3, $object["URL"]);
-		$this->assertEquals("abc", $object["URL"][0]);
-		$this->assertEquals("def", $object["URL"][1]);
-		$this->assertEquals("ghi", $object["URL"][2]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(3, $object["GET"]);
-		$this->assertArrayHasKey("value1", $object["GET"]);
-		$this->assertEquals("one", $object["GET"]["value1"]);
-		$this->assertArrayHasKey("value2", $object["GET"]);
-		$this->assertEquals("two", $object["GET"]["value2"]);
-		$this->assertArrayHasKey("value3", $object["GET"]);
-		$this->assertEquals("three", $object["GET"]["value3"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::get
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__getWithStringBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->get($this->restUrl, null, null,
-			"String body");
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("GET", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("String body", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::get
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__getWithArrayBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->get($this->restUrl, null, null,
-			array("abc" => "123"));
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("GET", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("abc=123", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::post
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__post()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->post($this->restUrl);
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("POST", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::post
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__postWithArrayBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->post($this->restUrl, null, null,
-			array("value1" => "one",
-				"value2" => "two",
-				"value3" => "three"));
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("POST", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(3, $object["POST"]);
-		$this->assertArrayHasKey("value1", $object["POST"]);
-		$this->assertEquals("one", $object["POST"]["value1"]);
-		$this->assertArrayHasKey("value2", $object["POST"]);
-		$this->assertEquals("two", $object["POST"]["value2"]);
-		$this->assertArrayHasKey("value3", $object["POST"]);
-		$this->assertEquals("three", $object["POST"]["value3"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("value1=one&value2=two&value3=three",
-			$object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::post
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__postWithArrayBodyMultipart()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->post($this->restUrl, null, null,
-			array("value1" => "one",
-				"value2" => "two",
-				"value3" => "three"));
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("POST", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(3, $object["POST"]);
-		$this->assertArrayHasKey("value1", $object["POST"]);
-		$this->assertEquals("one", $object["POST"]["value1"]);
-		$this->assertArrayHasKey("value2", $object["POST"]);
-		$this->assertEquals("two", $object["POST"]["value2"]);
-		$this->assertArrayHasKey("value3", $object["POST"]);
-		$this->assertEquals("three", $object["POST"]["value3"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("value1=one&value2=two&value3=three",
-			$object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::post
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__postWithTextBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->post($this->restUrl, null, null,
-			"This is the POST body");
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("POST", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("This is the POST body", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::put
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__put()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->put($this->restUrl);
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("PUT", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("", $object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::put
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__putWithArrayBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->put($this->restUrl, null, null,
-			array("value1" => "one",
-				"value2" => "two",
-				"value3" => "three"));
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("PUT", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("value1=one&value2=two&value3=three",
-			$object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::put
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__putWithTextBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->put($this->restUrl, null, null,
-			"This is the PUT body");
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("PUT", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("This is the PUT body", $object["BODY"]);
-	}
+    /**
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__getWithUrlFields()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->get($this->restUrl,
+            array("abc", "def", "ghi"));
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("GET", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(3, $object["URL"]);
+        $this->assertEquals("abc", $object["URL"][0]);
+        $this->assertEquals("def", $object["URL"][1]);
+        $this->assertEquals("ghi", $object["URL"][2]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__getWithGetFields()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->get($this->restUrl, null,
+            array("value1" => "one",
+                "value2" => "two",
+                "value3" => "three"));
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("GET", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(3, $object["GET"]);
+        $this->assertArrayHasKey("value1", $object["GET"]);
+        $this->assertEquals("one", $object["GET"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["GET"]);
+        $this->assertEquals("two", $object["GET"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["GET"]);
+        $this->assertEquals("three", $object["GET"]["value3"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__getWithUrlFieldsAndGetFields()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->get($this->restUrl,
+            array("abc", "def", "ghi"),
+            array("value1" => "one",
+                "value2" => "two",
+                "value3" => "three"));
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("GET", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(3, $object["URL"]);
+        $this->assertEquals("abc", $object["URL"][0]);
+        $this->assertEquals("def", $object["URL"][1]);
+        $this->assertEquals("ghi", $object["URL"][2]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(3, $object["GET"]);
+        $this->assertArrayHasKey("value1", $object["GET"]);
+        $this->assertEquals("one", $object["GET"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["GET"]);
+        $this->assertEquals("two", $object["GET"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["GET"]);
+        $this->assertEquals("three", $object["GET"]["value3"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__getWithStringBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->get($this->restUrl, null, null,
+            "String body");
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("GET", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("String body", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__getWithArrayBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->get($this->restUrl, null, null,
+            array("abc" => "123"));
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("GET", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("abc=123", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::post
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__post()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->post($this->restUrl);
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("POST", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::post
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__postWithArrayBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->post($this->restUrl, null, null,
+            array("value1" => "one",
+                "value2" => "two",
+                "value3" => "three"));
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("POST", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(3, $object["POST"]);
+        $this->assertArrayHasKey("value1", $object["POST"]);
+        $this->assertEquals("one", $object["POST"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["POST"]);
+        $this->assertEquals("two", $object["POST"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["POST"]);
+        $this->assertEquals("three", $object["POST"]["value3"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("value1=one&value2=two&value3=three",
+            $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::post
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__postWithArrayBodyMultipart()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->post($this->restUrl, null, null,
+            array("value1" => "one",
+                "value2" => "two",
+                "value3" => "three"));
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("POST", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(3, $object["POST"]);
+        $this->assertArrayHasKey("value1", $object["POST"]);
+        $this->assertEquals("one", $object["POST"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["POST"]);
+        $this->assertEquals("two", $object["POST"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["POST"]);
+        $this->assertEquals("three", $object["POST"]["value3"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("value1=one&value2=two&value3=three",
+            $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::post
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__postWithTextBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->post($this->restUrl, null, null,
+            "This is the POST body");
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("POST", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("This is the POST body", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::put
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__put()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->put($this->restUrl);
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("PUT", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("", $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::put
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__putWithArrayBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->put($this->restUrl, null, null,
+            array("value1" => "one",
+                "value2" => "two",
+                "value3" => "three"));
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("PUT", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("value1=one&value2=two&value3=three",
+            $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::put
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__putWithTextBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->put($this->restUrl, null, null,
+            "This is the PUT body");
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("PUT", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("This is the PUT body", $object["BODY"]);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\RestClient::put
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__putWithFile()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->put($this->restUrl, null, null, "@" . __FILE__);
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("PUT", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals(filesize(__FILE__), strlen($object["BODY"]));
-	}
+    /**
+     * @covers \Cougar\RestClient\RestClient::put
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__putWithFile()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->put($this->restUrl, null, null, "@" . __FILE__);
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("PUT", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals(filesize(__FILE__), strlen($object["BODY"]));
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\RestClient::delete
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__delete()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->delete($this->restUrl);
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("DELETE", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("", $object["BODY"]);
-	}
+    /**
+     * @covers \Cougar\RestClient\RestClient::delete
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__delete()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->delete($this->restUrl);
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("DELETE", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("", $object["BODY"]);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\RestClient::delete
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__deleteWithArrayBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->delete($this->restUrl, null, null,
-			array("value1" => "one",
-				"value2" => "two",
-				"value3" => "three"), true);
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("DELETE", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("value1=one&value2=two&value3=three",
-			$object["BODY"]);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\RestClient::delete
-	 * @covers \Cougar\RestClient\RestClient::makeRequest
-	 */
-	public function test__deleteWithTextBody()
-	{
-		# TODO: See if we can do this with an external service
-		$object = $this->rest->delete($this->restUrl, null, null,
-			"This is the DELETE body");
-		$this->assertArrayHasKey("Method", $object);
-		$this->assertEquals("DELETE", $object["Method"]);
-		$this->assertArrayHasKey("URL", $object);
-		$this->assertCount(0, $object["URL"]);
-		$this->assertArrayHasKey("GET", $object);
-		$this->assertCount(0, $object["GET"]);
-		$this->assertArrayHasKey("POST", $object);
-		$this->assertCount(0, $object["POST"]);
-		$this->assertArrayHasKey("BODY", $object);
-		$this->assertEquals("This is the DELETE body", $object["BODY"]);
-	}
+    /**
+     * @covers \Cougar\RestClient\RestClient::delete
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__deleteWithArrayBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->delete($this->restUrl, null, null,
+            array("value1" => "one",
+                "value2" => "two",
+                "value3" => "three"), true);
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("DELETE", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("value1=one&value2=two&value3=three",
+            $object["BODY"]);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\RestClient::delete
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__deleteWithTextBody()
+    {
+        # TODO: See if we can do this with an external service
+        $object = $this->rest->delete($this->restUrl, null, null,
+            "This is the DELETE body");
+        $this->assertArrayHasKey("Method", $object);
+        $this->assertEquals("DELETE", $object["Method"]);
+        $this->assertArrayHasKey("URL", $object);
+        $this->assertCount(0, $object["URL"]);
+        $this->assertArrayHasKey("GET", $object);
+        $this->assertCount(0, $object["GET"]);
+        $this->assertArrayHasKey("POST", $object);
+        $this->assertCount(0, $object["POST"]);
+        $this->assertArrayHasKey("BODY", $object);
+        $this->assertEquals("This is the DELETE body", $object["BODY"]);
+    }
 }
 ?>

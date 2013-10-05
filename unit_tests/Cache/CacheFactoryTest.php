@@ -11,40 +11,40 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class CacheFactoryTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers Cougar\Cache\CacheFactory::getLocalCache
-	 */
-	public function testGetLocalCache() {
-		$cache = CacheFactory::getLocalCache();
-		$this->assertinstanceOf("Cougar\Cache\Cache", $cache);
-		switch($cache->getCacheType())
-		{
-			case "apc":
-			case "wincache":
-			case "memory":
-				break;
-			default:
-				$this->fail("Cache was not local");
-		}
-	}
+    /**
+     * @covers Cougar\Cache\CacheFactory::getLocalCache
+     */
+    public function testGetLocalCache() {
+        $cache = CacheFactory::getLocalCache();
+        $this->assertinstanceOf("Cougar\Cache\Cache", $cache);
+        switch($cache->getCacheType())
+        {
+            case "apc":
+            case "wincache":
+            case "memory":
+                break;
+            default:
+                $this->fail("Cache was not local");
+        }
+    }
 
-	/**
-	 * @covers Cougar\Cache\CacheFactory::getApplicationCache
-	 */
-	public function testGetApplicationCache() {
-		$test_memcache = false;
-		if (! defined("APPLICATION_CACHE_CONFIGURATION"))
-		{
-			define("APPLICATION_CACHE_CONFIGURATION",
-				"memcache 127.0.0.1:11211");
-			$test_memcache = true;
-			
-		}
-		$cache = CacheFactory::getApplicationCache();
-		$this->assertinstanceOf("Cougar\Cache\Cache", $cache);
-		if ($test_memcache)
-		{
-			$this->assertEquals("memcache", $cache->getCacheType());
-		}
-	}
+    /**
+     * @covers Cougar\Cache\CacheFactory::getApplicationCache
+     */
+    public function testGetApplicationCache() {
+        $test_memcache = false;
+        if (! defined("APPLICATION_CACHE_CONFIGURATION"))
+        {
+            define("APPLICATION_CACHE_CONFIGURATION",
+                "memcache 127.0.0.1:11211");
+            $test_memcache = true;
+            
+        }
+        $cache = CacheFactory::getApplicationCache();
+        $this->assertinstanceOf("Cougar\Cache\Cache", $cache);
+        if ($test_memcache)
+        {
+            $this->assertEquals("memcache", $cache->getCacheType());
+        }
+    }
 }

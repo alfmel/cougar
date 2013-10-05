@@ -20,6 +20,6 @@ require_once("cougar.php");
  */
 abstract class ArrayExportable implements iArrayExportable
 {
-	use tArrayExportable;
+    use tArrayExportable;
 }
 ?>

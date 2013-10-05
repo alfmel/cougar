@@ -116,49 +116,49 @@ namespace Cougar\RestService;
  */
 interface iAnnotatedRestService extends iRestService
 {
-	/**
-	 * Stores the Security object and initializes the REST request
-	 *
+    /**
+     * Stores the Security object and initializes the REST request
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param \Cougar\Security\iSecurity
+     * 
+     * @param \Cougar\Security\iSecurity
      *   security Reference to Security object
-	 */
-	public function __construct(\Cougar\Security\iSecurity $security);
-	
-	/**
-	 * Binds all the services in the given object. This call can be made as
-	 * many time as as necessary to bind all necessary objects.
-	 *
+     */
+    public function __construct(\Cougar\Security\iSecurity $security);
+    
+    /**
+     * Binds all the services in the given object. This call can be made as
+     * many time as as necessary to bind all necessary objects.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param object $object Reference to the object that will be bound
-	 */
-	public function bindFromObject(&$object);
-	
-	/**
-	 * Handles the incoming request with one of the bound objects. This is a
-	 * terminal call, meaning that the proper method will be called and will
-	 * automatically send the data to the browser. If an error occurs, it will
-	 * be caught and sent to the browser.
-	 *
+     * 
+     * @param object $object Reference to the object that will be bound
+     */
+    public function bindFromObject(&$object);
+    
+    /**
+     * Handles the incoming request with one of the bound objects. This is a
+     * terminal call, meaning that the proper method will be called and will
+     * automatically send the data to the browser. If an error occurs, it will
+     * be caught and sent to the browser.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 */
-	public function handleRequest();
+     */
+    public function handleRequest();
 }
 ?>

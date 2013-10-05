@@ -25,6 +25,6 @@ require_once("cougar.php");
  */
 abstract class AnnotatedClass implements iAnnotatedClass
 {
-	use tAnnotatedClass;
+    use tAnnotatedClass;
 }
 ?>

@@ -11,59 +11,59 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class IdentityTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers \Cougar\Security\Identity::__construct
-	 * @covers \Cougar\Security\Identity::__get
-	 */
-	public function testNullIdentity() {
-		$object = new Identity();
-		$this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
-		$this->assertNull($object->id);
-	}
+    /**
+     * @covers \Cougar\Security\Identity::__construct
+     * @covers \Cougar\Security\Identity::__get
+     */
+    public function testNullIdentity() {
+        $object = new Identity();
+        $this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
+        $this->assertNull($object->id);
+    }
 
-	/**
-	 * @covers \Cougar\Security\Identity::__construct
-	 * @covers \Cougar\Security\Identity::__get
-	 */
-	public function testSingleIdentity() {
-		$attr = array("personId" => "999999999",
-			"byuId" => "888888888",
-			"netId" => "cosmo123");
-		$object = new Identity($attr["personId"], $attr);
-		$this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
-		$this->assertEquals($attr["personId"],$object->id);
-		$this->assertEquals($attr["personId"],$object->personId);
-		$this->assertEquals($attr["byuId"],$object->byuId);	
-		$this->assertEquals($attr["netId"],$object->netId);		
-	}
+    /**
+     * @covers \Cougar\Security\Identity::__construct
+     * @covers \Cougar\Security\Identity::__get
+     */
+    public function testSingleIdentity() {
+        $attr = array("personId" => "999999999",
+            "byuId" => "888888888",
+            "netId" => "cosmo123");
+        $object = new Identity($attr["personId"], $attr);
+        $this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
+        $this->assertEquals($attr["personId"],$object->id);
+        $this->assertEquals($attr["personId"],$object->personId);
+        $this->assertEquals($attr["byuId"],$object->byuId);    
+        $this->assertEquals($attr["netId"],$object->netId);        
+    }
 
-	/**
-	 * @covers \Cougar\Security\Identity::__construct
-	 * @covers \Cougar\Security\Identity::__get
-	 */
-	public function testSingleIdentityUnknownAttribute() {
-		$attr = array("personId" => "999999999",
-			"byuId" => "888888888",
-			"netId" => "cosmo123");
-		$object = new Identity($attr["personId"], $attr);
-		$this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
-		$this->assertEquals($attr["personId"],$object->id);
-		$this->assertNULL($object->pId);	
-	}
-	
-	/**
-	 * @covers \Cougar\Security\Identity::__construct
-	 * @covers \Cougar\Security\Identity::__get
-	 * @covers \Cougar\Security\Identity::__set
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testReadOnlyProperty() {
-		$attr = array("personId" => "999999999",
-			"byuId" => "888888888",
-			"netId" => "cosmo123");
-		$object = new Identity($attr["personId"], $attr);
-		$this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
-		$object->id="777777777";
-		$this->fail('Property was changed');
-	}
+    /**
+     * @covers \Cougar\Security\Identity::__construct
+     * @covers \Cougar\Security\Identity::__get
+     */
+    public function testSingleIdentityUnknownAttribute() {
+        $attr = array("personId" => "999999999",
+            "byuId" => "888888888",
+            "netId" => "cosmo123");
+        $object = new Identity($attr["personId"], $attr);
+        $this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
+        $this->assertEquals($attr["personId"],$object->id);
+        $this->assertNULL($object->pId);    
+    }
+    
+    /**
+     * @covers \Cougar\Security\Identity::__construct
+     * @covers \Cougar\Security\Identity::__get
+     * @covers \Cougar\Security\Identity::__set
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testReadOnlyProperty() {
+        $attr = array("personId" => "999999999",
+            "byuId" => "888888888",
+            "netId" => "cosmo123");
+        $object = new Identity($attr["personId"], $attr);
+        $this->assertInstanceOf("\\Cougar\\Security\\Identity", $object);
+        $object->id="777777777";
+        $this->fail('Property was changed');
+    }
 }

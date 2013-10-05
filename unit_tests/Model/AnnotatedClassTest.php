@@ -13,23 +13,23 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class AnnotatedClassTest extends \PHPUnit_Framework_TestCase {
 
-	public function testAnnotationExtraction() {
-		$object = new AnnotatedClassUnitTest();
-		$annotations = $object->getAnnotations();
-		$this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
-		$this->assertCount(1, $annotations->class);
-		$this->assertCount(1, $annotations->properties);
-		$this->assertCount(1, $annotations->methods);
-	}
+    public function testAnnotationExtraction() {
+        $object = new AnnotatedClassUnitTest();
+        $annotations = $object->getAnnotations();
+        $this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
+        $this->assertCount(1, $annotations->class);
+        $this->assertCount(1, $annotations->properties);
+        $this->assertCount(1, $annotations->methods);
+    }
 
-	public function testAnnotationExtractionViaTrait() {
-		$object = new AnnotatedClassUnitTestViaTrait();
-		$annotations = $object->getAnnotations();
-		$this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
-		$this->assertCount(1, $annotations->class);
-		$this->assertCount(1, $annotations->properties);
-		$this->assertCount(1, $annotations->methods);
-	}
+    public function testAnnotationExtractionViaTrait() {
+        $object = new AnnotatedClassUnitTestViaTrait();
+        $annotations = $object->getAnnotations();
+        $this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
+        $this->assertCount(1, $annotations->class);
+        $this->assertCount(1, $annotations->properties);
+        $this->assertCount(1, $annotations->methods);
+    }
 }
 
 
@@ -38,18 +38,18 @@ class AnnotatedClassTest extends \PHPUnit_Framework_TestCase {
  */
 class AnnotatedClassUnitTest extends AnnotatedClass
 {
-	/**
-	 * @PropertyAnnotation
-	 */
-	public $propertyA;
-	
-	/**
-	 * @MethodAnnotation
-	 */
-	public function getAnnotations()
-	{
-		return $this->__annotations;
-	}
+    /**
+     * @PropertyAnnotation
+     */
+    public $propertyA;
+    
+    /**
+     * @MethodAnnotation
+     */
+    public function getAnnotations()
+    {
+        return $this->__annotations;
+    }
 }
 
 /**
@@ -57,19 +57,19 @@ class AnnotatedClassUnitTest extends AnnotatedClass
  */
 class AnnotatedClassUnitTestViaTrait implements iAnnotatedClass
 {
-	use tAnnotatedClass;
-	
-	/**
-	 * @PropertyAnnotation
-	 */
-	public $propertyA;
-	
-	/**
-	 * @MethodAnnotation
-	 */
-	public function getAnnotations()
-	{
-		return $this->__annotations;
-	}
+    use tAnnotatedClass;
+    
+    /**
+     * @PropertyAnnotation
+     */
+    public $propertyA;
+    
+    /**
+     * @MethodAnnotation
+     */
+    public function getAnnotations()
+    {
+        return $this->__annotations;
+    }
 }
 ?>

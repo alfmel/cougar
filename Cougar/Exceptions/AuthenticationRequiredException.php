@@ -8,10 +8,14 @@ namespace Cougar\Exceptions;
  * 
  * HTTP Status Code: 401
  * 
+ * @package Cougar
+ * @license MIT
+ * @copyright 2013 Brigham Young University
+ *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
 class AuthenticationRequiredException extends Exception
 {
-	protected $httpStatusCode = 401;
+    protected $httpStatusCode = 401;
 }
 ?>

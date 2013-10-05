@@ -12,368 +12,368 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class AnnotationsTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers Cougar\\Util\\Annotations::extract
-	 */
-	public function testBasicExtract() {
-		# Mock the cache
-		$local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$local_cache->expects($this->any())
-			->method("get")
-			->will($this->returnValue(false));
-		$local_cache->expects($this->any())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		# Create the object and extract annotations
-		$object = new BasicAnnotationTest();
-		$annotations = Annotations::extract($local_cache, $object);
-		
-		$this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
-		
-		$this->assertFalse($annotations->cached);
-		
-		$this->assertCount(6, $annotations->class);
-		foreach($annotations->class as $class_annotation)
-		{
-			$this->assertInstanceOf("Cougar\\Util\\Annotation", 
+    /**
+     * @covers Cougar\\Util\\Annotations::extract
+     */
+    public function testBasicExtract() {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        # Create the object and extract annotations
+        $object = new BasicAnnotationTest();
+        $annotations = Annotations::extract($local_cache, $object);
+        
+        $this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
+        
+        $this->assertFalse($annotations->cached);
+        
+        $this->assertCount(6, $annotations->class);
+        foreach($annotations->class as $class_annotation)
+        {
+            $this->assertInstanceOf("Cougar\\Util\\Annotation", 
                 $class_annotation);
-		}
-		$this->assertEquals("Annotation1", $annotations->class[0]->name);
-		$this->assertEquals("Value 1", $annotations->class[0]->value);
-		$this->assertEquals("Annotation2", $annotations->class[1]->name);
-		$this->assertEquals("Value 2", $annotations->class[1]->value);
-		$this->assertEquals("Annotation3", $annotations->class[2]->name);
-		$this->assertEquals("Value 3", $annotations->class[2]->value);
-		$this->assertEquals("RepeatedAnnotation", $annotations->class[3]->name);
-		$this->assertEquals("Repeated value 1", $annotations->class[3]->value);
-		$this->assertEquals("RepeatedAnnotation", $annotations->class[4]->name);
-		$this->assertEquals("Repeated value 2", $annotations->class[4]->value);
-		$this->assertEquals("RepeatedAnnotation", $annotations->class[5]->name);
-		$this->assertEquals("Repeated value 3", $annotations->class[5]->value);
-		
-		$this->assertCount(2, $annotations->properties);
-		$this->assertArrayHasKey("propertyA", $annotations->properties);
-		$this->assertArrayHasKey("propertyB", $annotations->properties);
-		$this->assertCount(2, $annotations->properties["propertyA"]);
-		foreach($annotations->properties["propertyA"] as $property_annotation)
-		{
-			$this->assertInstanceOf("Cougar\\Util\\Annotation", 
+        }
+        $this->assertEquals("Annotation1", $annotations->class[0]->name);
+        $this->assertEquals("Value 1", $annotations->class[0]->value);
+        $this->assertEquals("Annotation2", $annotations->class[1]->name);
+        $this->assertEquals("Value 2", $annotations->class[1]->value);
+        $this->assertEquals("Annotation3", $annotations->class[2]->name);
+        $this->assertEquals("Value 3", $annotations->class[2]->value);
+        $this->assertEquals("RepeatedAnnotation", $annotations->class[3]->name);
+        $this->assertEquals("Repeated value 1", $annotations->class[3]->value);
+        $this->assertEquals("RepeatedAnnotation", $annotations->class[4]->name);
+        $this->assertEquals("Repeated value 2", $annotations->class[4]->value);
+        $this->assertEquals("RepeatedAnnotation", $annotations->class[5]->name);
+        $this->assertEquals("Repeated value 3", $annotations->class[5]->value);
+        
+        $this->assertCount(2, $annotations->properties);
+        $this->assertArrayHasKey("propertyA", $annotations->properties);
+        $this->assertArrayHasKey("propertyB", $annotations->properties);
+        $this->assertCount(2, $annotations->properties["propertyA"]);
+        foreach($annotations->properties["propertyA"] as $property_annotation)
+        {
+            $this->assertInstanceOf("Cougar\\Util\\Annotation", 
                 $property_annotation);
-		}
-		$this->assertEquals("PropertyA",
-			$annotations->properties["propertyA"][0]->name);
-		$this->assertEquals("Annotation for Property A",
-			$annotations->properties["propertyA"][0]->value);
-		$this->assertEquals("var",
-			$annotations->properties["propertyA"][1]->name);
-		$this->assertEquals("string Some value",
-			$annotations->properties["propertyA"][1]->value);
-		$this->assertCount(2, $annotations->properties["propertyB"]);
-		foreach($annotations->properties["propertyB"] as $property_annotation)
-		{
-			$this->assertInstanceOf("Cougar\\Util\\Annotation", 
+        }
+        $this->assertEquals("PropertyA",
+            $annotations->properties["propertyA"][0]->name);
+        $this->assertEquals("Annotation for Property A",
+            $annotations->properties["propertyA"][0]->value);
+        $this->assertEquals("var",
+            $annotations->properties["propertyA"][1]->name);
+        $this->assertEquals("string Some value",
+            $annotations->properties["propertyA"][1]->value);
+        $this->assertCount(2, $annotations->properties["propertyB"]);
+        foreach($annotations->properties["propertyB"] as $property_annotation)
+        {
+            $this->assertInstanceOf("Cougar\\Util\\Annotation", 
                 $property_annotation);
-		}
-		$this->assertEquals("PropertyB",
-			$annotations->properties["propertyB"][0]->name);
-		$this->assertEquals("Annotation for Property B",
-			$annotations->properties["propertyB"][0]->value);
-		$this->assertEquals("var",
-			$annotations->properties["propertyB"][1]->name);
-		$this->assertEquals("string Some value",
-			$annotations->properties["propertyB"][1]->value);
-		
-		$this->assertCount(2, $annotations->methods);
-		$this->assertArrayHasKey("methodY", $annotations->methods);
-		$this->assertArrayHasKey("methodZ", $annotations->methods);
-		$this->assertCount(1, $annotations->methods["methodY"]);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
-			$annotations->methods["methodY"][0]);
-		$this->assertEquals("MethodY",
-			$annotations->methods["methodY"][0]->name);
-		$this->assertEquals("Annotation for Method Y",
-			$annotations->methods["methodY"][0]->value);
-		$this->assertCount(1, $annotations->methods["methodZ"]);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
-			$annotations->methods["methodZ"][0]);
-		$this->assertEquals("MethodZ",
-			$annotations->methods["methodZ"][0]->name);
-		$this->assertEquals("Annotation for Method Z",
-			$annotations->methods["methodZ"][0]->value);
-		
-		# Save the result to test the cache
-		$annotations->cached = true;
-		return $annotations;
-	}
-	
-	/**
-	 * @covers Cougar\Util\Annotations::extract
-	 * @depends testBasicExtract
-	 */
-	public function testBasicExtractFromExecutionCache(ClassAnnotations $cached_annotations) {
-		# Mock the cache
-		$local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$local_cache->expects($this->any())
-			->method("get")
-			->will($this->returnValue(false));
-		$local_cache->expects($this->any())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		# Create the object and extract annotations
-		$object = new BasicAnnotationTest();
-		$annotations = Annotations::extract($local_cache, $object);
-		
-		$this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
-		$this->assertTrue($annotations->cached);
-		$this->assertEquals($cached_annotations, $annotations);
-	}
-	
-	/**
-	 * @covers Cougar\Util\Annotations::extract
-	 */
-	public function testExtendedExtract() {
-		# Mock the cache
-		$local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$local_cache->expects($this->any())
-			->method("get")
-			->will($this->returnValue(false));
-		$local_cache->expects($this->any())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		# Create the object and extract annotations
-		$object = new ExtendedBasicAnnotationTest();
-		$annotations = Annotations::extract($local_cache, $object);
+        }
+        $this->assertEquals("PropertyB",
+            $annotations->properties["propertyB"][0]->name);
+        $this->assertEquals("Annotation for Property B",
+            $annotations->properties["propertyB"][0]->value);
+        $this->assertEquals("var",
+            $annotations->properties["propertyB"][1]->name);
+        $this->assertEquals("string Some value",
+            $annotations->properties["propertyB"][1]->value);
+        
+        $this->assertCount(2, $annotations->methods);
+        $this->assertArrayHasKey("methodY", $annotations->methods);
+        $this->assertArrayHasKey("methodZ", $annotations->methods);
+        $this->assertCount(1, $annotations->methods["methodY"]);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
+            $annotations->methods["methodY"][0]);
+        $this->assertEquals("MethodY",
+            $annotations->methods["methodY"][0]->name);
+        $this->assertEquals("Annotation for Method Y",
+            $annotations->methods["methodY"][0]->value);
+        $this->assertCount(1, $annotations->methods["methodZ"]);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
+            $annotations->methods["methodZ"][0]);
+        $this->assertEquals("MethodZ",
+            $annotations->methods["methodZ"][0]->name);
+        $this->assertEquals("Annotation for Method Z",
+            $annotations->methods["methodZ"][0]->value);
+        
+        # Save the result to test the cache
+        $annotations->cached = true;
+        return $annotations;
+    }
+    
+    /**
+     * @covers Cougar\Util\Annotations::extract
+     * @depends testBasicExtract
+     */
+    public function testBasicExtractFromExecutionCache(ClassAnnotations $cached_annotations) {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        # Create the object and extract annotations
+        $object = new BasicAnnotationTest();
+        $annotations = Annotations::extract($local_cache, $object);
+        
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
+        $this->assertTrue($annotations->cached);
+        $this->assertEquals($cached_annotations, $annotations);
+    }
+    
+    /**
+     * @covers Cougar\Util\Annotations::extract
+     */
+    public function testExtendedExtract() {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        # Create the object and extract annotations
+        $object = new ExtendedBasicAnnotationTest();
+        $annotations = Annotations::extract($local_cache, $object);
 
-		$this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
-		
-		$this->assertFalse($annotations->cached);
-		
-		$this->assertCount(7, $annotations->class);
-		foreach($annotations->class as $class_annotation)
-		{
-			$this->assertInstanceOf("Cougar\\Util\\Annotation",
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
+        
+        $this->assertFalse($annotations->cached);
+        
+        $this->assertCount(7, $annotations->class);
+        foreach($annotations->class as $class_annotation)
+        {
+            $this->assertInstanceOf("Cougar\\Util\\Annotation",
                 $class_annotation);
-		}
-		$this->assertEquals("Annotation1", $annotations->class[0]->name);
-		$this->assertEquals("Value 1", $annotations->class[0]->value);
-		$this->assertEquals("Annotation2", $annotations->class[1]->name);
-		$this->assertEquals("Value 2", $annotations->class[1]->value);
-		$this->assertEquals("Annotation3", $annotations->class[2]->name);
-		$this->assertEquals("Value 3", $annotations->class[2]->value);
-		$this->assertEquals("RepeatedAnnotation",
-			$annotations->class[3]->name);
-		$this->assertEquals("Repeated value 1",
-			$annotations->class[3]->value);
-		$this->assertEquals("RepeatedAnnotation",
-			$annotations->class[4]->name);
-		$this->assertEquals("Repeated value 2",
-			$annotations->class[4]->value);
-		$this->assertEquals("RepeatedAnnotation",
-			$annotations->class[5]->name);
-		$this->assertEquals("Repeated value 3",
-			$annotations->class[5]->value);
-		$this->assertEquals("ChildAnnotation",
-			$annotations->class[6]->name);
-		$this->assertEquals("Child 1",
-			$annotations->class[6]->value);
-		
-		$this->assertCount(3, $annotations->properties);
-		$this->assertArrayHasKey("propertyA", $annotations->properties);
-		$this->assertArrayHasKey("propertyB", $annotations->properties);
-		$this->assertArrayHasKey("propertyC", $annotations->properties);
-		$this->assertCount(2, $annotations->properties["propertyA"]);
-		foreach($annotations->properties["propertyA"] as $property_annotation)
-		{
-			$this->assertInstanceOf("Cougar\\Util\\Annotation",
+        }
+        $this->assertEquals("Annotation1", $annotations->class[0]->name);
+        $this->assertEquals("Value 1", $annotations->class[0]->value);
+        $this->assertEquals("Annotation2", $annotations->class[1]->name);
+        $this->assertEquals("Value 2", $annotations->class[1]->value);
+        $this->assertEquals("Annotation3", $annotations->class[2]->name);
+        $this->assertEquals("Value 3", $annotations->class[2]->value);
+        $this->assertEquals("RepeatedAnnotation",
+            $annotations->class[3]->name);
+        $this->assertEquals("Repeated value 1",
+            $annotations->class[3]->value);
+        $this->assertEquals("RepeatedAnnotation",
+            $annotations->class[4]->name);
+        $this->assertEquals("Repeated value 2",
+            $annotations->class[4]->value);
+        $this->assertEquals("RepeatedAnnotation",
+            $annotations->class[5]->name);
+        $this->assertEquals("Repeated value 3",
+            $annotations->class[5]->value);
+        $this->assertEquals("ChildAnnotation",
+            $annotations->class[6]->name);
+        $this->assertEquals("Child 1",
+            $annotations->class[6]->value);
+        
+        $this->assertCount(3, $annotations->properties);
+        $this->assertArrayHasKey("propertyA", $annotations->properties);
+        $this->assertArrayHasKey("propertyB", $annotations->properties);
+        $this->assertArrayHasKey("propertyC", $annotations->properties);
+        $this->assertCount(2, $annotations->properties["propertyA"]);
+        foreach($annotations->properties["propertyA"] as $property_annotation)
+        {
+            $this->assertInstanceOf("Cougar\\Util\\Annotation",
                 $property_annotation);
-		}
-		$this->assertEquals("PropertyA",
-			$annotations->properties["propertyA"][0]->name);
-		$this->assertEquals("Annotation for Property A",
-			$annotations->properties["propertyA"][0]->value);
-		$this->assertEquals("var",
-			$annotations->properties["propertyA"][1]->name);
-		$this->assertEquals("string Some value",
-			$annotations->properties["propertyA"][1]->value);
-		$this->assertCount(2, $annotations->properties["propertyB"]);
-		foreach($annotations->properties["propertyB"] as $property_annotation)
-		{
-			$this->assertInstanceOf("Cougar\\Util\\Annotation",
+        }
+        $this->assertEquals("PropertyA",
+            $annotations->properties["propertyA"][0]->name);
+        $this->assertEquals("Annotation for Property A",
+            $annotations->properties["propertyA"][0]->value);
+        $this->assertEquals("var",
+            $annotations->properties["propertyA"][1]->name);
+        $this->assertEquals("string Some value",
+            $annotations->properties["propertyA"][1]->value);
+        $this->assertCount(2, $annotations->properties["propertyB"]);
+        foreach($annotations->properties["propertyB"] as $property_annotation)
+        {
+            $this->assertInstanceOf("Cougar\\Util\\Annotation",
                 $property_annotation);
-		}
-		$this->assertEquals("PropertyB",
-			$annotations->properties["propertyB"][0]->name);
-		$this->assertEquals("Annotation for Property B override",
-			$annotations->properties["propertyB"][0]->value);
-		$this->assertEquals("var",
-			$annotations->properties["propertyB"][1]->name);
-		$this->assertEquals("string Some value",
-			$annotations->properties["propertyB"][1]->value);
-		$this->assertCount(2, $annotations->properties["propertyC"]);
-		foreach($annotations->properties["propertyC"] as $property_annotation)
-		{
-			$this->assertInstanceOf("Cougar\\Util\\Annotation",
+        }
+        $this->assertEquals("PropertyB",
+            $annotations->properties["propertyB"][0]->name);
+        $this->assertEquals("Annotation for Property B override",
+            $annotations->properties["propertyB"][0]->value);
+        $this->assertEquals("var",
+            $annotations->properties["propertyB"][1]->name);
+        $this->assertEquals("string Some value",
+            $annotations->properties["propertyB"][1]->value);
+        $this->assertCount(2, $annotations->properties["propertyC"]);
+        foreach($annotations->properties["propertyC"] as $property_annotation)
+        {
+            $this->assertInstanceOf("Cougar\\Util\\Annotation",
                 $property_annotation);
-		}
-		$this->assertEquals("PropertyC",
-			$annotations->properties["propertyC"][0]->name);
-		$this->assertEquals("Annotation for Property C",
-			$annotations->properties["propertyC"][0]->value);
-		$this->assertEquals("var",
-			$annotations->properties["propertyC"][1]->name);
-		$this->assertEquals("string Some value",
-			$annotations->properties["propertyC"][1]->value);
-		
-		$this->assertCount(3, $annotations->methods);
-		$this->assertArrayHasKey("methodX", $annotations->methods);
-		$this->assertArrayHasKey("methodY", $annotations->methods);
-		$this->assertArrayHasKey("methodZ", $annotations->methods);
-		$this->assertCount(1, $annotations->methods["methodX"]);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
-			$annotations->methods["methodX"][0]);
-		$this->assertEquals("MethodX",
-			$annotations->methods["methodX"][0]->name);
-		$this->assertEquals("Annotation for Method X",
-			$annotations->methods["methodX"][0]->value);
-		$this->assertCount(1, $annotations->methods["methodY"]);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
-			$annotations->methods["methodY"][0]);
-		$this->assertEquals("MethodY",
-			$annotations->methods["methodY"][0]->name);
-		$this->assertEquals("Annotation for Method Y override",
-			$annotations->methods["methodY"][0]->value);
-		$this->assertCount(1, $annotations->methods["methodZ"]);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
-			$annotations->methods["methodZ"][0]);
-		$this->assertEquals("MethodZ",
-			$annotations->methods["methodZ"][0]->name);
-		$this->assertEquals("Annotation for Method Z",
-			$annotations->methods["methodZ"][0]->value);
-		
-		# Save the result to test the cache
-		$annotations->cached = true;
-		return $annotations;
-	}
-	
-	/**
-	 * @covers Cougar\Util\Annotations::extract
-	 * @depends testExtendedExtract
-	 */
-	public function testExtendedExtractFromExecutionCache(
+        }
+        $this->assertEquals("PropertyC",
+            $annotations->properties["propertyC"][0]->name);
+        $this->assertEquals("Annotation for Property C",
+            $annotations->properties["propertyC"][0]->value);
+        $this->assertEquals("var",
+            $annotations->properties["propertyC"][1]->name);
+        $this->assertEquals("string Some value",
+            $annotations->properties["propertyC"][1]->value);
+        
+        $this->assertCount(3, $annotations->methods);
+        $this->assertArrayHasKey("methodX", $annotations->methods);
+        $this->assertArrayHasKey("methodY", $annotations->methods);
+        $this->assertArrayHasKey("methodZ", $annotations->methods);
+        $this->assertCount(1, $annotations->methods["methodX"]);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
+            $annotations->methods["methodX"][0]);
+        $this->assertEquals("MethodX",
+            $annotations->methods["methodX"][0]->name);
+        $this->assertEquals("Annotation for Method X",
+            $annotations->methods["methodX"][0]->value);
+        $this->assertCount(1, $annotations->methods["methodY"]);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
+            $annotations->methods["methodY"][0]);
+        $this->assertEquals("MethodY",
+            $annotations->methods["methodY"][0]->name);
+        $this->assertEquals("Annotation for Method Y override",
+            $annotations->methods["methodY"][0]->value);
+        $this->assertCount(1, $annotations->methods["methodZ"]);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
+            $annotations->methods["methodZ"][0]);
+        $this->assertEquals("MethodZ",
+            $annotations->methods["methodZ"][0]->name);
+        $this->assertEquals("Annotation for Method Z",
+            $annotations->methods["methodZ"][0]->value);
+        
+        # Save the result to test the cache
+        $annotations->cached = true;
+        return $annotations;
+    }
+    
+    /**
+     * @covers Cougar\Util\Annotations::extract
+     * @depends testExtendedExtract
+     */
+    public function testExtendedExtractFromExecutionCache(
         ClassAnnotations $cached_annotations)
     {
-		# Mock the cache
-		$local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$local_cache->expects($this->any())
-			->method("get")
-			->will($this->returnValue(false));
-		$local_cache->expects($this->any())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		# Create the object and extract annotations
-		$object = new ExtendedBasicAnnotationTest();
-		$annotations = Annotations::extract($local_cache, $object);
-		
-		$this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
-		$this->assertTrue($annotations->cached);
-		$this->assertEquals($cached_annotations, $annotations);
-	}
-	
-	/**
-	 * @covers Cougar\\Util\\Annotations::extract
-	 */
-	public function testFitleredAnnotations() {
-		# Mock the cache
-		$local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$local_cache->expects($this->any())
-			->method("get")
-			->will($this->returnValue(false));
-		$local_cache->expects($this->any())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		# Create the object and extract annotations
-		$object = new BasicFilteredAnnotationTest();
-		$annotations = Annotations::extract($local_cache, $object);
-		
-		$this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
-		
-		$this->assertFalse($annotations->cached);
-		
-		$this->assertCount(1, $annotations->class);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        # Create the object and extract annotations
+        $object = new ExtendedBasicAnnotationTest();
+        $annotations = Annotations::extract($local_cache, $object);
+        
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
+        $this->assertTrue($annotations->cached);
+        $this->assertEquals($cached_annotations, $annotations);
+    }
+    
+    /**
+     * @covers Cougar\\Util\\Annotations::extract
+     */
+    public function testFitleredAnnotations() {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        # Create the object and extract annotations
+        $object = new BasicFilteredAnnotationTest();
+        $annotations = Annotations::extract($local_cache, $object);
+        
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
+        
+        $this->assertFalse($annotations->cached);
+        
+        $this->assertCount(1, $annotations->class);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
             $annotations->class[0]);
-		$this->assertEquals("Annotation", $annotations->class[0]->name);
-		$this->assertEquals("First annotation",
-			$annotations->class[0]->value);
-		
-		$this->assertCount(1, $annotations->properties);
-		$this->assertArrayHasKey("stuff", $annotations->properties);
-		$this->assertCount(1, $annotations->properties["stuff"]);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
-			$annotations->properties["stuff"][0]);
-		$this->assertEquals("var",
-			$annotations->properties["stuff"][0]->name);
-		$this->assertEquals("string Stuff",
-			$annotations->properties["stuff"][0]->value);
-		
-		$this->assertCount(1, $annotations->methods);
-		$this->assertArrayHasKey("doStuff", $annotations->methods);
-		$this->assertCount(0, $annotations->methods["doStuff"]);
-	}
-	
-	/**
-	 * @covers Cougar\\Util\\Annotations::extract
-	 */
-	public function testTraitAnnotations() {
-		# Mock the cache
-		$local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$local_cache->expects($this->any())
-			->method("get")
-			->will($this->returnValue(false));
-		$local_cache->expects($this->any())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		# Create the object and extract annotations
-		$object = new BasicTraitAnnotationTest();
-		$annotations = Annotations::extract($local_cache, $object);
-		
-		$this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
+        $this->assertEquals("Annotation", $annotations->class[0]->name);
+        $this->assertEquals("First annotation",
+            $annotations->class[0]->value);
+        
+        $this->assertCount(1, $annotations->properties);
+        $this->assertArrayHasKey("stuff", $annotations->properties);
+        $this->assertCount(1, $annotations->properties["stuff"]);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
+            $annotations->properties["stuff"][0]);
+        $this->assertEquals("var",
+            $annotations->properties["stuff"][0]->name);
+        $this->assertEquals("string Stuff",
+            $annotations->properties["stuff"][0]->value);
+        
+        $this->assertCount(1, $annotations->methods);
+        $this->assertArrayHasKey("doStuff", $annotations->methods);
+        $this->assertCount(0, $annotations->methods["doStuff"]);
+    }
+    
+    /**
+     * @covers Cougar\\Util\\Annotations::extract
+     */
+    public function testTraitAnnotations() {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        # Create the object and extract annotations
+        $object = new BasicTraitAnnotationTest();
+        $annotations = Annotations::extract($local_cache, $object);
+        
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
 
-		$this->assertCount(3, $annotations->class);
-		$this->assertEquals("Trait", $annotations->class[0]->name);
-		$this->assertEquals("This is a trait annotation",
-			$annotations->class[0]->value);
-		$this->assertEquals("Class", $annotations->class[1]->name);
-		$this->assertEquals("This defines class in the trait",
-			$annotations->class[1]->value);
-		$this->assertEquals("Class", $annotations->class[2]->name);
-		$this->assertEquals("This is the class annotation",
-			$annotations->class[2]->value);
-		
-		$this->assertCount(1, $annotations->properties);
-		$this->assertArrayHasKey("traitStuff", $annotations->properties);
-		$this->assertCount(1, $annotations->properties["traitStuff"]);
-		$this->assertInstanceOf("Cougar\\Util\\Annotation",
-			$annotations->properties["traitStuff"][0]);
-		$this->assertEquals("var",
-			$annotations->properties["traitStuff"][0]->name);
-		$this->assertEquals("string traitVar",
-			$annotations->properties["traitStuff"][0]->value);
-		
-		$this->assertCount(1, $annotations->methods);
-		$this->assertArrayHasKey("doClassStuff", $annotations->methods);
-		$this->assertCount(1, $annotations->methods["doClassStuff"]);
-		$this->assertEquals("MethodAnnotation",
-			$annotations->methods["doClassStuff"][0]->name);
-		$this->assertEquals("Hello World!",
-			$annotations->methods["doClassStuff"][0]->value);
-	}
+        $this->assertCount(3, $annotations->class);
+        $this->assertEquals("Trait", $annotations->class[0]->name);
+        $this->assertEquals("This is a trait annotation",
+            $annotations->class[0]->value);
+        $this->assertEquals("Class", $annotations->class[1]->name);
+        $this->assertEquals("This defines class in the trait",
+            $annotations->class[1]->value);
+        $this->assertEquals("Class", $annotations->class[2]->name);
+        $this->assertEquals("This is the class annotation",
+            $annotations->class[2]->value);
+        
+        $this->assertCount(1, $annotations->properties);
+        $this->assertArrayHasKey("traitStuff", $annotations->properties);
+        $this->assertCount(1, $annotations->properties["traitStuff"]);
+        $this->assertInstanceOf("Cougar\\Util\\Annotation",
+            $annotations->properties["traitStuff"][0]);
+        $this->assertEquals("var",
+            $annotations->properties["traitStuff"][0]->name);
+        $this->assertEquals("string traitVar",
+            $annotations->properties["traitStuff"][0]->value);
+        
+        $this->assertCount(1, $annotations->methods);
+        $this->assertArrayHasKey("doClassStuff", $annotations->methods);
+        $this->assertCount(1, $annotations->methods["doClassStuff"]);
+        $this->assertEquals("MethodAnnotation",
+            $annotations->methods["doClassStuff"][0]->name);
+        $this->assertEquals("Hello World!",
+            $annotations->methods["doClassStuff"][0]->value);
+    }
 }
 
 /**
@@ -386,34 +386,34 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
  */
 class BasicAnnotationTest
 {
-	/**
-	 * @PropertyA Annotation for Property A
-	 * @var string Some value
-	 */
-	public $propertyA;
-	
-	/**
-	 * @PropertyB Annotation for Property B
-	 * @var string Some value
-	 */
-	
-	public $propertyB;
-	
-	/**
-	 * @MethodY Annotation for Method Y
-	 */
-	public function methodY()
-	{
-		
-	}
-	
-	/**
-	 * @MethodZ Annotation for Method Z
-	 */
-	public function methodZ()
-	{
-		
-	}
+    /**
+     * @PropertyA Annotation for Property A
+     * @var string Some value
+     */
+    public $propertyA;
+    
+    /**
+     * @PropertyB Annotation for Property B
+     * @var string Some value
+     */
+    
+    public $propertyB;
+    
+    /**
+     * @MethodY Annotation for Method Y
+     */
+    public function methodY()
+    {
+        
+    }
+    
+    /**
+     * @MethodZ Annotation for Method Z
+     */
+    public function methodZ()
+    {
+        
+    }
 }
 
 /**
@@ -421,33 +421,33 @@ class BasicAnnotationTest
  */
 class ExtendedBasicAnnotationTest extends BasicAnnotationTest
 {
-	/**
-	 * @PropertyB Annotation for Property B override
-	 * @var string Some value
-	 */
-	public $propertyB;
-	
-	/**
-	 * @PropertyC Annotation for Property C
-	 * @var string Some value
-	 */
-	public $propertyC;
-	
-	/**
-	 * @MethodX Annotation for Method X
-	 */
-	public function methodX()
-	{
-		
-	}
-	
-	/**
-	 * @MethodY Annotation for Method Y override
-	 */
-	public function methodY()
-	{
-		
-	}
+    /**
+     * @PropertyB Annotation for Property B override
+     * @var string Some value
+     */
+    public $propertyB;
+    
+    /**
+     * @PropertyC Annotation for Property C
+     * @var string Some value
+     */
+    public $propertyC;
+    
+    /**
+     * @MethodX Annotation for Method X
+     */
+    public function methodX()
+    {
+        
+    }
+    
+    /**
+     * @MethodY Annotation for Method Y override
+     */
+    public function methodY()
+    {
+        
+    }
 }
 
 /**
@@ -456,21 +456,21 @@ class ExtendedBasicAnnotationTest extends BasicAnnotationTest
  */
 class BasicFilteredAnnotationTest
 {
-	/**
-	 * @todo Should not show up
-	 * @var string Stuff
-	 */
-	public $stuff;
-	
-	/**
-	 * @version 1.2.3
-	 * @param string stuff
-	 * @return mixed More stuff
-	 */
-	public function doStuff($stuff)
-	{
-		
-	}
+    /**
+     * @todo Should not show up
+     * @var string Stuff
+     */
+    public $stuff;
+    
+    /**
+     * @version 1.2.3
+     * @param string stuff
+     * @return mixed More stuff
+     */
+    public function doStuff($stuff)
+    {
+        
+    }
 }
 
 /**
@@ -479,10 +479,10 @@ class BasicFilteredAnnotationTest
  */
 trait BasicTrait
 {
-	/**
-	 * @var string traitVar
-	 */
-	public $traitStuff;
+    /**
+     * @var string traitVar
+     */
+    public $traitStuff;
 }
 
 /**
@@ -490,13 +490,13 @@ trait BasicTrait
  */
 class BasicTraitAnnotationTest
 {
-	use BasicTrait;
-	
-	/**
-	 * @MethodAnnotation Hello World!
-	 */
-	public function doClassStuff()
-	{
-		
-	}
+    use BasicTrait;
+    
+    /**
+     * @MethodAnnotation Hello World!
+     */
+    public function doClassStuff()
+    {
+        
+    }
 }

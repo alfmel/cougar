@@ -7,16 +7,16 @@ namespace Cougar\UnitTests\Autoload\TestClass;
  */
 class AutoloadTestClass implements iAutoloadTestClass
 {
-	use AutoloadTestTrait;
-	
-	public function __construct()
-	{
-		
-	}
+    use AutoloadTestTrait;
+    
+    public function __construct()
+    {
+        
+    }
 
-	public function __destruct()
-	{
+    public function __destruct()
+    {
 
-	}
+    }
 }
 ?>

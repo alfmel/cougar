@@ -20,23 +20,23 @@ namespace Cougar\Security;
  */
 interface iAuthorizationProvider
 {
-	/**
-	 * The authorize method asks the authorization provider to authorize the
-	 * given identity with the given authorization query.
-	 *
+    /**
+     * The authorize method asks the authorization provider to authorize the
+     * given identity with the given authorization query.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param iIdentity $identity
+     * 
+     * @param iIdentity $identity
      *   Identity object
-	 * @param mixed $query
+     * @param mixed $query
      *   Authorization query (query depends on provider)
-	 * @return mixed Authorization response (response depends on provider)
-	 */
-	public function authorize(iIdentity $identity, $query);
+     * @return mixed Authorization response (response depends on provider)
+     */
+    public function authorize(iIdentity $identity, $query);
 }
 ?>

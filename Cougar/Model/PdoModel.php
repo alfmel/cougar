@@ -130,6 +130,6 @@ require_once("cougar.php");
  */
 abstract class PdoModel implements iStoredModel
 {
-	use tPdoModel;
+    use tPdoModel;
 }
 ?>

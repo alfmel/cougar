@@ -12,406 +12,406 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class WsModelTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers \Cougar\Model\WsModel::__construct
-	 * @covers \Cougar\Model\WsModel::getRecord
-	 * @covers \Cougar\Model\WsModel::getCacheKey
-	 */
-	public function testRead()
-	{
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->with("unittest.model.12345")
-			->will($this->returnValue(false));
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
-				null, array(), null, null)
-			->will($this->returnValue(array(
-				"userId" => 12345,
-				"lastName" => "Trevino",
-				"firstName" => "Alberto",
-				"emailAddress" => "alberto@byu.edu",
-				"phone" => "801-555-1212")));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo,
-			array("userId" => 12345));
-		$this->assertEquals(12345, $object->userId);
-		$this->assertEquals("Alberto", $object->firstName);
-		$this->assertEquals("Trevino", $object->lastName);
-		$this->assertEquals("alberto@byu.edu", $object->email);
-		$this->assertEquals("801-555-1212", $object->phone);
-	}
-	
-	/**
-	 * @covers \Cougar\Model\WsModel::__construct
-	 * @covers \Cougar\Model\WsModel::getRecord
-	 * @covers \Cougar\Model\WsModel::getCacheKey
-	 * @expectedException \Cougar\Exceptions\RecordNotFoundException
-	 */
-	public function testLoadRecordNotFound() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->with("unittest.model.12345")
-			->will($this->returnValue(false));
-		$cache->expects($this->never())
-			->method("set");
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
-				null, array(), null, null)
-			->will($this->throwException(
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::getRecord
+     * @covers \Cougar\Model\WsModel::getCacheKey
+     */
+    public function testRead()
+    {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->with("unittest.model.12345")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
+                null, array(), null, null)
+            ->will($this->returnValue(array(
+                "userId" => 12345,
+                "lastName" => "Trevino",
+                "firstName" => "Alberto",
+                "emailAddress" => "alberto@byu.edu",
+                "phone" => "801-555-1212")));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo,
+            array("userId" => 12345));
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Alberto", $object->firstName);
+        $this->assertEquals("Trevino", $object->lastName);
+        $this->assertEquals("alberto@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+    }
+    
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::getRecord
+     * @covers \Cougar\Model\WsModel::getCacheKey
+     * @expectedException \Cougar\Exceptions\RecordNotFoundException
+     */
+    public function testLoadRecordNotFound() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->with("unittest.model.12345")
+            ->will($this->returnValue(false));
+        $cache->expects($this->never())
+            ->method("set");
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
+                null, array(), null, null)
+            ->will($this->throwException(
                 new \Cougar\Exceptions\RecordNotFoundException));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo,
-			array("userId" => 12345));
-	}
-	
-	/**
-	 * @covers \Cougar\Model\WsModel::__construct
-	 * @covers \Cougar\Model\WsModel::save
-	 * @covers \Cougar\Model\WsModel::getCacheKey
-	 */
-	public function testSaveCreate() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->never())
-			->method("get");
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("POST", "http://ws.nowhere.com/path/to/resource",
-				null, array(), json_encode(array(
-					"userId" => null,
-					"lastName" => "Trevino",
-					"firstName" => "Alberto",
-					"email" => "alberto@byu.edu",
-					"phone" => "801-555-1212")), "application/json")
-			->will($this->returnValue(array(
-				"userId" => 12345,
-				"lastName" => "Trevino",
-				"firstName" => "Alberto",
-				"email" => "alberto@byu.edu",
-				"phone" => "801-555-1212")));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo);
-		$object->firstName = "Alberto";
-		$object->lastName = "Trevino";
-		$object->email = "alberto@byu.edu";
-		$object->phone = "801-555-1212";
-		$object->save();
-		$this->assertEquals(12345, $object->userId);
-		$this->assertEquals("Alberto", $object->firstName);
-		$this->assertEquals("Trevino", $object->lastName);
-		$this->assertEquals("alberto@byu.edu", $object->email);
-		$this->assertEquals("801-555-1212", $object->phone);
-	}
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo,
+            array("userId" => 12345));
+    }
+    
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::save
+     * @covers \Cougar\Model\WsModel::getCacheKey
+     */
+    public function testSaveCreate() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("POST", "http://ws.nowhere.com/path/to/resource",
+                null, array(), json_encode(array(
+                    "userId" => null,
+                    "lastName" => "Trevino",
+                    "firstName" => "Alberto",
+                    "email" => "alberto@byu.edu",
+                    "phone" => "801-555-1212")), "application/json")
+            ->will($this->returnValue(array(
+                "userId" => 12345,
+                "lastName" => "Trevino",
+                "firstName" => "Alberto",
+                "email" => "alberto@byu.edu",
+                "phone" => "801-555-1212")));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $object->firstName = "Alberto";
+        $object->lastName = "Trevino";
+        $object->email = "alberto@byu.edu";
+        $object->phone = "801-555-1212";
+        $object->save();
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Alberto", $object->firstName);
+        $this->assertEquals("Trevino", $object->lastName);
+        $this->assertEquals("alberto@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+    }
 
-	/**
-	 * @covers \Cougar\Model\WsModel::__construct
-	 * @covers \Cougar\Model\WsModel::save
-	 * @covers \Cougar\Model\WsModel::getCacheKey
-	 */
-	public function testSaveCreateShortResponse() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->never())
-			->method("get");
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("POST", "http://ws.nowhere.com/path/to/resource",
-				null, array(), json_encode(array(
-					"userId" => null,
-					"lastName" => "Trevino",
-					"firstName" => "Alberto",
-					"email" => "alberto@byu.edu",
-					"phone" => "801-555-1212")), "application/json")
-			->will($this->returnValue(array(
-				"userId" => 12345)));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo);
-		$object->firstName = "Alberto";
-		$object->lastName = "Trevino";
-		$object->email = "alberto@byu.edu";
-		$object->phone = "801-555-1212";
-		$object->save();
-		$this->assertEquals(12345, $object->userId);
-		$this->assertEquals("Alberto", $object->firstName);
-		$this->assertEquals("Trevino", $object->lastName);
-		$this->assertEquals("alberto@byu.edu", $object->email);
-		$this->assertEquals("801-555-1212", $object->phone);
-	}
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::save
+     * @covers \Cougar\Model\WsModel::getCacheKey
+     */
+    public function testSaveCreateShortResponse() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("POST", "http://ws.nowhere.com/path/to/resource",
+                null, array(), json_encode(array(
+                    "userId" => null,
+                    "lastName" => "Trevino",
+                    "firstName" => "Alberto",
+                    "email" => "alberto@byu.edu",
+                    "phone" => "801-555-1212")), "application/json")
+            ->will($this->returnValue(array(
+                "userId" => 12345)));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $object->firstName = "Alberto";
+        $object->lastName = "Trevino";
+        $object->email = "alberto@byu.edu";
+        $object->phone = "801-555-1212";
+        $object->save();
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Alberto", $object->firstName);
+        $this->assertEquals("Trevino", $object->lastName);
+        $this->assertEquals("alberto@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+    }
 
-	/**
-	 * @covers \Cougar\Model\WsModel::__construct
-	 * @covers \Cougar\Model\WsModel::save
-	 * @covers \Cougar\Model\WsModel::getCacheKey
-	 */
-	public function testSaveUpdate() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->with("unittest.model.12345")
-			->will($this->returnValue(false));
-		$cache->expects($this->exactly(2))
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->at(0))
-			->method("makeRequest")
-			->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
-				null, array(), null, null)
-			->will($this->returnValue(array(
-				"userId" => 12345,
-				"lastName" => "Trevino",
-				"firstName" => "Alberto",
-				"emailAddress" => "alberto@byu.edu",
-				"phone" => "801-555-1212")));
-		$pdo->expects($this->at(1))
-			->method("makeRequest")
-			->with("PUT", "http://ws.nowhere.com/path/to/resource/12345",
-				null, array(), json_encode(array(
-					"userId" => 12345,
-					"lastName" => "Cougar",
-					"firstName" => "Cosmo",
-					"email" => "cosmo@byu.edu",
-					"phone" => "801-555-1212")), "application/json")
-			->will($this->returnValue(array(
-				"userId" => 12345,
-				"lastName" => "Cougar",
-				"firstName" => "Cosmo",
-				"email" => "cosmo@byu.edu",
-				"phone" => "801-555-1212")));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo,
-			array("userId" => 12345));
-		$this->assertEquals(12345, $object->userId);
-		$this->assertEquals("Alberto", $object->firstName);
-		$this->assertEquals("Trevino", $object->lastName);
-		$this->assertEquals("alberto@byu.edu", $object->email);
-		$this->assertEquals("801-555-1212", $object->phone);
-		$object->lastName = "Cougar";
-		$object->firstName = "Cosmo";
-		$object->email = "cosmo@byu.edu";
-		$object->phone = "801-555-1212";
-		$object->save();
-		$this->assertEquals(12345, $object->userId);
-		$this->assertEquals("Cosmo", $object->firstName);
-		$this->assertEquals("Cougar", $object->lastName);
-		$this->assertEquals("cosmo@byu.edu", $object->email);
-		$this->assertEquals("801-555-1212", $object->phone);
-	}
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::save
+     * @covers \Cougar\Model\WsModel::getCacheKey
+     */
+    public function testSaveUpdate() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->with("unittest.model.12345")
+            ->will($this->returnValue(false));
+        $cache->expects($this->exactly(2))
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->at(0))
+            ->method("makeRequest")
+            ->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
+                null, array(), null, null)
+            ->will($this->returnValue(array(
+                "userId" => 12345,
+                "lastName" => "Trevino",
+                "firstName" => "Alberto",
+                "emailAddress" => "alberto@byu.edu",
+                "phone" => "801-555-1212")));
+        $pdo->expects($this->at(1))
+            ->method("makeRequest")
+            ->with("PUT", "http://ws.nowhere.com/path/to/resource/12345",
+                null, array(), json_encode(array(
+                    "userId" => 12345,
+                    "lastName" => "Cougar",
+                    "firstName" => "Cosmo",
+                    "email" => "cosmo@byu.edu",
+                    "phone" => "801-555-1212")), "application/json")
+            ->will($this->returnValue(array(
+                "userId" => 12345,
+                "lastName" => "Cougar",
+                "firstName" => "Cosmo",
+                "email" => "cosmo@byu.edu",
+                "phone" => "801-555-1212")));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo,
+            array("userId" => 12345));
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Alberto", $object->firstName);
+        $this->assertEquals("Trevino", $object->lastName);
+        $this->assertEquals("alberto@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+        $object->lastName = "Cougar";
+        $object->firstName = "Cosmo";
+        $object->email = "cosmo@byu.edu";
+        $object->phone = "801-555-1212";
+        $object->save();
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Cosmo", $object->firstName);
+        $this->assertEquals("Cougar", $object->lastName);
+        $this->assertEquals("cosmo@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+    }
 
-	/**
-	 * @covers \Cougar\Model\WsModel::__construct
-	 * @covers \Cougar\Model\WsModel::save
-	 * @covers \Cougar\Model\WsModel::getCacheKey
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testSaveUpdateModifyIdentifier() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->with("unittest.model.12345")
-			->will($this->returnValue(false));
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
-				null, array(), null, null)
-			->will($this->returnValue(array(
-				"userId" => 12345,
-				"lastName" => "Trevino",
-				"firstName" => "Alberto",
-				"emailAddress" => "alberto@byu.edu",
-				"phone" => "801-555-1212")));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo,
-			array("userId" => 12345));
-		$this->assertEquals(12345, $object->userId);
-		$this->assertEquals("Alberto", $object->firstName);
-		$this->assertEquals("Trevino", $object->lastName);
-		$this->assertEquals("alberto@byu.edu", $object->email);
-		$this->assertEquals("801-555-1212", $object->phone);
-		$object->userId = 54321;
-		$object->save();
-		$object->fail("Expected exception was not thrown");
-	}
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::save
+     * @covers \Cougar\Model\WsModel::getCacheKey
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testSaveUpdateModifyIdentifier() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->with("unittest.model.12345")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
+                null, array(), null, null)
+            ->will($this->returnValue(array(
+                "userId" => 12345,
+                "lastName" => "Trevino",
+                "firstName" => "Alberto",
+                "emailAddress" => "alberto@byu.edu",
+                "phone" => "801-555-1212")));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo,
+            array("userId" => 12345));
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Alberto", $object->firstName);
+        $this->assertEquals("Trevino", $object->lastName);
+        $this->assertEquals("alberto@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+        $object->userId = 54321;
+        $object->save();
+        $object->fail("Expected exception was not thrown");
+    }
 
-	/**
-	 * @covers \Cougar\Model\WsModel::delete
-	 */
-	public function testDelete() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->with("unittest.model.12345")
-			->will($this->returnValue(false));
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->at(0))
-			->method("makeRequest")
-			->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
-				null, array(), null, null)
-			->will($this->returnValue(array(
-				"userId" => 12345,
-				"lastName" => "Trevino",
-				"firstName" => "Alberto",
-				"emailAddress" => "alberto@byu.edu",
-				"phone" => "801-555-1212")));
-		$pdo->expects($this->at(1))
-			->method("makeRequest")
-			->with("DELETE", "http://ws.nowhere.com/path/to/resource/12345",
-				null, array(), null, null);
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo,
-			array("userId" => 12345));
-		$this->assertEquals(12345, $object->userId);
-		$this->assertEquals("Alberto", $object->firstName);
-		$this->assertEquals("Trevino", $object->lastName);
-		$this->assertEquals("alberto@byu.edu", $object->email);
-		$this->assertEquals("801-555-1212", $object->phone);
-		$object->delete();
-	}
+    /**
+     * @covers \Cougar\Model\WsModel::delete
+     */
+    public function testDelete() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->with("unittest.model.12345")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->at(0))
+            ->method("makeRequest")
+            ->with("GET", "http://ws.nowhere.com/path/to/resource/12345",
+                null, array(), null, null)
+            ->will($this->returnValue(array(
+                "userId" => 12345,
+                "lastName" => "Trevino",
+                "firstName" => "Alberto",
+                "emailAddress" => "alberto@byu.edu",
+                "phone" => "801-555-1212")));
+        $pdo->expects($this->at(1))
+            ->method("makeRequest")
+            ->with("DELETE", "http://ws.nowhere.com/path/to/resource/12345",
+                null, array(), null, null);
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo,
+            array("userId" => 12345));
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Alberto", $object->firstName);
+        $this->assertEquals("Trevino", $object->lastName);
+        $this->assertEquals("alberto@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+        $object->delete();
+    }
 
-	/**
-	 * @covers \Cougar\Model\WsModel::query
-	 */
-	public function testQuery() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->will($this->returnValue(false));
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("GET", "http://ws.nowhere.com/path/to/resource",
-				null, array(), null, null)
-			->will($this->returnValue(array(array(
-					"userId" => 12345,
-					"lastName" => "Trevino",
-					"firstName" => "Alberto",
-					"emailAddress" => "alberto@byu.edu",
-					"phone" => "801-555-1212"),
-				array(
-					"userId" => 12346,
-					"lastName" => "Cougar",
-					"firstName" => "Cosmo",
-					"emailAddress" => "cosmo@byu.edu",
-					"phone" => "801-555-1213"))));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo);
-		$result = $object->query();
-		$this->assertCount(2, $result);
-		$this->assertEquals(12345, $result[0]["userId"]);
-		$this->assertEquals(12346, $result[1]["userId"]);
-	}
+    /**
+     * @covers \Cougar\Model\WsModel::query
+     */
+    public function testQuery() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("GET", "http://ws.nowhere.com/path/to/resource",
+                null, array(), null, null)
+            ->will($this->returnValue(array(array(
+                    "userId" => 12345,
+                    "lastName" => "Trevino",
+                    "firstName" => "Alberto",
+                    "emailAddress" => "alberto@byu.edu",
+                    "phone" => "801-555-1212"),
+                array(
+                    "userId" => 12346,
+                    "lastName" => "Cougar",
+                    "firstName" => "Cosmo",
+                    "emailAddress" => "cosmo@byu.edu",
+                    "phone" => "801-555-1213"))));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $result = $object->query();
+        $this->assertCount(2, $result);
+        $this->assertEquals(12345, $result[0]["userId"]);
+        $this->assertEquals(12346, $result[1]["userId"]);
+    }
 
-	/**
-	 * @covers \Cougar\Model\WsModel::query
-	 */
-	public function testQueryWithParam() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->will($this->returnValue(false));
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("GET",
-				"http://ws.nowhere.com/path/to/resource?lastName=trevino",
-				null, array(), null, null)
-			->will($this->returnValue(array(array(
-					"userId" => 12345,
-					"lastName" => "Trevino",
-					"firstName" => "Alberto",
-					"emailAddress" => "alberto@byu.edu",
-					"phone" => "801-555-1212"))));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo);
-		$result = $object->query(array(
-			new QueryParameter("lastName", "trevino")));
-		$this->assertCount(1, $result);
-		$this->assertEquals(12345, $result[0]["userId"]);
-	}
+    /**
+     * @covers \Cougar\Model\WsModel::query
+     */
+    public function testQueryWithParam() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("GET",
+                "http://ws.nowhere.com/path/to/resource?lastName=trevino",
+                null, array(), null, null)
+            ->will($this->returnValue(array(array(
+                    "userId" => 12345,
+                    "lastName" => "Trevino",
+                    "firstName" => "Alberto",
+                    "emailAddress" => "alberto@byu.edu",
+                    "phone" => "801-555-1212"))));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $result = $object->query(array(
+            new QueryParameter("lastName", "trevino")));
+        $this->assertCount(1, $result);
+        $this->assertEquals(12345, $result[0]["userId"]);
+    }
 
-	/**
-	 * @covers \Cougar\Model\WsModel::query
-	 */
-	public function testQueryWithParamNoData() {
-		$security = $this->getMock("\\Cougar\\Security\\Security");
-		
-		$cache = $this->getMock("\\Cougar\\Cache\\Cache");
-		$cache->expects($this->once())
-			->method("get")
-			->will($this->returnValue(false));
-		$cache->expects($this->once())
-			->method("set")
-			->will($this->returnValue(false));
-		
-		$pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
-		$pdo->expects($this->once())
-			->method("makeRequest")
-			->with("GET",
-				"http://ws.nowhere.com/path/to/resource?lastName=abcdefg",
-				null, array(), null, null)
-			->will($this->returnValue(array()));
-		
-		$object = new WsModelUnitTest($security, $cache, $pdo);
-		$result = $object->query(array(
-			new QueryParameter("lastName", "abcdefg")));
-		$this->assertCount(0, $result);
-	}
+    /**
+     * @covers \Cougar\Model\WsModel::query
+     */
+    public function testQueryWithParamNoData() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+        $pdo->expects($this->once())
+            ->method("makeRequest")
+            ->with("GET",
+                "http://ws.nowhere.com/path/to/resource?lastName=abcdefg",
+                null, array(), null, null)
+            ->will($this->returnValue(array()));
+        
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $result = $object->query(array(
+            new QueryParameter("lastName", "abcdefg")));
+        $this->assertCount(0, $result);
+    }
 }
 
 /**
@@ -437,29 +437,29 @@ class WsModelTest extends \PHPUnit_Framework_TestCase {
  */
 class WsModelUnitTest extends WsModel
 {
-	/**
-	 * @var int User ID
-	 */
-	public $userId;
-	
-	/**
-	 * @var string User's last name
-	 */
-	public $lastName;
-	
-	/**
-	 * @var string User's first name
-	 */
-	public $firstName;
-	
-	/**
-	 * @Alias emailAddress
-	 * @var string User's email address
-	 */
-	public $email;
-	
-	/**
-	 * @var string User's phone number
-	 */
-	public $phone;
+    /**
+     * @var int User ID
+     */
+    public $userId;
+    
+    /**
+     * @var string User's last name
+     */
+    public $lastName;
+    
+    /**
+     * @var string User's first name
+     */
+    public $firstName;
+    
+    /**
+     * @Alias emailAddress
+     * @var string User's email address
+     */
+    public $email;
+    
+    /**
+     * @var string User's phone number
+     */
+    public $phone;
 }

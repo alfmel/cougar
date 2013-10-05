@@ -21,18 +21,18 @@ namespace Cougar\Model;
  */
 interface iArrayExportable
 {
-	/**
-	 * Defines the __toArray() pseudo-magic method.
-	 *
+    /**
+     * Defines the __toArray() pseudo-magic method.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @return array Associative array with public properties and their values
-	 */
-	public function __toArray();
+     * 
+     * @return array Associative array with public properties and their values
+     */
+    public function __toArray();
 }
 ?>

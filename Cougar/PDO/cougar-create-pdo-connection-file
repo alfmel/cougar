@@ -24,8 +24,8 @@ use Cougar\Util\Config;
 # Make sure we are running in a CLI environment
 if (PHP_SAPI !== "cli")
 {
-	echo("This program must be run from the command line\n");
-	exit(1);
+    echo("This program must be run from the command line\n");
+    exit(1);
 }
 
 # Initialize the framework
@@ -43,23 +43,23 @@ $use_obfuscation = false;
 $arc4_filename = null;
 switch(getUserInput("Encryption key source", range(1, 3)))
 {
-	case "1":
-		echo("\n");
-		$enc_key = "";
-		while (! $enc_key)
-		{
-			try
-			{
-				$enc_key = getUserInput(
-					"Please enter the encryption key in hex");
-				
-				# Make sure the key is valid
-				Arc4::setKey($enc_key);
-			}
-			catch(\Exception $e)
-			{
-				echo("  Invalid key!\n");
-			}
+    case "1":
+        echo("\n");
+        $enc_key = "";
+        while (! $enc_key)
+        {
+            try
+            {
+                $enc_key = getUserInput(
+                    "Please enter the encryption key in hex");
+                
+                # Make sure the key is valid
+                Arc4::setKey($enc_key);
+            }
+            catch(\Exception $e)
+            {
+                echo("  Invalid key!\n");
+            }
             try
             {
                 $magic = getUserInput("Enter the encryption MAGIC value");
@@ -76,22 +76,22 @@ switch(getUserInput("Encryption key source", range(1, 3)))
             Arc4::setKey($enc_key);
             Arc4::setMagic($magic);
             Arc4::useCompression(true);
-		}
-		break;
-	case "2":
-		echo("\n");
-		$enc_key = false;
-		while(! $enc_key)
-		{
-			$arc4_filename = getUserInput(
-				"Please enter the path of the ARC4 configuration file");
+        }
+        break;
+    case "2":
+        echo("\n");
+        $enc_key = false;
+        while(! $enc_key)
+        {
+            $arc4_filename = getUserInput(
+                "Please enter the path of the ARC4 configuration file");
 
-			if (! file_exists($arc4_filename))
-			{
-				echo("  File does not exist!\n");
-			}
-			else
-			{
+            if (! file_exists($arc4_filename))
+            {
+                echo("  File does not exist!\n");
+            }
+            else
+            {
                 try
                 {
                     $slash_pos = strrpos($arc4_filename, "/");
@@ -112,13 +112,13 @@ switch(getUserInput("Encryption key source", range(1, 3)))
                 {
                     echo("  Error loading encryption file\n");
                 }
-			}
-		}
-		break;
-	case "3":
-		echo("\n");
-		$use_obfuscation = true;
-		break;
+            }
+        }
+        break;
+    case "3":
+        echo("\n");
+        $use_obfuscation = true;
+        break;
 }
 
 
@@ -136,30 +136,30 @@ echo("Please select the application environment:
 
 switch(getUserInput("Environment", range(1, 8)))
 {
-	case "1":
-		$environment = "local";
-		break;
-	case "2":
-		$environment = "development";
-		break;
-	case "3":
-		$environment = "test";
-		break;
-	case "4":
-		$environment = "stage";
-		break;
-	case "5":
-		$environment = "debug";
-		break;
-	case "6":
-		$environment = "production";
-		break;
-	case "7":
-		$environment = "";
-		break;
-	case "8":
-		$environment = getUserInput("Environment name");
-		break;
+    case "1":
+        $environment = "local";
+        break;
+    case "2":
+        $environment = "development";
+        break;
+    case "3":
+        $environment = "test";
+        break;
+    case "4":
+        $environment = "stage";
+        break;
+    case "5":
+        $environment = "debug";
+        break;
+    case "6":
+        $environment = "production";
+        break;
+    case "7":
+        $environment = "";
+        break;
+    case "8":
+        $environment = getUserInput("Environment name");
+        break;
 }
 
 
@@ -175,80 +175,80 @@ echo("Please select the type of database that will be used:
 
 switch(getUserInput("Database type", range(1,7)))
 {
-	case "1":
-		$db = "";
-		while (! $db)
-		{
-			$db = getUserInput(
-				"Enter the name of the database (or //hostname:port/schema)");
-		}
-		$dsn = "oci:dbname=" . $db;
-		break;
-	case "2":
-		$hostname = "";
-		while (! $hostname)
-		{
-			$hostname = getUserInput("Enter the MySQL server hostname");
-		}
-		$db = "";
-		while (! $db)
-		{
-			$db = getUserInput("Enter the name of the database (schema)");
-		}
-		$dsn = "mysql:host=" . $hostname . ";dbname=" . $db;
-		break;
-	case "3":
-		$db = "";
-		while (! $db)
-		{
-			$db = getUserInput("Enter the full path to the database file " .
-				"(or :memory: for in-memory database)");
-		}
-		$dsn = "sqlite:" . $db;
-		break;
-	case "4":
-		$hostname = "";
-		while (! $hostname)
-		{
-			$hostname = getUserInput("Enter the PostreSQL server hostname");
-		}
-		$db = "";
-		while (! $db)
-		{
-			$db = getUserInput("Enter the name of the database (schema) name");
-		}
-		$dsn = "pgsql:host=" . $hostname . ";dbname=" . $db;
-		break;
-	case "5":
-		$hostname = "";
-		while (! $hostname)
-		{
-			$hostname = getUserInput("Enter the SQL Server hostname");
-		}
-		$db = "";
-		while (! $db)
-		{
-			$db = getUserInput("Enter the name of the database (schema) name");
-		}
-		$dsn = "sqlsrv:Server=" . $hostname . ";Database=" . $db .
-			"encrypt=1;ConnectionPooling=1";
-		break;
-	case "6":
-		$db = "";
-		while (! $db)
-		{
-			$db = getUserInput("Enter the driver manager database name " .
-				"or uncataloged connection string");
-		}
-		$dsn = "odbc:d" . $db;
-		break;
-	case "7":
-		$dsn = "";
-		while (! $dsn)
-		{
-			$dsn = getUserInput("Enter the full PDO DSN connection string");
-		}
-		break;
+    case "1":
+        $db = "";
+        while (! $db)
+        {
+            $db = getUserInput(
+                "Enter the name of the database (or //hostname:port/schema)");
+        }
+        $dsn = "oci:dbname=" . $db;
+        break;
+    case "2":
+        $hostname = "";
+        while (! $hostname)
+        {
+            $hostname = getUserInput("Enter the MySQL server hostname");
+        }
+        $db = "";
+        while (! $db)
+        {
+            $db = getUserInput("Enter the name of the database (schema)");
+        }
+        $dsn = "mysql:host=" . $hostname . ";dbname=" . $db;
+        break;
+    case "3":
+        $db = "";
+        while (! $db)
+        {
+            $db = getUserInput("Enter the full path to the database file " .
+                "(or :memory: for in-memory database)");
+        }
+        $dsn = "sqlite:" . $db;
+        break;
+    case "4":
+        $hostname = "";
+        while (! $hostname)
+        {
+            $hostname = getUserInput("Enter the PostreSQL server hostname");
+        }
+        $db = "";
+        while (! $db)
+        {
+            $db = getUserInput("Enter the name of the database (schema) name");
+        }
+        $dsn = "pgsql:host=" . $hostname . ";dbname=" . $db;
+        break;
+    case "5":
+        $hostname = "";
+        while (! $hostname)
+        {
+            $hostname = getUserInput("Enter the SQL Server hostname");
+        }
+        $db = "";
+        while (! $db)
+        {
+            $db = getUserInput("Enter the name of the database (schema) name");
+        }
+        $dsn = "sqlsrv:Server=" . $hostname . ";Database=" . $db .
+            "encrypt=1;ConnectionPooling=1";
+        break;
+    case "6":
+        $db = "";
+        while (! $db)
+        {
+            $db = getUserInput("Enter the driver manager database name " .
+                "or uncataloged connection string");
+        }
+        $dsn = "odbc:d" . $db;
+        break;
+    case "7":
+        $dsn = "";
+        while (! $dsn)
+        {
+            $dsn = getUserInput("Enter the full PDO DSN connection string");
+        }
+        break;
 }
 
 
@@ -256,7 +256,7 @@ echo("\n");
 $username = "";
 while (! $username)
 {
-	$username = getUserInput("Enter the username");
+    $username = getUserInput("Enter the username");
 }
 $password = getUserInput("Enter the password");
 
@@ -265,24 +265,24 @@ echo("\n");
 $connection_name = "";
 while (! $connection_name)
 {
-	$connection_name = getUserInput("Enter the name of this connection");
+    $connection_name = getUserInput("Enter the name of this connection");
 }
 
 /* End of user input code */
 
 if ($use_obfuscation)
 {
-	$encoding = "Obfuscation";
+    $encoding = "Obfuscation";
 }
 else
 {
-	# Set the ARC4 parameters
-	$encoding = "Arc4";
+    # Set the ARC4 parameters
+    $encoding = "Arc4";
 }
 
 # Create the file
 $filename = PDOFactory::createConnectionFile($connection_name, $environment,
-	$dsn, $username, $password, $encoding, $arc4_filename);
+    $dsn, $username, $password, $encoding, $arc4_filename);
 echo("\nConnection file " . $filename . " has been created.\n");
 
 
@@ -291,38 +291,38 @@ echo("\nConnection file " . $filename . " has been created.\n");
 # Define a function to grab user input and optionally validate the value
 function getUserInput($prompt = "", array $values = null)
 {
-	# Display the prompt
-	echo($prompt . ": ");
-	
-	# Get the value
-	$value = trim(fgets(STDIN));
-	
-	# See if we are validating values
-	if (is_array($values))
-	{
-		if (count($values) > 0)
-		{
-			if (in_array($value, $values))
-			{
-				# Value matches; return value
-				return $value;
-			}
-			else
-			{
-				# Value does not match; ask again
-				return getUserInput($prompt, $values);
-			}
-		}
-		else
-		{
-			# Values array given, but no values
-			return $value;
-		}
-	}
-	else
-	{
-		# No values given
-		return $value;
-	}
+    # Display the prompt
+    echo($prompt . ": ");
+    
+    # Get the value
+    $value = trim(fgets(STDIN));
+    
+    # See if we are validating values
+    if (is_array($values))
+    {
+        if (count($values) > 0)
+        {
+            if (in_array($value, $values))
+            {
+                # Value matches; return value
+                return $value;
+            }
+            else
+            {
+                # Value does not match; ask again
+                return getUserInput($prompt, $values);
+            }
+        }
+        else
+        {
+            # Values array given, but no values
+            return $value;
+        }
+    }
+    else
+    {
+        # No values given
+        return $value;
+    }
 }
 ?>

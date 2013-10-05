@@ -24,20 +24,20 @@ namespace Cougar\Security;
  */
 interface iAuthenticationProvider
 {
-	/**
-	 * Authenticates the client. If authentication is successful, the method
-	 * will return an object that implements the iIdentity object. If
-	 * authentication fails, the method should return a null.
-	 *
+    /**
+     * Authenticates the client. If authentication is successful, the method
+     * will return an object that implements the iIdentity object. If
+     * authentication fails, the method should return a null.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @return iIdentity Identity object
-	 */
-	public function authenticate();
+     * 
+     * @return iIdentity Identity object
+     */
+    public function authenticate();
 }
 ?>

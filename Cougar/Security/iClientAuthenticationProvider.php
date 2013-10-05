@@ -25,17 +25,17 @@ namespace Cougar\Security;
  */
 interface iClientAuthenticationProvider
 {
-	/**
-	 * Provides credentials, signatures, tokens or whatever the transport may
+    /**
+     * Provides credentials, signatures, tokens or whatever the transport may
      * need to validate the client request.
-	 *
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 */
-	public function provideCredentials();
+     */
+    public function provideCredentials();
 }
 ?>

@@ -13,627 +13,627 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class AnnotatedRestServiceTestPut extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @var AnnotatedRestService
-	 */
-	protected $object;
+    /**
+     * @var AnnotatedRestService
+     */
+    protected $object;
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testSimpleCase() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/SimpleCase";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize($object->simpleCase()));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testSimpleCase() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize($object->simpleCase()));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testSingleUriArgument() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/SingleUriArgument/uri1";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->singleUriArgument("uri1")));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testSingleUriArgument() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/SingleUriArgument/uri1";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->singleUriArgument("uri1")));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testMultiUriArgument() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/MultiUriArgument/uri1/uri2/uri3";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->multiUriArgument("uri1", "uri2", "uri3")));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testMultiUriArgument() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/MultiUriArgument/uri1/uri2/uri3";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->multiUriArgument("uri1", "uri2", "uri3")));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testMultiUriArgumentPlus() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/MultiUriArgument/plus/uri1/uri2/uri3";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->multiUriArgumentPlus(array("uri1", "uri2", "uri3"))));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testMultiUriArgumentPlus() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/MultiUriArgument/plus/uri1/uri2/uri3";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->multiUriArgumentPlus(array("uri1", "uri2", "uri3"))));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testMultiUriArgumentWithLiteral() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/MultiUriArgument/uri1/literal/uri2";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->multiUriArgumentWithLiteral("uri1", "uri2")));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testMultiUriArgumentWithLiteral() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/MultiUriArgument/uri1/literal/uri2";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->multiUriArgumentWithLiteral("uri1", "uri2")));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testEmptyResponse() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/EmptyResponse";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString("");
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testGetValueOneArgumentSpaceAtEnd()
-	{
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/Space/At/End";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		$_GET["something"] = "foo";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->getValueOneArgumentSpaceAtEnd("foo")));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testSingleGetArgumentFloat() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/float";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		$_GET["float"] = "3.5";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->getValueOneArgumentFloat(3.5)));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testSingleGetArgumentString() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/string";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		$_GET["string"] = "three";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->getValueOneArgumentString('three')));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testSingleGetArgumentInt() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/int";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		$_GET["int"] = "3";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->getValueOneArgumentInt(3)));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testSingleGetArgumentBool() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/bool";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		$_GET["bool"] = "true";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->getValueOneArgumentBool(true)));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testGetValueOneGetArgumentOnePostArgument()
-	{
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/Space/At/End";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		$_GET["something"] = "foo";
-		$_POST["somethingelse"] = "bar";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize(
-			$object->getValueOneArgumentSpaceAtEnd("foo")));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testEmptyResponse() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/EmptyResponse";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString("");
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testGetValueOneArgumentSpaceAtEnd()
+    {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/Space/At/End";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        $_GET["something"] = "foo";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->getValueOneArgumentSpaceAtEnd("foo")));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testSingleGetArgumentFloat() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/float";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        $_GET["float"] = "3.5";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->getValueOneArgumentFloat(3.5)));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testSingleGetArgumentString() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/string";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        $_GET["string"] = "three";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->getValueOneArgumentString('three')));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testSingleGetArgumentInt() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/int";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        $_GET["int"] = "3";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->getValueOneArgumentInt(3)));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testSingleGetArgumentBool() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/bool";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        $_GET["bool"] = "true";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->getValueOneArgumentBool(true)));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testGetValueOneGetArgumentOnePostArgument()
+    {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/GetValue/OneArg/Space/At/End";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        $_GET["something"] = "foo";
+        $_POST["somethingelse"] = "bar";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize(
+            $object->getValueOneArgumentSpaceAtEnd("foo")));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 * @expectedException \Cougar\Exceptions\MethodNotAllowedException
-	 */
-	public function testPutWithGet() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "GET";
-		$_SERVER["REQUEST_URI"] = "/put/SimpleCase";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-		$this->fail("Expected exception was not thrown");
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 * @expectedException \Cougar\Exceptions\BadRequestException
-	 */
-	public function testNonExistantEndPoint() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/whatever";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-		$this->fail("Expected exception was not thrown");
-	}
-			
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testPutBody() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/with/body";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		global $_BODY;
-		$_BODY = "Sample Body";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(serialize($object->PutBody($_BODY)));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 * @expectedException \Cougar\Exceptions\BadRequestException
-	 */
-	public function testOptionsWithPut() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "OPTIONS";
-		$_SERVER["REQUEST_URI"] = "/put/SimpleCase";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-		$this->fail("Expected exception was not thrown");
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     * @expectedException \Cougar\Exceptions\MethodNotAllowedException
+     */
+    public function testPutWithGet() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/put/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+        $this->fail("Expected exception was not thrown");
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testNonExistantEndPoint() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/whatever";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+        $this->fail("Expected exception was not thrown");
+    }
+            
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testPutBody() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/with/body";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        global $_BODY;
+        $_BODY = "Sample Body";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(serialize($object->PutBody($_BODY)));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testOptionsWithPut() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "OPTIONS";
+        $_SERVER["REQUEST_URI"] = "/put/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+        $this->fail("Expected exception was not thrown");
+    }
 
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testJson() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/SimpleCase";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/json";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(json_encode($object->simpleCase()));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testXML() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/SimpleCase";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/xml";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(Xml::toXml($object->simpleCase()));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-		
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 */
-	public function testHTML() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/SimpleCase";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "text/html";
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(Xml::toXml($object->simpleCase()));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 * 
-	 * @todo FIX ME
-	 */
-	public function testJsonContentType() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/ContentType";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/json";
-		$_SERVER["HTTP_CONTENT_TYPE"] = "application/json";
-		
-		$object = new \stdClass();
-		$object->foo = "bar";
-		$json_object = json_encode($object);
-		
-		global $_BODY;
-		$_BODY = $json_object;
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString(json_encode(
-				$object->PostBodyJson($json_object)));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testJson() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/json";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(json_encode($object->simpleCase()));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testXML() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/xml";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(Xml::toXml($object->simpleCase()));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+        
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     */
+    public function testHTML() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "text/html";
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(Xml::toXml($object->simpleCase()));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     * 
+     * @todo FIX ME
+     */
+    public function testJsonContentType() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/ContentType";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/json";
+        $_SERVER["HTTP_CONTENT_TYPE"] = "application/json";
+        
+        $object = new \stdClass();
+        $object->foo = "bar";
+        $json_object = json_encode($object);
+        
+        global $_BODY;
+        $_BODY = $json_object;
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString(json_encode(
+                $object->PostBodyJson($json_object)));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 
-	
-	/**
-	 * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
-	 * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
-	 * 
-	 * @todo FIX ME
-	 */
-	public function testXmlContentType() {
-		$_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
-		$_SERVER["REQUEST_METHOD"] = "PUT";
-		$_SERVER["REQUEST_URI"] = "/put/ContentType";
-		$_SERVER["PHP_SELF"] = "/request_handler";
-		$_SERVER["HTTP_HOST"] = "localhost";
-		$_SERVER["HTTP_ACCEPT"] = "application/xml";
-		$_SERVER["HTTP_CONTENT_TYPE"] = "application/xml";
-		
-		$xml = new \SimpleXMLElement("<foo><bar id=\"1\"/></foo>");
-		$xml_text = $xml->asXML();
-		
-		global $_BODY;
-		$_BODY = $xml_text;
-		
-		$object = new AnnotatedRestServicePutTests();
-		$this->expectOutputString($object->PostBodyXml($xml_text));
-		
-		$service = new AnnotatedRestService(new Security());
-		$service->bindFromObject($object);
-		$service->handleRequest();
-	}
-	
-	
+    
+    /**
+     * @covers \Cougar\RestService\AnnotatedRestService::bindFromObject
+     * @covers \Cougar\RestService\AnnotatedRestService::handleRequest
+     * 
+     * @todo FIX ME
+     */
+    public function testXmlContentType() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "PUT";
+        $_SERVER["REQUEST_URI"] = "/put/ContentType";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/xml";
+        $_SERVER["HTTP_CONTENT_TYPE"] = "application/xml";
+        
+        $xml = new \SimpleXMLElement("<foo><bar id=\"1\"/></foo>");
+        $xml_text = $xml->asXML();
+        
+        global $_BODY;
+        $_BODY = $xml_text;
+        
+        $object = new AnnotatedRestServicePutTests();
+        $this->expectOutputString($object->PostBodyXml($xml_text));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+    
+    
 }
 
 class AnnotatedRestServicePutTests
 {
-	/**
-	 * @Path /put/SimpleCase
-	 * @Methods PUT
-	 */
-	public function simpleCase()
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/SingleUriArgument/:argument
-	 */
-	public function singleUriArgument($argument)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/MultiUriArgument/:argument1/:argument2:/:argument3
-	 */
-	public function multiUriArgument($argument1, $argument2, $argument3)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/MultiUriArgument/plus/:arguments+
-	 */
-	public function multiUriArgumentPlus(array $arguments)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/MultiUriArgument/:argument1/literal/:argument2
-	 */
-	public function multiUriArgumentWithLiteral($argument1, $argument2)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
+    /**
+     * @Path /put/SimpleCase
+     * @Methods PUT
+     */
+    public function simpleCase()
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/SingleUriArgument/:argument
+     */
+    public function singleUriArgument($argument)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/MultiUriArgument/:argument1/:argument2:/:argument3
+     */
+    public function multiUriArgument($argument1, $argument2, $argument3)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/MultiUriArgument/plus/:arguments+
+     */
+    public function multiUriArgumentPlus(array $arguments)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/MultiUriArgument/:argument1/literal/:argument2
+     */
+    public function multiUriArgumentWithLiteral($argument1, $argument2)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
 
-	/**
-	 * @Path /put/EmptyResponse
-	 */
-	public function emptyResponse()
-	{
-		# Don't return anything; response should be blank
-	}
-	
-	/**
-	 * @Path /put/GetValue/OneArg/Space/At/End
-	 * @GetValue something  
-	 */
-	public function getValueOneArgumentSpaceAtEnd($something)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/GetValue/OneArg/float
-	 * @GetValue float float  
-	 */
-	public function getValueOneArgumentFloat($float)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/GetValue/OneArg/string
-	 * @GetValue string string  
-	 */
-	public function getValueOneArgumentString($string)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/GetValue/OneArg/int
-	 * @GetValue int int  
-	 */
-	public function getValueOneArgumentInt($int)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/GetValue/OneArg/bool
-	 * @GetValue bool bool  
-	 */
-	public function getValueOneArgumentBool($bool)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/GetValue/OneArg/Space/At/End
-	 * @GetValue something  
-	 * @PostValue somethingelse
-	 */
-	public function getValueOneGetArgumentOnePostArgument($something, $somethingelse)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}	
-		
-	/**
-	 * @Path /put/with/body
-	 * @Methods PUT
-	 * @Body body
-	 */
-	public function putBody($body)
-	{
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/ContentType
-	 * @Methods PUT
-	 * @Body body
-	 * @Accepts JSON
-	 */
-	public function postBodyJson($body)
-	{
-		$json = json_decode($body);
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
-	
-	/**
-	 * @Path /put/ContentType
-	 * @Methods PUT
-	 * @Body body
-	 * @Accepts XML
-	 */
-	public function postBodyXml($body)
-	{
-		$xml = new \SimpleXMLElement($body);
-		return array("method" => __FUNCTION__,
-			"arguments" => func_get_args());
-	}
+    /**
+     * @Path /put/EmptyResponse
+     */
+    public function emptyResponse()
+    {
+        # Don't return anything; response should be blank
+    }
+    
+    /**
+     * @Path /put/GetValue/OneArg/Space/At/End
+     * @GetValue something  
+     */
+    public function getValueOneArgumentSpaceAtEnd($something)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/GetValue/OneArg/float
+     * @GetValue float float  
+     */
+    public function getValueOneArgumentFloat($float)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/GetValue/OneArg/string
+     * @GetValue string string  
+     */
+    public function getValueOneArgumentString($string)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/GetValue/OneArg/int
+     * @GetValue int int  
+     */
+    public function getValueOneArgumentInt($int)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/GetValue/OneArg/bool
+     * @GetValue bool bool  
+     */
+    public function getValueOneArgumentBool($bool)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/GetValue/OneArg/Space/At/End
+     * @GetValue something  
+     * @PostValue somethingelse
+     */
+    public function getValueOneGetArgumentOnePostArgument($something, $somethingelse)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }    
+        
+    /**
+     * @Path /put/with/body
+     * @Methods PUT
+     * @Body body
+     */
+    public function putBody($body)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/ContentType
+     * @Methods PUT
+     * @Body body
+     * @Accepts JSON
+     */
+    public function postBodyJson($body)
+    {
+        $json = json_decode($body);
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+    
+    /**
+     * @Path /put/ContentType
+     * @Methods PUT
+     * @Body body
+     * @Accepts XML
+     */
+    public function postBodyXml($body)
+    {
+        $xml = new \SimpleXMLElement($body);
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
 }

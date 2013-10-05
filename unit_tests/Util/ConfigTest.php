@@ -12,55 +12,55 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class ConfigTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @var Config
-	 */
-	protected $object;
+    /**
+     * @var Config
+     */
+    protected $object;
 
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() {
+    /**
+     * Sets up the fixture, for example, opens a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp() {
         chdir(__DIR__);
-		$this->object = new Config("config_unit_test.conf");
-	}
+        $this->object = new Config("config_unit_test.conf");
+    }
 
-	/**
-	 * @covers \Cougar\Util\Config::values
-	 */
-	public function testValues() {
-		$this->assertCount(20, $this->object->values());
-	}
+    /**
+     * @covers \Cougar\Util\Config::values
+     */
+    public function testValues() {
+        $this->assertCount(20, $this->object->values());
+    }
 
-	/**
-	 * @covers \Cougar\Util\Config::value
-	 */
-	public function testValue() {
-		$this->assertEquals("value1", $this->object->value("name1"));
-		$this->assertEquals("value2", $this->object->value("name2"));
-		$this->assertEquals("value3", $this->object->value("name3"));
-		$this->assertEquals("value4", $this->object->value("name4"));
-		$this->assertEquals("value5", $this->object->value("name5"));
-		$this->assertEquals("value6", $this->object->value("name6"));
-		$this->assertEquals("value 7", $this->object->value("name7"));
-		$this->assertEquals("value 8", $this->object->value("name8"));
-		$this->assertEquals("value9", $this->object->value("name 9"));
-		$this->assertEquals("value 10", $this->object->value("name 10"));
-		$this->assertEquals("Indented value 11",
-			$this->object->value("name11"));
-		$this->assertEquals("Indented value 12",
-			$this->object->value("name12"));
-		$this->assertEquals("", $this->object->value("no_cache"));
-		$this->assertEquals("mysql:hostname=localhost;dbname=UnitTest",
-			$this->object->value("dsn"));
-		$this->assertEquals("mysql", $this->object->value("db.type"));
-		$this->assertEquals("localhost", $this->object->value("db.hostname"));
-		$this->assertEquals("3306", $this->object->value("db.port"));
-		$this->assertEquals("UnitTest", $this->object->value("db.schema"));
-		$this->assertEquals("user", $this->object->value("db.username"));
-		$this->assertEquals(":!:AQwo5+/yMbfoUPHjq+I2WC:!:",
-			$this->object->value("db.password"));
-		$this->assertNull($this->object->value("Some other setting"));
-	}	
+    /**
+     * @covers \Cougar\Util\Config::value
+     */
+    public function testValue() {
+        $this->assertEquals("value1", $this->object->value("name1"));
+        $this->assertEquals("value2", $this->object->value("name2"));
+        $this->assertEquals("value3", $this->object->value("name3"));
+        $this->assertEquals("value4", $this->object->value("name4"));
+        $this->assertEquals("value5", $this->object->value("name5"));
+        $this->assertEquals("value6", $this->object->value("name6"));
+        $this->assertEquals("value 7", $this->object->value("name7"));
+        $this->assertEquals("value 8", $this->object->value("name8"));
+        $this->assertEquals("value9", $this->object->value("name 9"));
+        $this->assertEquals("value 10", $this->object->value("name 10"));
+        $this->assertEquals("Indented value 11",
+            $this->object->value("name11"));
+        $this->assertEquals("Indented value 12",
+            $this->object->value("name12"));
+        $this->assertEquals("", $this->object->value("no_cache"));
+        $this->assertEquals("mysql:hostname=localhost;dbname=UnitTest",
+            $this->object->value("dsn"));
+        $this->assertEquals("mysql", $this->object->value("db.type"));
+        $this->assertEquals("localhost", $this->object->value("db.hostname"));
+        $this->assertEquals("3306", $this->object->value("db.port"));
+        $this->assertEquals("UnitTest", $this->object->value("db.schema"));
+        $this->assertEquals("user", $this->object->value("db.username"));
+        $this->assertEquals(":!:AQwo5+/yMbfoUPHjq+I2WC:!:",
+            $this->object->value("db.password"));
+        $this->assertNull($this->object->value("Some other setting"));
+    }    
 }

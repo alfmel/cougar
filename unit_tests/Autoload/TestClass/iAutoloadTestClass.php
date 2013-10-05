@@ -7,6 +7,6 @@ namespace Cougar\UnitTests\Autoload\TestClass;
  */
 interface iAutoloadTestClass
 {
-	public function __construct();
+    public function __construct();
 }
 ?>

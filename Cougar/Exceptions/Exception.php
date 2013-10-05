@@ -9,15 +9,19 @@ namespace Cougar\Exceptions;
  * 
  * HTTP Status Code: 500
  * 
+ * @package Cougar
+ * @license MIT
+ * @copyright 2013 Brigham Young University
+ *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
 class Exception extends \Exception
 {
-	protected $httpStatusCode = 500;
-	
-	public function getHttpStatusCode()
-	{
-		return $this->httpStatusCode;
-	}
+    protected $httpStatusCode = 500;
+    
+    public function getHttpStatusCode()
+    {
+        return $this->httpStatusCode;
+    }
 }
 ?>

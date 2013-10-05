@@ -8,10 +8,14 @@ namespace Cougar\Exceptions;
  * 
  * HTTP Status Code: 405
  * 
+ * @package Cougar
+ * @license MIT
+ * @copyright 2013 Brigham Young University
+ *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
 class MethodNotAllowedException extends Exception
 {
-	protected $httpStatusCode = 405;
+    protected $httpStatusCode = 405;
 }
 ?>

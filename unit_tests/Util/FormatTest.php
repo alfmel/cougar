@@ -11,388 +11,388 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class FormatTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers \Cougar\Util\Format::trim
-	 */
-	public function testTrim() {
-		$string1 = "Hello World!";
-		Format::trim($string1);
-		$this->assertEquals("Hello World!", $string1);
-		
-		$string2 = " Hello World! \n";
-		Format::trim($string2);
-		$this->assertEquals("Hello World!", $string2);
-		
-		$array = array("Hello World!", " Hello World! \n");
-		Format::trim($array);
-		$this->assertEquals(array("Hello World!", "Hello World!"), $array);
-		
-		$jagged_array = array("Hello World!", " Hello World! \n",
-			array("Hello World!", " Hello World! \n"));
-		Format::trim($jagged_array);
-		$this->assertEquals(array("Hello World!", "Hello World!",
-			array("Hello World!", "Hello World!")), $jagged_array);
-		
-		$object = new \stdClass();
-		$object->value1 = "Hello World!";
-		$object->value2 = " Hello World! \n";
-		Format::trim($object);
-		$this->assertEquals("Hello World!", $object->value1);
-		$this->assertEquals("Hello World!", $object->value2);
-		
-		$embedded_object = new \stdClass();
-		$embedded_object->value1 = "Hello World!";
-		$embedded_object->value2 = " Hello World! \n";
-		$embedded_object->object = new \stdClass();
-		$embedded_object->object->value1 = "Hello World!";
-		$embedded_object->object->value2 = " Hello World! \n";
-		Format::trim($embedded_object);
-		$this->assertEquals("Hello World!", $embedded_object->value1);
-		$this->assertEquals("Hello World!", $embedded_object->value2);
-		$this->assertEquals("Hello World!", $embedded_object->object->value1);
-		$this->assertEquals("Hello World!", $embedded_object->object->value2);
-	}
+    /**
+     * @covers \Cougar\Util\Format::trim
+     */
+    public function testTrim() {
+        $string1 = "Hello World!";
+        Format::trim($string1);
+        $this->assertEquals("Hello World!", $string1);
+        
+        $string2 = " Hello World! \n";
+        Format::trim($string2);
+        $this->assertEquals("Hello World!", $string2);
+        
+        $array = array("Hello World!", " Hello World! \n");
+        Format::trim($array);
+        $this->assertEquals(array("Hello World!", "Hello World!"), $array);
+        
+        $jagged_array = array("Hello World!", " Hello World! \n",
+            array("Hello World!", " Hello World! \n"));
+        Format::trim($jagged_array);
+        $this->assertEquals(array("Hello World!", "Hello World!",
+            array("Hello World!", "Hello World!")), $jagged_array);
+        
+        $object = new \stdClass();
+        $object->value1 = "Hello World!";
+        $object->value2 = " Hello World! \n";
+        Format::trim($object);
+        $this->assertEquals("Hello World!", $object->value1);
+        $this->assertEquals("Hello World!", $object->value2);
+        
+        $embedded_object = new \stdClass();
+        $embedded_object->value1 = "Hello World!";
+        $embedded_object->value2 = " Hello World! \n";
+        $embedded_object->object = new \stdClass();
+        $embedded_object->object->value1 = "Hello World!";
+        $embedded_object->object->value2 = " Hello World! \n";
+        Format::trim($embedded_object);
+        $this->assertEquals("Hello World!", $embedded_object->value1);
+        $this->assertEquals("Hello World!", $embedded_object->value2);
+        $this->assertEquals("Hello World!", $embedded_object->object->value1);
+        $this->assertEquals("Hello World!", $embedded_object->object->value2);
+    }
 
-	/**
-	 * @covers \Cougar\Util\Format::null
-	 */
-	public function testNull() {
-		$string1 = "Not null";
-		Format::null($string1);
-		$this->assertNotNull($string1);
-		
-		$string2 = "null";
-		Format::null($string2);
-		$this->assertNull($string2);
-		
-		$string3 = "NULL";
-		Format::null($string3);
-		$this->assertNull($string3);
-		
-		$array = array("Not null", "null");
-		Format::null($array);
-		$this->assertEquals(array("Not null", null), $array);
-		
-		$jagged_array = array("Not null", "Null",
-			array("Not null", "NULL"));
-		Format::null($jagged_array);
-		$this->assertEquals(array("Not null", null,
-			array("Not null", null)), $jagged_array);
-		
-		$object = new \stdClass();
-		$object->value1 = "Not null";
-		$object->value2 = "null";
-		Format::null($object);
-		$this->assertNotNull($object->value1);
-		$this->assertNull($object->value2);
-		
-		$embedded_object = new \stdClass();
-		$embedded_object->value1 = "Not null";
-		$embedded_object->value2 = "NULL";
-		$embedded_object->object = new \stdClass();
-		$embedded_object->object->value1 = "Not null";
-		$embedded_object->object->value2 = "nuLL";
-		Format::null($embedded_object);
-		$this->assertNotNull($embedded_object->value1);
-		$this->assertNull($embedded_object->value2);
-		$this->assertNotNull($embedded_object->object->value1);
-		$this->assertNull($embedded_object->object->value2);
-	}
+    /**
+     * @covers \Cougar\Util\Format::null
+     */
+    public function testNull() {
+        $string1 = "Not null";
+        Format::null($string1);
+        $this->assertNotNull($string1);
+        
+        $string2 = "null";
+        Format::null($string2);
+        $this->assertNull($string2);
+        
+        $string3 = "NULL";
+        Format::null($string3);
+        $this->assertNull($string3);
+        
+        $array = array("Not null", "null");
+        Format::null($array);
+        $this->assertEquals(array("Not null", null), $array);
+        
+        $jagged_array = array("Not null", "Null",
+            array("Not null", "NULL"));
+        Format::null($jagged_array);
+        $this->assertEquals(array("Not null", null,
+            array("Not null", null)), $jagged_array);
+        
+        $object = new \stdClass();
+        $object->value1 = "Not null";
+        $object->value2 = "null";
+        Format::null($object);
+        $this->assertNotNull($object->value1);
+        $this->assertNull($object->value2);
+        
+        $embedded_object = new \stdClass();
+        $embedded_object->value1 = "Not null";
+        $embedded_object->value2 = "NULL";
+        $embedded_object->object = new \stdClass();
+        $embedded_object->object->value1 = "Not null";
+        $embedded_object->object->value2 = "nuLL";
+        Format::null($embedded_object);
+        $this->assertNotNull($embedded_object->value1);
+        $this->assertNull($embedded_object->value2);
+        $this->assertNotNull($embedded_object->object->value1);
+        $this->assertNull($embedded_object->object->value2);
+    }
 
-	/**
-	 * @covers \Cougar\Util\Format::strToBool
-	 */
-	public function testStrToBool() {
-		$true_array = array("Yes", "True", "T", "true", "1", "ON");
-		$false_array = array("No", "False", "F", "false", "0", "off");
-		
-		foreach($true_array as $true)
-		{
-			Format::strToBool($true);
-			$this->assertTrue($true);
-		}
-		
-		foreach($false_array as $false)
-		{
-			Format::strToBool($false);
-			$this->assertFalse($false);
-		}
-		
-		foreach($true_array as $true)
-		{
-			Format::strToBool($true, true);
-			$this->assertTrue($true);
-		}
-		
-		foreach($false_array as $false)
-		{
-			Format::strToBool($false, true);
-			$this->assertFalse($false);
-		}
-		
-		foreach(array("Some", "other", "string") as $other)
-		{
-			Format::strToBool($other, true);
-			$this->assertFalse($other);
-		}
+    /**
+     * @covers \Cougar\Util\Format::strToBool
+     */
+    public function testStrToBool() {
+        $true_array = array("Yes", "True", "T", "true", "1", "ON");
+        $false_array = array("No", "False", "F", "false", "0", "off");
+        
+        foreach($true_array as $true)
+        {
+            Format::strToBool($true);
+            $this->assertTrue($true);
+        }
+        
+        foreach($false_array as $false)
+        {
+            Format::strToBool($false);
+            $this->assertFalse($false);
+        }
+        
+        foreach($true_array as $true)
+        {
+            Format::strToBool($true, true);
+            $this->assertTrue($true);
+        }
+        
+        foreach($false_array as $false)
+        {
+            Format::strToBool($false, true);
+            $this->assertFalse($false);
+        }
+        
+        foreach(array("Some", "other", "string") as $other)
+        {
+            Format::strToBool($other, true);
+            $this->assertFalse($other);
+        }
 
-		$true = $true_array;
-		Format::strToBool($true);
-		$this->assertEquals(array_fill(0, count($true), true),
-			$true);
-		
-		$false = $false_array;
-		Format::strToBool($false);
-		$this->assertEquals(array_fill(0, count($false), false),
-			$false);
-		
-		$jagged_array = array("false", "True",
-			array("FALSE", "TRUE"));
-		Format::strToBool($jagged_array);
-		$this->assertEquals(array(false, true,
-			array(false, true)), $jagged_array);
-		
-		$object = new \stdClass();
-		$object->value1 = "true";
-		$object->value2 = "False";
-		$object->value3 = "Something else";
-		Format::strToBool($object);
-		$this->assertTrue($object->value1);
-		$this->assertFalse($object->value2);
-		$this->assertEquals("Something else", $object->value3);
-		
-		$embedded_object = new \stdClass();
-		$embedded_object->value1 = "True";
-		$embedded_object->value2 = "false";
-		$embedded_object->object = new \stdClass();
-		$embedded_object->object->value1 = "TRUE";
-		$embedded_object->object->value2 = "FALSE";
-		Format::strToBool($embedded_object);
-		$this->assertTrue($embedded_object->value1);
-		$this->assertFalse($embedded_object->value2);
-		$this->assertTrue($embedded_object->object->value1);
-		$this->assertFalse($embedded_object->object->value2);
-	}
+        $true = $true_array;
+        Format::strToBool($true);
+        $this->assertEquals(array_fill(0, count($true), true),
+            $true);
+        
+        $false = $false_array;
+        Format::strToBool($false);
+        $this->assertEquals(array_fill(0, count($false), false),
+            $false);
+        
+        $jagged_array = array("false", "True",
+            array("FALSE", "TRUE"));
+        Format::strToBool($jagged_array);
+        $this->assertEquals(array(false, true,
+            array(false, true)), $jagged_array);
+        
+        $object = new \stdClass();
+        $object->value1 = "true";
+        $object->value2 = "False";
+        $object->value3 = "Something else";
+        Format::strToBool($object);
+        $this->assertTrue($object->value1);
+        $this->assertFalse($object->value2);
+        $this->assertEquals("Something else", $object->value3);
+        
+        $embedded_object = new \stdClass();
+        $embedded_object->value1 = "True";
+        $embedded_object->value2 = "false";
+        $embedded_object->object = new \stdClass();
+        $embedded_object->object->value1 = "TRUE";
+        $embedded_object->object->value2 = "FALSE";
+        Format::strToBool($embedded_object);
+        $this->assertTrue($embedded_object->value1);
+        $this->assertFalse($embedded_object->value2);
+        $this->assertTrue($embedded_object->object->value1);
+        $this->assertFalse($embedded_object->object->value2);
+    }
 
-	/**
-	 * @covers \Cougar\Util\Format::boolToStr
-	 */
-	public function testBoolToStr() {
-		$true = true;
-		Format::boolToStr($true);
-		$this->assertEquals("true", $true);
-		
-		$false = false;
-		Format::boolToStr($false);
-		$this->assertEquals("false", $false);
-		
-		$string = "string";
-		Format::boolToStr($string);
-		$this->assertEquals("string", $string);
-		
-		$int = 0;
-		Format::boolToStr($int);
-		$this->assertEquals(0, $int);
-		
-		$array = array(true, false);
-		Format::boolToStr($array);
-		$this->assertEquals(array("true", "false"), $array);
-		
-		$jagged_array = array(false, true,
-			array(false, true));
-		Format::boolToStr($jagged_array);
-		$this->assertEquals(array("false", "true",
-			array("false", "true")), $jagged_array);
-		
-		$object = new \stdClass();
-		$object->value1 = true;
-		$object->value2 = false;
-		$object->value3 = "Something else";
-		Format::boolToStr($object);
-		$this->assertEquals("true", $object->value1);
-		$this->assertEquals("false", $object->value2);
-		$this->assertEquals("Something else", $object->value3);
-		
-		$embedded_object = new \stdClass();
-		$embedded_object->value1 = true;
-		$embedded_object->value2 = false;
-		$embedded_object->object = new \stdClass();
-		$embedded_object->object->value1 = true;
-		$embedded_object->object->value2 = false;
-		Format::boolToStr($embedded_object);
-		$this->assertEquals("true", $embedded_object->value1);
-		$this->assertEquals("false", $embedded_object->value2);
-		$this->assertEquals("true", $embedded_object->object->value1);
-		$this->assertEquals("false", $embedded_object->object->value2);
-	}
+    /**
+     * @covers \Cougar\Util\Format::boolToStr
+     */
+    public function testBoolToStr() {
+        $true = true;
+        Format::boolToStr($true);
+        $this->assertEquals("true", $true);
+        
+        $false = false;
+        Format::boolToStr($false);
+        $this->assertEquals("false", $false);
+        
+        $string = "string";
+        Format::boolToStr($string);
+        $this->assertEquals("string", $string);
+        
+        $int = 0;
+        Format::boolToStr($int);
+        $this->assertEquals(0, $int);
+        
+        $array = array(true, false);
+        Format::boolToStr($array);
+        $this->assertEquals(array("true", "false"), $array);
+        
+        $jagged_array = array(false, true,
+            array(false, true));
+        Format::boolToStr($jagged_array);
+        $this->assertEquals(array("false", "true",
+            array("false", "true")), $jagged_array);
+        
+        $object = new \stdClass();
+        $object->value1 = true;
+        $object->value2 = false;
+        $object->value3 = "Something else";
+        Format::boolToStr($object);
+        $this->assertEquals("true", $object->value1);
+        $this->assertEquals("false", $object->value2);
+        $this->assertEquals("Something else", $object->value3);
+        
+        $embedded_object = new \stdClass();
+        $embedded_object->value1 = true;
+        $embedded_object->value2 = false;
+        $embedded_object->object = new \stdClass();
+        $embedded_object->object->value1 = true;
+        $embedded_object->object->value2 = false;
+        Format::boolToStr($embedded_object);
+        $this->assertEquals("true", $embedded_object->value1);
+        $this->assertEquals("false", $embedded_object->value2);
+        $this->assertEquals("true", $embedded_object->object->value1);
+        $this->assertEquals("false", $embedded_object->object->value2);
+    }
 
-	/**
-	 * @covers \Cougar\Util\Format::gender
-	 */
-	public function testGender() {
-		$m = "m";
-		Format::gender($m);
-		$this->assertEquals("M", $m);
-		
-		$f = "F";
-		Format::gender($f);
-		$this->assertEquals("F", $f);
-		
-		$male = "Male";
-		Format::gender($male);
-		$this->assertEquals("M", $male);
-		
-		$female = "FEMALE";
-		Format::gender($female);
-		$this->assertEquals("F", $female);
-		
-		$string = "string";
-		Format::gender($string);
-		$this->assertEquals("string", $string);
-		
-		Format::gender($string, true);
-		$this->assertNull($string);
-		
-		$array = array("MALE", "female");
-		Format::gender($array);
-		$this->assertEquals(array("M", "F"), $array);
-		
-		$jagged_array = array("male", "female",
-			array("Female", "Male"));
-		Format::gender($jagged_array);
-		$this->assertEquals(array("M", "F",
-			array("F", "M")), $jagged_array);
+    /**
+     * @covers \Cougar\Util\Format::gender
+     */
+    public function testGender() {
+        $m = "m";
+        Format::gender($m);
+        $this->assertEquals("M", $m);
+        
+        $f = "F";
+        Format::gender($f);
+        $this->assertEquals("F", $f);
+        
+        $male = "Male";
+        Format::gender($male);
+        $this->assertEquals("M", $male);
+        
+        $female = "FEMALE";
+        Format::gender($female);
+        $this->assertEquals("F", $female);
+        
+        $string = "string";
+        Format::gender($string);
+        $this->assertEquals("string", $string);
+        
+        Format::gender($string, true);
+        $this->assertNull($string);
+        
+        $array = array("MALE", "female");
+        Format::gender($array);
+        $this->assertEquals(array("M", "F"), $array);
+        
+        $jagged_array = array("male", "female",
+            array("Female", "Male"));
+        Format::gender($jagged_array);
+        $this->assertEquals(array("M", "F",
+            array("F", "M")), $jagged_array);
 
-		$object = new \stdClass();
-		$object->value1 = "male";
-		$object->value2 = "female";
-		$object->value3 = "Something else";
-		Format::gender($object);
-		$this->assertEquals("M", $object->value1);
-		$this->assertEquals("F", $object->value2);
-		$this->assertEquals("Something else", $object->value3);
-		
-		Format::gender($object, true);
-		$this->assertEquals("M", $object->value1);
-		$this->assertEquals("F", $object->value2);
-		$this->assertNull($object->value3);
-		
-		$embedded_object = new \stdClass();
-		$embedded_object->value1 = "male";
-		$embedded_object->value2 = "female";
-		$embedded_object->object = new \stdClass();
-		$embedded_object->object->value1 = "male";
-		$embedded_object->object->value2 = "female";
-		Format::gender($embedded_object);
-		$this->assertEquals("M", $embedded_object->value1);
-		$this->assertEquals("F", $embedded_object->value2);
-		$this->assertEquals("M", $embedded_object->object->value1);
-		$this->assertEquals("F", $embedded_object->object->value2);
-	}
+        $object = new \stdClass();
+        $object->value1 = "male";
+        $object->value2 = "female";
+        $object->value3 = "Something else";
+        Format::gender($object);
+        $this->assertEquals("M", $object->value1);
+        $this->assertEquals("F", $object->value2);
+        $this->assertEquals("Something else", $object->value3);
+        
+        Format::gender($object, true);
+        $this->assertEquals("M", $object->value1);
+        $this->assertEquals("F", $object->value2);
+        $this->assertNull($object->value3);
+        
+        $embedded_object = new \stdClass();
+        $embedded_object->value1 = "male";
+        $embedded_object->value2 = "female";
+        $embedded_object->object = new \stdClass();
+        $embedded_object->object->value1 = "male";
+        $embedded_object->object->value2 = "female";
+        Format::gender($embedded_object);
+        $this->assertEquals("M", $embedded_object->value1);
+        $this->assertEquals("F", $embedded_object->value2);
+        $this->assertEquals("M", $embedded_object->object->value1);
+        $this->assertEquals("F", $embedded_object->object->value2);
+    }
 
-	/**
-	 * @covers \Cougar\Util\Format::genderWord
-	 */
-	public function testGenderWord() {
-		$m = "m";
-		Format::genderWord($m);
-		$this->assertEquals("Male", $m);
-		
-		$f = "F";
-		Format::genderWord($f);
-		$this->assertEquals("Female", $f);
-		
-		$male = "Male";
-		Format::genderWord($male);
-		$this->assertEquals("Male", $male);
-		
-		$female = "FEMALE";
-		Format::genderWord($female);
-		$this->assertEquals("Female", $female);
-		
-		$string = "string";
-		Format::genderWord($string);
-		$this->assertEquals("string", $string);
-		
-		Format::genderWord($string, true);
-		$this->assertNull($string);
-		
-		$array = array("MALE", "female");
-		Format::genderWord($array);
-		$this->assertEquals(array("Male", "Female"), $array);
-		
-		$jagged_array = array("male", "female",
-			array("Female", "Male"));
-		Format::genderWord($jagged_array);
-		$this->assertEquals(array("Male", "Female",
-			array("Female", "Male")), $jagged_array);
+    /**
+     * @covers \Cougar\Util\Format::genderWord
+     */
+    public function testGenderWord() {
+        $m = "m";
+        Format::genderWord($m);
+        $this->assertEquals("Male", $m);
+        
+        $f = "F";
+        Format::genderWord($f);
+        $this->assertEquals("Female", $f);
+        
+        $male = "Male";
+        Format::genderWord($male);
+        $this->assertEquals("Male", $male);
+        
+        $female = "FEMALE";
+        Format::genderWord($female);
+        $this->assertEquals("Female", $female);
+        
+        $string = "string";
+        Format::genderWord($string);
+        $this->assertEquals("string", $string);
+        
+        Format::genderWord($string, true);
+        $this->assertNull($string);
+        
+        $array = array("MALE", "female");
+        Format::genderWord($array);
+        $this->assertEquals(array("Male", "Female"), $array);
+        
+        $jagged_array = array("male", "female",
+            array("Female", "Male"));
+        Format::genderWord($jagged_array);
+        $this->assertEquals(array("Male", "Female",
+            array("Female", "Male")), $jagged_array);
 
-		$object = new \stdClass();
-		$object->value1 = "male";
-		$object->value2 = "female";
-		$object->value3 = "Something else";
-		Format::genderWord($object);
-		$this->assertEquals("Male", $object->value1);
-		$this->assertEquals("Female", $object->value2);
-		$this->assertEquals("Something else", $object->value3);
-		
-		Format::genderWord($object, true);
-		$this->assertEquals("Male", $object->value1);
-		$this->assertEquals("Female", $object->value2);
-		$this->assertNull($object->value3);
-		
-		$embedded_object = new \stdClass();
-		$embedded_object->value1 = "male";
-		$embedded_object->value2 = "female";
-		$embedded_object->object = new \stdClass();
-		$embedded_object->object->value1 = "male";
-		$embedded_object->object->value2 = "female";
-		Format::genderWord($embedded_object);
-		$this->assertEquals("Male", $embedded_object->value1);
-		$this->assertEquals("Female", $embedded_object->value2);
-		$this->assertEquals("Male", $embedded_object->object->value1);
-		$this->assertEquals("Female", $embedded_object->object->value2);
-	}
+        $object = new \stdClass();
+        $object->value1 = "male";
+        $object->value2 = "female";
+        $object->value3 = "Something else";
+        Format::genderWord($object);
+        $this->assertEquals("Male", $object->value1);
+        $this->assertEquals("Female", $object->value2);
+        $this->assertEquals("Something else", $object->value3);
+        
+        Format::genderWord($object, true);
+        $this->assertEquals("Male", $object->value1);
+        $this->assertEquals("Female", $object->value2);
+        $this->assertNull($object->value3);
+        
+        $embedded_object = new \stdClass();
+        $embedded_object->value1 = "male";
+        $embedded_object->value2 = "female";
+        $embedded_object->object = new \stdClass();
+        $embedded_object->object->value1 = "male";
+        $embedded_object->object->value2 = "female";
+        Format::genderWord($embedded_object);
+        $this->assertEquals("Male", $embedded_object->value1);
+        $this->assertEquals("Female", $embedded_object->value2);
+        $this->assertEquals("Male", $embedded_object->object->value1);
+        $this->assertEquals("Female", $embedded_object->object->value2);
+    }
 
-	/**
-	 * @covers \Cougar\Util\Format::removeNullWord
-	 */
-	public function testRemoveNullWord() {
-		$string1 = "Hello World!";
-		Format::removeNullWord($string1);
-		$this->assertEquals("Hello World!", $string1);
-		
-		$string2 = " Hello World! null";
-		Format::removeNullWord($string2);
-		$this->assertEquals("Hello World!", $string2);
-		
-		$array = array("Hello World!", " Hello World!null");
-		Format::removeNullWord($array);
-		$this->assertEquals(array("Hello World!", "Hello World!"), $array);
-		
-		$jagged_array = array("Hello World!", " Hello World! NULL",
-			array("Hello World!", " Hello World! Null"));
-		Format::removeNullWord($jagged_array);
-		$this->assertEquals(array("Hello World!", "Hello World!",
-			array("Hello World!", "Hello World!")), $jagged_array);
-		
-		$object = new \stdClass();
-		$object->value1 = "Hello World!";
-		$object->value2 = " Hello World!NULL";
-		Format::removeNullWord($object);
-		$this->assertEquals("Hello World!", $object->value1);
-		$this->assertEquals("Hello World!", $object->value2);
-		
-		$embedded_object = new \stdClass();
-		$embedded_object->value1 = "Hello World!";
-		$embedded_object->value2 = " Hello World!NULL";
-		$embedded_object->object = new \stdClass();
-		$embedded_object->object->value1 = "Hello World!";
-		$embedded_object->object->value2 = " Hello World! null";
-		Format::removeNullWord($embedded_object);
-		$this->assertEquals("Hello World!", $embedded_object->value1);
-		$this->assertEquals("Hello World!", $embedded_object->value2);
-		$this->assertEquals("Hello World!", $embedded_object->object->value1);
-		$this->assertEquals("Hello World!", $embedded_object->object->value2);
-	}
+    /**
+     * @covers \Cougar\Util\Format::removeNullWord
+     */
+    public function testRemoveNullWord() {
+        $string1 = "Hello World!";
+        Format::removeNullWord($string1);
+        $this->assertEquals("Hello World!", $string1);
+        
+        $string2 = " Hello World! null";
+        Format::removeNullWord($string2);
+        $this->assertEquals("Hello World!", $string2);
+        
+        $array = array("Hello World!", " Hello World!null");
+        Format::removeNullWord($array);
+        $this->assertEquals(array("Hello World!", "Hello World!"), $array);
+        
+        $jagged_array = array("Hello World!", " Hello World! NULL",
+            array("Hello World!", " Hello World! Null"));
+        Format::removeNullWord($jagged_array);
+        $this->assertEquals(array("Hello World!", "Hello World!",
+            array("Hello World!", "Hello World!")), $jagged_array);
+        
+        $object = new \stdClass();
+        $object->value1 = "Hello World!";
+        $object->value2 = " Hello World!NULL";
+        Format::removeNullWord($object);
+        $this->assertEquals("Hello World!", $object->value1);
+        $this->assertEquals("Hello World!", $object->value2);
+        
+        $embedded_object = new \stdClass();
+        $embedded_object->value1 = "Hello World!";
+        $embedded_object->value2 = " Hello World!NULL";
+        $embedded_object->object = new \stdClass();
+        $embedded_object->object->value1 = "Hello World!";
+        $embedded_object->object->value2 = " Hello World! null";
+        Format::removeNullWord($embedded_object);
+        $this->assertEquals("Hello World!", $embedded_object->value1);
+        $this->assertEquals("Hello World!", $embedded_object->value2);
+        $this->assertEquals("Hello World!", $embedded_object->object->value1);
+        $this->assertEquals("Hello World!", $embedded_object->object->value2);
+    }
 }

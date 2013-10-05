@@ -6,24 +6,24 @@
  */
 if (strpos(getallheaders(), "json") !== false)
 {
-	header("Content-Type: application/json");
+    header("Content-Type: application/json");
 }
 else
 {
-	header("Content-Type: text/plain");
+    header("Content-Type: text/plain");
 }
 
 $response = array();
 $response["Method"] = $_SERVER["REQUEST_METHOD"];
 $uri = str_replace(dirname($_SERVER["SCRIPT_NAME"]) . "/", "",
-	parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+    parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
 if ($uri)
 {
-	$response["URL"] = explode("/", $uri);
+    $response["URL"] = explode("/", $uri);
 }
 else
 {
-	$response["URL"] = array();
+    $response["URL"] = array();
 }
 $response["GET"] = $_GET;
 $response["POST"] = $_POST;

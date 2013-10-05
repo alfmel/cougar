@@ -22,33 +22,33 @@ require_once("cougar.php");
  */
 class Annotation extends Struct
 {
-	/**
-	 * @var string Annotation name
-	 */
-	public $name;
-	
-	/**
-	 * @var string Annotation value
-	 */
-	public $value;
-	
-	/**
-	 * Populates optional values for the annotation
-	 *
+    /**
+     * @var string Annotation name
+     */
+    public $name;
+    
+    /**
+     * @var string Annotation value
+     */
+    public $value;
+    
+    /**
+     * Populates optional values for the annotation
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param string $name Annotation name
-	 * @param string $value Annotation value
-	 */
-	public function __construct($name = null, $value = null)
-	{
-		$this->name = trim($name);
-		$this->value = trim($value);
-	}
+     * 
+     * @param string $name Annotation name
+     * @param string $value Annotation value
+     */
+    public function __construct($name = null, $value = null)
+    {
+        $this->name = trim($name);
+        $this->value = trim($value);
+    }
 }
 ?>

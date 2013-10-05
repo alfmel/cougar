@@ -31,6 +31,6 @@ require_once("cougar.php");
  */
 abstract class RealStruct implements iStruct, \Iterator, \JsonSerializable
 {
-	use tRealStruct;
+    use tRealStruct;
 }
 ?>

@@ -20,18 +20,18 @@ use Cougar\Cache\iCache;
  */
 interface iAnnotations
 {
-	/**
-	 * Returns the annotations for the class and public methods and properties
-	 * from the given object. Annotations in the interfaces the object may
-	 * implement are ignored.
-	 *
+    /**
+     * Returns the annotations for the class and public methods and properties
+     * from the given object. Annotations in the interfaces the object may
+     * implement are ignored.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 *
+     *
      * @param \Cougar\Cache\iCache $local_cache
      *   Local cache object
      * @param mixed $object
@@ -40,8 +40,8 @@ interface iAnnotations
      *   List of classes to exclude
      * @return \Cougar\Util\ClassAnnotations
      *   ClassAnnotations object with annotations
-	 */
-	public static function extract(iCache $local_cache, $object,
-		array $exclude_class_list = array());
+     */
+    public static function extract(iCache $local_cache, $object,
+        array $exclude_class_list = array());
 }
 ?>

@@ -6,6 +6,10 @@ namespace Cougar\Exceptions;
  * Turns all errors into ErrorExceptions as specified in the PHP Documentation.
  * See http://php.net/manual/en/class.errorexception.php for details.
  * 
+ * @package Cougar
+ * @license MIT
+ * @copyright 2013 Brigham Young University
+ *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
 class Errors
@@ -23,9 +27,6 @@ class Errors
      *   (AT)  Initial implementation
      *
      * @version 2013.09.30
-     * @package Cougar
-     * @license MIT
-     *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param int $errno

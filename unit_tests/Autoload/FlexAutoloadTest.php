@@ -12,38 +12,38 @@ require_once(__DIR__ . "/../../Cougar/Autoload/Autoload.php");
  */
 class FlexAutoloadTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers Cougar\Autoload\FlexAutoload:;addpath
-	 */
-	public function testAddPath()
-	{
+    /**
+     * @covers Cougar\Autoload\FlexAutoload:;addpath
+     */
+    public function testAddPath()
+    {
         # Ensure we can autoload
         Autoload::register(dirname(dirname(__DIR__)));
 
-		# Get the number of autoload functions and the include path
-		$function_count = count(spl_autoload_functions());
+        # Get the number of autoload functions and the include path
+        $function_count = count(spl_autoload_functions());
         $orig_include_path = get_include_path();
 
         # Add the the TestClass path
         FlexAutoload::addPath(__DIR__ . DIRECTORY_SEPARATOR . "TestClass");
 
         # Count should now be pervious count + 1
-		$this->assertEquals($function_count + 1,
-			count(spl_autoload_functions()));
+        $this->assertEquals($function_count + 1,
+            count(spl_autoload_functions()));
 
         # Include path should not be the same
         $this->assertNotEquals($orig_include_path, get_include_path());
-	}
-	
-	/**
-	 * @covers Cougar\Autoload\FlexAutoload:;splAutoload
-	 * @depends testAddPath
-	 */
-	public function testAutoloadClassImplementingInterface()
-	{
-		# Create a new AutoloadTestClass object
-		$object = new TestClass\AutoloadTestClass();
-		$this->assertInstanceOf(
+    }
+    
+    /**
+     * @covers Cougar\Autoload\FlexAutoload:;splAutoload
+     * @depends testAddPath
+     */
+    public function testAutoloadClassImplementingInterface()
+    {
+        # Create a new AutoloadTestClass object
+        $object = new TestClass\AutoloadTestClass();
+        $this->assertInstanceOf(
             "Cougar\UnitTests\Autoload\TestClass\AutoloadTestClass", $object);
-	}
+    }
 }

@@ -26,6 +26,6 @@ require_once("cougar.php");
  */
 abstract class Struct implements iStruct
 {
-	use tStruct;
+    use tStruct;
 }
 ?>

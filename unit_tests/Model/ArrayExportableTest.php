@@ -13,31 +13,31 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class ArrayExportableTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers \Cougar\Model\ArrayExportable::__get
-	 */
-	public function testToArray() {
-		$object = new ArrayExportableUnitTest();
-		$array = $object->__toArray();
-		$this->assertCount(2, $array);
-		$this->assertArrayHasKey("propertyA", $array);
-		$this->assertArrayHasKey("propertyB", $array);
-		$this->assertEquals("Value A", $array["propertyA"]);
-		$this->assertEquals("Value B", $array["propertyB"]);
-	}
+    /**
+     * @covers \Cougar\Model\ArrayExportable::__get
+     */
+    public function testToArray() {
+        $object = new ArrayExportableUnitTest();
+        $array = $object->__toArray();
+        $this->assertCount(2, $array);
+        $this->assertArrayHasKey("propertyA", $array);
+        $this->assertArrayHasKey("propertyB", $array);
+        $this->assertEquals("Value A", $array["propertyA"]);
+        $this->assertEquals("Value B", $array["propertyB"]);
+    }
 
-	/**
-	 * @covers \Cougar\Model\ArrayExportable::__get
-	 */
-	public function testTraitToArray() {
-		$object = new ArrayExportableUnitTestViaTrait();
-		$array = $object->__toArray();
-		$this->assertCount(2, $array);
-		$this->assertArrayHasKey("propertyA", $array);
-		$this->assertArrayHasKey("propertyB", $array);
-		$this->assertEquals("Value A", $array["propertyA"]);
-		$this->assertEquals("Value B", $array["propertyB"]);
-	}
+    /**
+     * @covers \Cougar\Model\ArrayExportable::__get
+     */
+    public function testTraitToArray() {
+        $object = new ArrayExportableUnitTestViaTrait();
+        $array = $object->__toArray();
+        $this->assertCount(2, $array);
+        $this->assertArrayHasKey("propertyA", $array);
+        $this->assertArrayHasKey("propertyB", $array);
+        $this->assertEquals("Value A", $array["propertyA"]);
+        $this->assertEquals("Value B", $array["propertyB"]);
+    }
 }
 
 
@@ -45,19 +45,19 @@ class ArrayExportableTest extends \PHPUnit_Framework_TestCase {
 
 class ArrayExportableUnitTestViaTrait implements iArrayExportable
 {
-	use \Cougar\Model\tArrayExportable;
-	
-	public $propertyA = "Value A";
-	public $propertyB = "Value B";
-	protected $property1 = "Protected Value 1";
-	protected $property2 = "Protected Value 2";
+    use \Cougar\Model\tArrayExportable;
+    
+    public $propertyA = "Value A";
+    public $propertyB = "Value B";
+    protected $property1 = "Protected Value 1";
+    protected $property2 = "Protected Value 2";
 }
 
 class ArrayExportableUnitTest extends ArrayExportable
 {
-	public $propertyA = "Value A";
-	public $propertyB = "Value B";
-	protected $property1 = "Protected Value 1";
-	protected $property2 = "Protected Value 2";
+    public $propertyA = "Value A";
+    public $propertyB = "Value B";
+    protected $property1 = "Protected Value 1";
+    protected $property2 = "Protected Value 2";
 }
 ?>

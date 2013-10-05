@@ -32,46 +32,46 @@ require_once("cougar.php");
  */
 class CasAuthenticationProvider implements iAuthenticationProvider
 {
-	/***************************************************************************
-	 * PUBLIC PROPERTIES AND METHODS
-	 **************************************************************************/
-	
-	/**
-	 * Authenticates the client. If authentication is successful, the method
-	 * will return an object that implements the iIdentity object. The primary
+    /***************************************************************************
+     * PUBLIC PROPERTIES AND METHODS
+     **************************************************************************/
+    
+    /**
+     * Authenticates the client. If authentication is successful, the method
+     * will return an object that implements the iIdentity object. The primary
      * identity (id) will be the identity returned from the getUser() call.
      * Additional attributes (of available) will be passed as the identity
      * object's attributes. If authentication fails, the method will return a
      * null.
-	 *
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @return iIdentity Identity object
-	 */
-	public function authenticate()
-	{
-		# Check for CAS authentication
-		\phpCAS::setCacheTimesForAuthRecheck(0);
-		if (\phpCAS::checkAuthentication())
-		{
+     * 
+     * @return iIdentity Identity object
+     */
+    public function authenticate()
+    {
+        # Check for CAS authentication
+        \phpCAS::setCacheTimesForAuthRecheck(0);
+        if (\phpCAS::checkAuthentication())
+        {
             # Get the ID
             $id = phpCAS::getUser();
 
-			# Get the attributes
-			$attributes = phpCAS::getAttributes();
+            # Get the attributes
+            $attributes = phpCAS::getAttributes();
 
             # Return a new identity
             return new Identity($id, $attributes);
-		}
-		else
-		{
-			return null;
-		}
-	}
+        }
+        else
+        {
+            return null;
+        }
+    }
 }
 ?>

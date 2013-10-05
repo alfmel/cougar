@@ -21,165 +21,165 @@ class Arc4Test extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-	 * @covers Cougar\Util\Arc4::setKey
-	 * @covers Cougar\Util\Arc4::encode
-	 */
-	public function testEncode() {
-		Arc4::setKey(bin2hex("Key"));
-		$this->assertEquals("bbf316e8d940af0ad3",
-			Arc4::encode("Plaintext"));
-		
-		Arc4::setKey(bin2hex("Wiki"));
-		$this->assertEquals("1021bf0420", Arc4::encode("pedia"));
-		
-		Arc4::setKey(bin2hex("Secret"));
-		$this->assertEquals("45a01f645fc35b383552544b9bf5",
-			Arc4::encode("Attack at dawn"));
-		
-		Arc4::setKey(bin2hex("5n0WIrUINMx9IJpGuOk4Gq0CaqvcA"));
-		$this->assertEquals("6fccbd7757", Arc4::encode("Hello"));
-		
-		$this->assertEquals("6fccbd77576501b1f33b26a8",
-			Arc4::encode("Hello World!"));
-		
-		$this->assertEquals("73c1b43b49303fbdea7720fb3819308ba861aabe926131f" .
-				"9c977c18c542de28c6b89261368725de93d26edd4",
-			Arc4::encode(
-				"The quick brown fox jumps over the lazy dog."));
-	}
+     * @covers Cougar\Util\Arc4::setKey
+     * @covers Cougar\Util\Arc4::encode
+     */
+    public function testEncode() {
+        Arc4::setKey(bin2hex("Key"));
+        $this->assertEquals("bbf316e8d940af0ad3",
+            Arc4::encode("Plaintext"));
+        
+        Arc4::setKey(bin2hex("Wiki"));
+        $this->assertEquals("1021bf0420", Arc4::encode("pedia"));
+        
+        Arc4::setKey(bin2hex("Secret"));
+        $this->assertEquals("45a01f645fc35b383552544b9bf5",
+            Arc4::encode("Attack at dawn"));
+        
+        Arc4::setKey(bin2hex("5n0WIrUINMx9IJpGuOk4Gq0CaqvcA"));
+        $this->assertEquals("6fccbd7757", Arc4::encode("Hello"));
+        
+        $this->assertEquals("6fccbd77576501b1f33b26a8",
+            Arc4::encode("Hello World!"));
+        
+        $this->assertEquals("73c1b43b49303fbdea7720fb3819308ba861aabe926131f" .
+                "9c977c18c542de28c6b89261368725de93d26edd4",
+            Arc4::encode(
+                "The quick brown fox jumps over the lazy dog."));
+    }
 
-	/**
-	 * @covers Cougar\Util\Arc4::decode
-	 * @covers Cougar\Util\Arc4::setKey
-	 */
-	public function testDecode() {
-		Arc4::setKey(bin2hex("Key"));
-		$this->assertEquals("Plaintext",
-			Arc4::decode("bbf316e8d940af0ad3"));
-		
-		Arc4::setKey(bin2hex("Wiki"));
-		$this->assertEquals("pedia", Arc4::decode("1021bf0420"));
-		
-		Arc4::setKey(bin2hex("Secret"));
-		$this->assertEquals("Attack at dawn",
-			Arc4::decode("45a01f645fc35b383552544b9bf5"));
-		
-		Arc4::setKey(bin2hex("5n0WIrUINMx9IJpGuOk4Gq0CaqvcA"));
-		$this->assertEquals("Hello", Arc4::decode("6fccbd7757"));
-		
-		$this->assertEquals("Hello World!",
-			Arc4::decode("6fccbd77576501b1f33b26a8"));
-		
-		$this->assertEquals("The quick brown fox jumps over the lazy dog.",
-			Arc4::decode(
-				"73c1b43b49303fbdea7720fb3819308ba861aabe926131f" .
-				"9c977c18c542de28c6b89261368725de93d26edd4"));
-	}
+    /**
+     * @covers Cougar\Util\Arc4::decode
+     * @covers Cougar\Util\Arc4::setKey
+     */
+    public function testDecode() {
+        Arc4::setKey(bin2hex("Key"));
+        $this->assertEquals("Plaintext",
+            Arc4::decode("bbf316e8d940af0ad3"));
+        
+        Arc4::setKey(bin2hex("Wiki"));
+        $this->assertEquals("pedia", Arc4::decode("1021bf0420"));
+        
+        Arc4::setKey(bin2hex("Secret"));
+        $this->assertEquals("Attack at dawn",
+            Arc4::decode("45a01f645fc35b383552544b9bf5"));
+        
+        Arc4::setKey(bin2hex("5n0WIrUINMx9IJpGuOk4Gq0CaqvcA"));
+        $this->assertEquals("Hello", Arc4::decode("6fccbd7757"));
+        
+        $this->assertEquals("Hello World!",
+            Arc4::decode("6fccbd77576501b1f33b26a8"));
+        
+        $this->assertEquals("The quick brown fox jumps over the lazy dog.",
+            Arc4::decode(
+                "73c1b43b49303fbdea7720fb3819308ba861aabe926131f" .
+                "9c977c18c542de28c6b89261368725de93d26edd4"));
+    }
 
-	/**
-	 * @covers Cougar\Util\Arc4::setMagic
-	 * @covers Cougar\Util\Arc4::setKey
-	 * @covers Cougar\Util\Arc4::encode
-	 */
-	public function testEncodeDecodeWithMagic() {
-		Arc4::setKey(bin2hex(
-			"d8vsR7nnKmG4FwKgX82gzW58QtDWiZGnjVedrZsNnG"));
-		Arc4::setMagic("MAGIC!");
-		
-		# Define a list of strings
-		$strings = array(
-			"Hello",
-			"Hello World!",
-			"Attack at dawn",
-			"The quick brown fox jumps over the lazy dog.");
-		
-		# Go through each string and encode/decode
-		foreach($strings as $string)
-		{
-			$encoded_string = Arc4::encode($string);
-			$decoded_string = Arc4::decode($encoded_string);
-			$this->assertEquals($string, $decoded_string);
-		}
-	}
+    /**
+     * @covers Cougar\Util\Arc4::setMagic
+     * @covers Cougar\Util\Arc4::setKey
+     * @covers Cougar\Util\Arc4::encode
+     */
+    public function testEncodeDecodeWithMagic() {
+        Arc4::setKey(bin2hex(
+            "d8vsR7nnKmG4FwKgX82gzW58QtDWiZGnjVedrZsNnG"));
+        Arc4::setMagic("MAGIC!");
+        
+        # Define a list of strings
+        $strings = array(
+            "Hello",
+            "Hello World!",
+            "Attack at dawn",
+            "The quick brown fox jumps over the lazy dog.");
+        
+        # Go through each string and encode/decode
+        foreach($strings as $string)
+        {
+            $encoded_string = Arc4::encode($string);
+            $decoded_string = Arc4::decode($encoded_string);
+            $this->assertEquals($string, $decoded_string);
+        }
+    }
 
-	/**
-	 * @covers Cougar\Util\Arc4::setMagic
-	 * @covers Cougar\Util\Arc4::useCompression
-	 * @covers Cougar\Util\Arc4::setKey
-	 * @covers Cougar\Util\Arc4::encode
-	 */
-	public function testEncodeDecodeWithCompression() {
-		Arc4::setKey(bin2hex(
-			"d8vsR7nnKmG4FwKgX82gzW58QtDWiZGnjVedrZsNnG"));
-		Arc4::setMagic("");
-		Arc4::useCompression(true);
-		
-		# Define a list of strings
-		$strings = array(
-			"Hello",
-			"Hello World!",
-			"Attack at dawn",
-			"The quick brown fox jumps over the lazy dog.");
-		
-		# Go through each string and encode/decode
-		foreach($strings as $string)
-		{
-			$encoded_string = Arc4::encode($string);
-			$decoded_string = Arc4::decode($encoded_string);
-			$this->assertEquals($string, $decoded_string);
-		}
-	}
+    /**
+     * @covers Cougar\Util\Arc4::setMagic
+     * @covers Cougar\Util\Arc4::useCompression
+     * @covers Cougar\Util\Arc4::setKey
+     * @covers Cougar\Util\Arc4::encode
+     */
+    public function testEncodeDecodeWithCompression() {
+        Arc4::setKey(bin2hex(
+            "d8vsR7nnKmG4FwKgX82gzW58QtDWiZGnjVedrZsNnG"));
+        Arc4::setMagic("");
+        Arc4::useCompression(true);
+        
+        # Define a list of strings
+        $strings = array(
+            "Hello",
+            "Hello World!",
+            "Attack at dawn",
+            "The quick brown fox jumps over the lazy dog.");
+        
+        # Go through each string and encode/decode
+        foreach($strings as $string)
+        {
+            $encoded_string = Arc4::encode($string);
+            $decoded_string = Arc4::decode($encoded_string);
+            $this->assertEquals($string, $decoded_string);
+        }
+    }
 
-	/**
-	 * @covers Cougar\Util\Arc4::setMagic
-	 * @covers Cougar\Util\Arc4::useCompression
-	 * @covers Cougar\Util\Arc4::setKey
-	 * @covers Cougar\Util\Arc4::encode
-	 */
-	public function testEncodeDecodeWithCompressionAndMagic() {
-		Arc4::setKey(bin2hex(
-			"d8vsR7nnKmG4FwKgX82gzW58QtDWiZGnjVedrZsNnG"));
-		Arc4::setMagic("Magic string");
-		Arc4::useCompression(true);
-		
-		# Define a list of strings
-		$strings = array(
-			"Hello",
-			"Hello World!",
-			"Attack at dawn",
-			"The quick brown fox jumps over the lazy dog.");
-		
-		# Go through each string and encode/decode
-		foreach($strings as $string)
-		{
-			$encoded_string = Arc4::encode($string);
-			$decoded_string = Arc4::decode($encoded_string);
-			$this->assertEquals($string, $decoded_string);
-		}
-	}
-	
-	/**
-	 * @covers Cougar\Util\Arc4::decode
-	 */
-	public function testDecodePlainText()
-	{
-		$this->assertEquals("This is a test", Arc4::decode("This is a test"));
-	}
-	
-	/**
-	 * @covers Cougar\Util\Arc4::loadParameters
-	 */
-	public function testLoadParameters()
-	{
-		file_put_contents("arc4_parameters_unit_test.conf",
-			"key = 0123456789abcdef\n" .
-			"magic = some_value\n" .
-			"compress = yes");
-		
-		Arc4::loadParameters("arc4_parameters_unit_test.conf");
-		
-		unlink("arc4_parameters_unit_test.conf");
-		
-		$this->assertTrue(true);
-	}
+    /**
+     * @covers Cougar\Util\Arc4::setMagic
+     * @covers Cougar\Util\Arc4::useCompression
+     * @covers Cougar\Util\Arc4::setKey
+     * @covers Cougar\Util\Arc4::encode
+     */
+    public function testEncodeDecodeWithCompressionAndMagic() {
+        Arc4::setKey(bin2hex(
+            "d8vsR7nnKmG4FwKgX82gzW58QtDWiZGnjVedrZsNnG"));
+        Arc4::setMagic("Magic string");
+        Arc4::useCompression(true);
+        
+        # Define a list of strings
+        $strings = array(
+            "Hello",
+            "Hello World!",
+            "Attack at dawn",
+            "The quick brown fox jumps over the lazy dog.");
+        
+        # Go through each string and encode/decode
+        foreach($strings as $string)
+        {
+            $encoded_string = Arc4::encode($string);
+            $decoded_string = Arc4::decode($encoded_string);
+            $this->assertEquals($string, $decoded_string);
+        }
+    }
+    
+    /**
+     * @covers Cougar\Util\Arc4::decode
+     */
+    public function testDecodePlainText()
+    {
+        $this->assertEquals("This is a test", Arc4::decode("This is a test"));
+    }
+    
+    /**
+     * @covers Cougar\Util\Arc4::loadParameters
+     */
+    public function testLoadParameters()
+    {
+        file_put_contents("arc4_parameters_unit_test.conf",
+            "key = 0123456789abcdef\n" .
+            "magic = some_value\n" .
+            "compress = yes");
+        
+        Arc4::loadParameters("arc4_parameters_unit_test.conf");
+        
+        unlink("arc4_parameters_unit_test.conf");
+        
+        $this->assertTrue(true);
+    }
 }

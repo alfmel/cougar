@@ -33,57 +33,57 @@ require_once("cougar.php");
  */
 trait tStruct
 {
-	use tArrayExportable;
-	
-	/***************************************************************************
-	 * MAGIC METHODS
-	 **************************************************************************/
-	
-	/**
-	 * Throws an exception indicating the property does not exist.
-	 * 
-	 * If this method is called, it means the requested property does not exist.
-	 * Since the struct does not allow the creation of new properties, an
-	 * exception is thrown.
-	 *
+    use tArrayExportable;
+    
+    /***************************************************************************
+     * MAGIC METHODS
+     **************************************************************************/
+    
+    /**
+     * Throws an exception indicating the property does not exist.
+     * 
+     * If this method is called, it means the requested property does not exist.
+     * Since the struct does not allow the creation of new properties, an
+     * exception is thrown.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param string $name Property name
-	 * @throws \Cougar\Exceptions\Exception
-	 */
-	public function __get($name)
-	{
-		throw new Exception(get_class($this) . " object does not have a " .
-			"property named " . $name);
-	}
-	
-	/**
-	 * Throws an exception indicating the property does not exist.
-	 * 
-	 * If this method is called, it means the requested property does not exist.
-	 * Since the struct does not allow the creation of new properties, an
-	 * exception is thrown.
-	 *
-     * @history
-     * 2013.09.30:
-     *   (AT)  Initial release
-     *
-     * @version 2013.09.30
-     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param string $name Property name
-	 * @param mixed $value Property value
+     * 
+     * @param string $name Property name
      * @throws \Cougar\Exceptions\Exception
-	 */
-	public function __set($name, $value)
-	{
-		throw new Exception(get_class($this) . " object does not have a " .
-			"property named " . $name);
-	}
+     */
+    public function __get($name)
+    {
+        throw new Exception(get_class($this) . " object does not have a " .
+            "property named " . $name);
+    }
+    
+    /**
+     * Throws an exception indicating the property does not exist.
+     * 
+     * If this method is called, it means the requested property does not exist.
+     * Since the struct does not allow the creation of new properties, an
+     * exception is thrown.
+     *
+     * @history
+     * 2013.09.30:
+     *   (AT)  Initial release
+     *
+     * @version 2013.09.30
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     * 
+     * @param string $name Property name
+     * @param mixed $value Property value
+     * @throws \Cougar\Exceptions\Exception
+     */
+    public function __set($name, $value)
+    {
+        throw new Exception(get_class($this) . " object does not have a " .
+            "property named " . $name);
+    }
 }
 ?>

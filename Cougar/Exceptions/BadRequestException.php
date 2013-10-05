@@ -9,9 +9,13 @@ namespace Cougar\Exceptions;
  * 
  * HTTP Status Code: 400
  * 
+ * @package Cougar
+ * @license MIT
+ * @copyright 2013 Brigham Young University
+ *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
 class BadRequestException extends Exception
 {
-	protected $httpStatusCode = 400;
+    protected $httpStatusCode = 400;
 }

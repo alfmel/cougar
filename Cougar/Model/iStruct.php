@@ -24,43 +24,43 @@ namespace Cougar\Model;
  */
 interface iStruct extends iArrayExportable
 {
-	/**
-	 * Throws an exception indicating the property does not exist.
-	 * 
-	 * If this method is called, it means the requested property does not exist.
-	 * Since the struct does not allow the creation of new properties, an
-	 * exception is thrown.
-	 *
+    /**
+     * Throws an exception indicating the property does not exist.
+     * 
+     * If this method is called, it means the requested property does not exist.
+     * Since the struct does not allow the creation of new properties, an
+     * exception is thrown.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param string $name Property name
-	 * @return mixed Property value
-	 */
-	public function __get($name);
-	
-	/**
-	 * Throws an exception indicating the property does not exist.
-	 * 
-	 * If this method is called, it means the requested property does not exist.
-	 * Since the struct does not allow the creation of new properties, an
-	 * exception is thrown.
-	 *
+     * 
+     * @param string $name Property name
+     * @return mixed Property value
+     */
+    public function __get($name);
+    
+    /**
+     * Throws an exception indicating the property does not exist.
+     * 
+     * If this method is called, it means the requested property does not exist.
+     * Since the struct does not allow the creation of new properties, an
+     * exception is thrown.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param string $name Property name
-	 * @param mixed $value Property value
-	 * @return bool True if successful, throws exception on error
-	 */
-	public function __set($name, $value);
+     * 
+     * @param string $name Property name
+     * @param mixed $value Property value
+     * @return bool True if successful, throws exception on error
+     */
+    public function __set($name, $value);
 }
 ?>

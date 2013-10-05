@@ -44,11 +44,6 @@ class Autoload
      *   (AT)  Initial release
      *
      * @version 2013.09.30
-     * @package Cougar
-     * @license MIT
- *
- * @copyright 2013 Brigham Young University
-     *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $cougar_root_dir
@@ -83,11 +78,6 @@ class Autoload
      *   (AT)  Initial release
      *
      * @version 2013.09.30
-     * @package Cougar
-     * @license MIT
- *
- * @copyright 2013 Brigham Young University
-     *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $class_name

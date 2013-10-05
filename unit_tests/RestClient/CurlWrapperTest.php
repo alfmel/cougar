@@ -14,337 +14,337 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class CurlWrapperTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @var CurlWrapper
-	 */
-	protected $object;
+    /**
+     * @var CurlWrapper
+     */
+    protected $object;
 
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp() {
-		$this->object = new CurlWrapper();
-	}
+    /**
+     * Sets up the fixture, for example, opens a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp() {
+        $this->object = new CurlWrapper();
+    }
 
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown() {
-		
-	}
+    /**
+     * Tears down the fixture, for example, closes a network connection.
+     * This method is called after a test is executed.
+     */
+    protected function tearDown() {
+        
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::newRequest
-	 * @todo test more attributes
-	 */
-	public function testNewRequest() {
-		$this->assertNull($this->object->newRequest());
-		$this->assertAttributeEquals("GET", "method", $this->object);
-		$this->assertAttributeEquals(null, "url", $this->object);
-		$this->assertAttributeEquals(array(), "urlFields", $this->object);
-		$this->assertAttributeEquals(array(), "getFields", $this->object);
-		$this->assertAttributeEquals(null, "body", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::newRequest
+     * @todo test more attributes
+     */
+    public function testNewRequest() {
+        $this->assertNull($this->object->newRequest());
+        $this->assertAttributeEquals("GET", "method", $this->object);
+        $this->assertAttributeEquals(null, "url", $this->object);
+        $this->assertAttributeEquals(array(), "urlFields", $this->object);
+        $this->assertAttributeEquals(array(), "getFields", $this->object);
+        $this->assertAttributeEquals(null, "body", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setTimeout
-	 */
-	public function testSetTimeout() {
-		$this->assertNull($this->object->setTimeout(600));
-		$this->assertAttributeEquals(600, "timeout", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setTimeout
+     */
+    public function testSetTimeout() {
+        $this->assertNull($this->object->setTimeout(600));
+        $this->assertAttributeEquals(600, "timeout", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setMethod
-	 */
-	public function testSetMethod() {
-		$this->assertNull($this->object->setMethod("GET"));
-		$this->assertAttributeEquals("GET", "method", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setMethod
+     */
+    public function testSetMethod() {
+        $this->assertNull($this->object->setMethod("GET"));
+        $this->assertAttributeEquals("GET", "method", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setMethod
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testSetMethodToInvalidValue() {
-		$this->assertNull($this->object->setMethod("PUBLISH"));
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setMethod
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testSetMethodToInvalidValue() {
+        $this->assertNull($this->object->setMethod("PUBLISH"));
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setURL
-	 */
-	public function testSetURL() {
-		$this->assertNull($this->object->setURL("http://www.byu.edu/"));
-		$this->assertAttributeEquals("http://www.byu.edu/", "url",
-			$this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setURL
+     */
+    public function testSetURL() {
+        $this->assertNull($this->object->setURL("http://www.byu.edu/"));
+        $this->assertAttributeEquals("http://www.byu.edu/", "url",
+            $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setHeaders
-	 */
-	public function testSetHeaders() {
-		$headers = array("X-UnitTest-Custom-Header" => "Unit test header");
-		$this->assertNull($this->object->setHeaders($headers));
-		$this->assertAttributeEquals($headers, "headers", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setHeaders
+     */
+    public function testSetHeaders() {
+        $headers = array("X-UnitTest-Custom-Header" => "Unit test header");
+        $this->assertNull($this->object->setHeaders($headers));
+        $this->assertAttributeEquals($headers, "headers", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setCookies
-	 */
-	public function testSetCookies() {
-		$cookies = array("UnitTestID", "Unit test sample cookie");
-		$this->assertNull($this->object->setCookies($cookies));
-		$this->assertAttributeEquals($cookies, "cookies", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setCookies
+     */
+    public function testSetCookies() {
+        $cookies = array("UnitTestID", "Unit test sample cookie");
+        $this->assertNull($this->object->setCookies($cookies));
+        $this->assertAttributeEquals($cookies, "cookies", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setContentType
-	 */
-	public function testSetContentType() {
-		$content_type = "application/xml";
-		$this->assertNull($this->object->setContentType($content_type));
-		$this->assertAttributeEquals($content_type, "contentType",
-			$this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setContentType
+     */
+    public function testSetContentType() {
+        $content_type = "application/xml";
+        $this->assertNull($this->object->setContentType($content_type));
+        $this->assertAttributeEquals($content_type, "contentType",
+            $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setUserAgent
-	 */
-	public function testSetUserAgent() {
-		$user_agent = "Unit Test Browser";
-		$this->assertNull($this->object->setUserAgent($user_agent));
-		$this->assertAttributeEquals($user_agent, "userAgent", $this->object);
-	}
-	
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setClientSSLCertificate
-	 * @todo Find a test service that can accept it
-	 */
-	public function testSetClientSSLCertificate() {
-		$cert_file = __FILE__;
-		$password = "password";
-		$this->assertNull($this->object->setClientSSLCertificate($cert_file,
-			$password));
-		$this->assertAttributeEquals($cert_file, "sslCertFile", $this->object);
-		$this->assertAttributeEquals($password, "sslCertPassword",
-			$this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setUserAgent
+     */
+    public function testSetUserAgent() {
+        $user_agent = "Unit Test Browser";
+        $this->assertNull($this->object->setUserAgent($user_agent));
+        $this->assertAttributeEquals($user_agent, "userAgent", $this->object);
+    }
+    
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setClientSSLCertificate
+     * @todo Find a test service that can accept it
+     */
+    public function testSetClientSSLCertificate() {
+        $cert_file = __FILE__;
+        $password = "password";
+        $this->assertNull($this->object->setClientSSLCertificate($cert_file,
+            $password));
+        $this->assertAttributeEquals($cert_file, "sslCertFile", $this->object);
+        $this->assertAttributeEquals($password, "sslCertPassword",
+            $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setClientSSLCertificate
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testSetClientSSLCertificateBadFile() {
-		$cert_file = "/path/to/non/existing/file";
-		$this->assertNull($this->object->setClientSSLCertificate($cert_file));
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setClientSSLCertificate
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testSetClientSSLCertificateBadFile() {
+        $cert_file = "/path/to/non/existing/file";
+        $this->assertNull($this->object->setClientSSLCertificate($cert_file));
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setURLFields
-	 */
-	public function testSetURLFields() {
-		$url_fields = array("list", "of", "url", "fields");
-		$this->assertNull($this->object->setURLFields($url_fields));
-		$this->assertAttributeEquals($url_fields, "urlFields", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setURLFields
+     */
+    public function testSetURLFields() {
+        $url_fields = array("list", "of", "url", "fields");
+        $this->assertNull($this->object->setURLFields($url_fields));
+        $this->assertAttributeEquals($url_fields, "urlFields", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setGetFields
-	 */
-	public function testSetGetFields() {
-		$get_fields = array("name1" => "value1", "name2" => "value2");
-		$this->assertNull($this->object->setGetFields($get_fields));
-		$this->assertAttributeEquals($get_fields, "getFields", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setGetFields
+     */
+    public function testSetGetFields() {
+        $get_fields = array("name1" => "value1", "name2" => "value2");
+        $this->assertNull($this->object->setGetFields($get_fields));
+        $this->assertAttributeEquals($get_fields, "getFields", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setBody
-	 */
-	public function testSetBody() {
-		# Test array body
-		$body = array("name1" => "value1", "name2" => "value2");
-		$this->assertNull($this->object->setBody($body));
-		$this->assertAttributeEquals($body, "body", $this->object);
-		
-		# Test text body
-		$body = array("This is a sample body");
-		$this->assertNull($this->object->setBody($body));
-		$this->assertAttributeEquals($body, "body", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setBody
+     */
+    public function testSetBody() {
+        # Test array body
+        $body = array("name1" => "value1", "name2" => "value2");
+        $this->assertNull($this->object->setBody($body));
+        $this->assertAttributeEquals($body, "body", $this->object);
+        
+        # Test text body
+        $body = array("This is a sample body");
+        $this->assertNull($this->object->setBody($body));
+        $this->assertAttributeEquals($body, "body", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setOutputFilename
-	 */
-	public function testSetOutputFilename() {
-		$filename = "/tmp/CurlWrapperUnitTest.output";
-		$this->assertNull($this->object->setOutputFilename($filename));
-		$this->assertAttributeEquals($filename, "outputPath", $this->object);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setOutputFilename
+     */
+    public function testSetOutputFilename() {
+        $filename = "/tmp/CurlWrapperUnitTest.output";
+        $this->assertNull($this->object->setOutputFilename($filename));
+        $this->assertAttributeEquals($filename, "outputPath", $this->object);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::setOutputFilename
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testSetOutputFilenameBadPath() {
-		$filename = "/path/to/some/file/that/doesn't/exist";
-		$this->assertNull($this->object->setOutputFilename($filename));
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::setOutputFilename
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testSetOutputFilenameBadPath() {
+        $filename = "/path/to/some/file/that/doesn't/exist";
+        $this->assertNull($this->object->setOutputFilename($filename));
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::generateURL
-	 */
-	public function testGenerateURL() {
-		$url = "http://www.byu.edu";
-		$url_fields = array("list", "of", "url", "fields");
-		$get_fields = array("name1" => "value1", "name2" => "value2");
-		$this->assertNull($this->object->setURL($url));
-		$this->assertNull($this->object->setURLFields($url_fields));
-		$this->assertNull($this->object->setGetFields($get_fields));
-		$this->assertEquals($this->object->generateURL(),
-			$url . "/" . implode("/", $url_fields) . "?" .
-			http_build_query($get_fields));
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::generateURL
+     */
+    public function testGenerateURL() {
+        $url = "http://www.byu.edu";
+        $url_fields = array("list", "of", "url", "fields");
+        $get_fields = array("name1" => "value1", "name2" => "value2");
+        $this->assertNull($this->object->setURL($url));
+        $this->assertNull($this->object->setURLFields($url_fields));
+        $this->assertNull($this->object->setGetFields($get_fields));
+        $this->assertEquals($this->object->generateURL(),
+            $url . "/" . implode("/", $url_fields) . "?" .
+            http_build_query($get_fields));
+    }
 
-	/**
-	 * This test basically mimics the code, but I had no other way to test it.
-	 * If someone decides to fiddle around with this method, then they'll have
-	 * to live by this standard.
-	 * 
-	 * @covers \Cougar\RestClient\CurlWrapper::arrayToUrlEncoding
-	 */
-	public function testArrayToUrlEncoding() {
-		$array = array(
-			"integer" => 1,
-			"float" => 0.5,
-			"string" => "some string",
-			"array" => array("name1" => "value1", "name2" => "value2"));
-		if (! defined("PHP_QUERY_RFC3986"))
-		{
-			$expected = http_build_query($array);
-		}
-		else
-		{
-			$expected = http_build_query($array, "", "&", PHP_QUERY_RFC3986);
-		}
-		$this->assertEquals($this->object->arrayToUrlEncoding($array),
-			$expected);
-	}
+    /**
+     * This test basically mimics the code, but I had no other way to test it.
+     * If someone decides to fiddle around with this method, then they'll have
+     * to live by this standard.
+     * 
+     * @covers \Cougar\RestClient\CurlWrapper::arrayToUrlEncoding
+     */
+    public function testArrayToUrlEncoding() {
+        $array = array(
+            "integer" => 1,
+            "float" => 0.5,
+            "string" => "some string",
+            "array" => array("name1" => "value1", "name2" => "value2"));
+        if (! defined("PHP_QUERY_RFC3986"))
+        {
+            $expected = http_build_query($array);
+        }
+        else
+        {
+            $expected = http_build_query($array, "", "&", PHP_QUERY_RFC3986);
+        }
+        $this->assertEquals($this->object->arrayToUrlEncoding($array),
+            $expected);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::exec
-	 * @covers \Cougar\RestClient\CurlWrapper::getInfo
-	 * @todo Come up with more combinations; ideally, on a test service
-	 */
-	public function testExec() {
-		$url = "http://www.byu.edu";
-		$this->assertNull($this->object->setURL($url));
-		$this->assertEquals(200, $this->object->exec());
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::exec
+     * @covers \Cougar\RestClient\CurlWrapper::getInfo
+     * @todo Come up with more combinations; ideally, on a test service
+     */
+    public function testExec() {
+        $url = "http://www.byu.edu";
+        $this->assertNull($this->object->setURL($url));
+        $this->assertEquals(200, $this->object->exec());
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::exec
-	 * @todo Come up with more combinations; ideally, on a test service
-	 */
-	public function testExecGetWithUrlFields() {
-		$url = "http://www.byu.edu";
-		$url_fields = array("list", "of", "url", "fields");
-		#$get_fields = array("name1" => "value1", "name2" => "value2");
-		$this->assertNull($this->object->setURL($url));
-		$this->assertNull($this->object->setURLFields($url_fields));
-		
-		# Change this when we have better servers!
-		$this->assertEquals(200, $this->object->exec());
-		$info = $this->object->getInfo();
-		$this->assertArrayHasKey("url", $info);
-		$this->assertEquals("http://www.byu.edu/errors/404.html", $info["url"]);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::exec
+     * @todo Come up with more combinations; ideally, on a test service
+     */
+    public function testExecGetWithUrlFields() {
+        $url = "http://www.byu.edu";
+        $url_fields = array("list", "of", "url", "fields");
+        #$get_fields = array("name1" => "value1", "name2" => "value2");
+        $this->assertNull($this->object->setURL($url));
+        $this->assertNull($this->object->setURLFields($url_fields));
+        
+        # Change this when we have better servers!
+        $this->assertEquals(200, $this->object->exec());
+        $info = $this->object->getInfo();
+        $this->assertArrayHasKey("url", $info);
+        $this->assertEquals("http://www.byu.edu/errors/404.html", $info["url"]);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::exec
-	 * @todo Come up with more combinations; ideally, on a test service
-	 */
-	public function testExecGetWithGetFields() {
-		$url = "http://www.byu.edu";
-		$get_fields = array("foo" => "bar");
-		$this->assertNull($this->object->setURL($url));
-		$this->assertNull($this->object->setGetFields($get_fields));
-		
-		# Change this when we have better servers!
-		$this->assertEquals(200, $this->object->exec());
-		$info = $this->object->getInfo();
-		$this->assertArrayHasKey("url", $info);
-		$this->assertEquals("http://home.byu.edu/home/?foo=bar", $info["url"]);
-	}
-	
-	/**
-	 * Do post operations
-	 */
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::exec
+     * @todo Come up with more combinations; ideally, on a test service
+     */
+    public function testExecGetWithGetFields() {
+        $url = "http://www.byu.edu";
+        $get_fields = array("foo" => "bar");
+        $this->assertNull($this->object->setURL($url));
+        $this->assertNull($this->object->setGetFields($get_fields));
+        
+        # Change this when we have better servers!
+        $this->assertEquals(200, $this->object->exec());
+        $info = $this->object->getInfo();
+        $this->assertArrayHasKey("url", $info);
+        $this->assertEquals("http://home.byu.edu/home/?foo=bar", $info["url"]);
+    }
+    
+    /**
+     * Do post operations
+     */
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::getRawHeader
-	 * @depends testExec
-	 */
-	public function testGetRawHeader() {
-		$url = "http://www.byu.edu";
-		$this->assertNull($this->object->setURL($url));
-		$this->assertEquals(200, $this->object->exec());
-		$info = $this->object->getInfo();
-		$this->assertArrayHasKey("header_size", $info);
-		$this->assertEquals($info["header_size"],
-			strlen($this->object->getRawHeader()));
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::getRawHeader
+     * @depends testExec
+     */
+    public function testGetRawHeader() {
+        $url = "http://www.byu.edu";
+        $this->assertNull($this->object->setURL($url));
+        $this->assertEquals(200, $this->object->exec());
+        $info = $this->object->getInfo();
+        $this->assertArrayHasKey("header_size", $info);
+        $this->assertEquals($info["header_size"],
+            strlen($this->object->getRawHeader()));
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::getHeaders
-	 * @depends testExec
-	 */
-	public function testGetHeaders() {
-		$url = "http://www.byu.edu";
-		$this->assertNull($this->object->setURL($url));
-		$this->assertEquals(200, $this->object->exec());
-		$headers = $this->object->getHeaders();
-		$this->assertArrayHasKey("Content-Type", $headers);
-		$this->assertEquals("text/html; charset=utf-8",
-			$headers["Content-Type"]);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::getHeaders
+     * @depends testExec
+     */
+    public function testGetHeaders() {
+        $url = "http://www.byu.edu";
+        $this->assertNull($this->object->setURL($url));
+        $this->assertEquals(200, $this->object->exec());
+        $headers = $this->object->getHeaders();
+        $this->assertArrayHasKey("Content-Type", $headers);
+        $this->assertEquals("text/html; charset=utf-8",
+            $headers["Content-Type"]);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::getHeaders
-	 * @depends testExec
-	 * @depends testGetHeaders
-	 */
-	public function testGetHeader() {
-		$url = "http://www.byu.edu";
-		$this->assertNull($this->object->setURL($url));
-		$this->assertEquals(200, $this->object->exec());
-		$headers = $this->object->getHeaders();
-		$this->assertArrayHasKey("Content-Type", $headers);
-		$this->assertEquals($this->object->getHeader("content-type"),
-			$headers["Content-Type"]);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::getHeaders
+     * @depends testExec
+     * @depends testGetHeaders
+     */
+    public function testGetHeader() {
+        $url = "http://www.byu.edu";
+        $this->assertNull($this->object->setURL($url));
+        $this->assertEquals(200, $this->object->exec());
+        $headers = $this->object->getHeaders();
+        $this->assertArrayHasKey("Content-Type", $headers);
+        $this->assertEquals($this->object->getHeader("content-type"),
+            $headers["Content-Type"]);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::getResponse
-	 * @depends testExec
-	 */
-	public function testGetResponse() {
-		$url = "http://www.byu.edu";
-		$this->assertNull($this->object->setURL($url));
-		$this->assertEquals(200, $this->object->exec());
-		$response = $this->object->getResponse();
-		$this->assertStringMatchesFormat("%a<html%a>%a</html>%a", $response);
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::getResponse
+     * @depends testExec
+     */
+    public function testGetResponse() {
+        $url = "http://www.byu.edu";
+        $this->assertNull($this->object->setURL($url));
+        $this->assertEquals(200, $this->object->exec());
+        $response = $this->object->getResponse();
+        $this->assertStringMatchesFormat("%a<html%a>%a</html>%a", $response);
+    }
 
-	/**
-	 * @covers \Cougar\RestClient\CurlWrapper::getCookies
-	 * @depends testExec
-	 */
-	public function testGetCookies() {
-		$url = "http://www.byu.edu";
-		$this->assertNull($this->object->setURL($url));
-		$this->assertEquals(200, $this->object->exec());
-		$this->assertEmpty($this->object->getCookies());
-	}
+    /**
+     * @covers \Cougar\RestClient\CurlWrapper::getCookies
+     * @depends testExec
+     */
+    public function testGetCookies() {
+        $url = "http://www.byu.edu";
+        $this->assertNull($this->object->setURL($url));
+        $this->assertEquals(200, $this->object->exec());
+        $this->assertEmpty($this->object->getCookies());
+    }
 }

@@ -11,456 +11,456 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class QueryParameterTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 */
-	public function testEmptyConstructor()
-	{
-		$object = new QueryParameter();
-		$this->assertNull($object->property);
-		$this->assertNull($object->value);
-		$this->assertEquals("=", $object->operator);
-		$this->assertEquals("AND", $object->mode);
-		$this->assertFalse($object->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 */
-	public function testConstructor()
-	{
-		$object = new QueryParameter("property", "value", "<", "OR", true);
-		$this->assertEquals("property", $object->property);
-		$this->assertEquals("value", $object->value);
-		$this->assertEquals("<", $object->operator);
-		$this->assertEquals("OR", $object->mode);
-		$this->assertTrue($object->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 */
-	public function testConstructorNoOptionalParameters()
-	{
-		$object = new QueryParameter("property", "value");
-		$this->assertEquals("property", $object->property);
-		$this->assertEquals("value", $object->value);
-		$this->assertEquals("=", $object->operator);
-		$this->assertEquals("AND", $object->mode);
-		$this->assertFalse($object->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 */
-	public function testConstructorWithPropertyArray()
-	{
-		$object = new QueryParameter(array(new QueryParameter()), "");
-		$this->assertCount(1, $object->property);
-		$this->assertEquals("", $object->value);
-		$this->assertEquals("=", $object->operator);
-		$this->assertEquals("AND", $object->mode);
-		$this->assertFalse($object->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testConstructorWithInvalidPropertyArray()
-	{
-		$object = new QueryParameter(array(new \stdClass()), "");
-		$this->fail("Expected exception was not thrown");
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testConstructorWithInvalidComparison()
-	{
-		$object = new QueryParameter("property", "value", "%");
-		$this->fail("Expected exception was not thrown");
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @expectedException \Cougar\Exceptions\Exception
-	 */
-	public function testConstructorWithInvalidOperator()
-	{
-		$object = new QueryParameter("property", "value", "=", "BUT");
-		$this->fail("Expected exception was not thrown");
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlNoParameters() {
-		$query = array();
-		$column_map = array("property" => "Column");
-		$aliases = array("property" => "property", "Property" => "property");
-		$values = array();
-		
-		$this->assertEquals("",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(0, $values);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlOneParameterDefault() {
-		$query = array(new QueryParameter("property", "value"));
-		$column_map = array("property" => "Column");
-		$aliases = array("property" => "property", "Property" => "property");
-		$values = array();
-		
-		$this->assertEquals("Column = :property",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(1, $values);
-		$this->assertArrayHasKey("property", $values);
-		$this->assertEquals("value", $values["property"]);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlThreeParameterMixed() {
-		$query = array(
-			new QueryParameter("property1", "value1"),
-			new QueryParameter("property2", "value2", "!="),
-			new QueryParameter("property3", "value3", "<", "OR")
-		);
-		$column_map = array(
-			"property1" => "Column1",
-			"property2" => "Column2",
-			"property3" => "Column3"
-		);
-		$aliases = array(
-			"property1" => "property1",
-			"property2" => "property2",
-			"property3" => "property3",
-		);
-		$values = array();
-		
-		$this->assertEquals(
-			"Column1 = :property1 AND Column2 != :property2 OR " .
-				"Column3 < :property3",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(3, $values);
-		$this->assertArrayHasKey("property1", $values);
-		$this->assertArrayHasKey("property2", $values);
-		$this->assertArrayHasKey("property3", $values);
-		$this->assertEquals("value1", $values["property1"]);
-		$this->assertEquals("value2", $values["property2"]);
-		$this->assertEquals("value3", $values["property3"]);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlLikeOperator() {
-		$query = array(
-			new QueryParameter("property1", "value1", "**"),
-			new QueryParameter("property2", "value2", "=*"),
-			new QueryParameter("property3", "value3", "*=", "OR")
-		);
-		$column_map = array(
-			"property1" => "Column1",
-			"property2" => "Column2",
-			"property3" => "Column3"
-		);
-		$aliases = array(
-			"property1" => "property1",
-			"property2" => "property2",
-			"property3" => "property3",
-		);
-		$values = array();
-		
-		$this->assertEquals(
-			"Column1 LIKE :property1 AND Column2 LIKE :property2 OR " .
-				"Column3 LIKE :property3",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(3, $values);
-		$this->assertArrayHasKey("property1", $values);
-		$this->assertArrayHasKey("property2", $values);
-		$this->assertArrayHasKey("property3", $values);
-		$this->assertEquals("%value1%", $values["property1"]);
-		$this->assertEquals("value2%", $values["property2"]);
-		$this->assertEquals("%value3", $values["property3"]);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlThreeParameterMixedWithOrNull() {
-		$query = array(
-			new QueryParameter("property1", "value1"),
-			new QueryParameter("property2", "value2", "!=", "AND", true),
-			new QueryParameter("property3", "value3", "<", "OR")
-		);
-		$column_map = array(
-			"property1" => "Column1",
-			"property2" => "Column2",
-			"property3" => "Column3"
-		);
-		$aliases = array(
-			"property1" => "property1",
-			"property2" => "property2",
-			"property3" => "property3",
-		);
-		$values = array();
-		
-		$this->assertEquals(
-			"Column1 = :property1 AND " .
-				"(Column2 != :property2 OR Column2 IS NULL) OR " .
-				"Column3 < :property3",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(3, $values);
-		$this->assertArrayHasKey("property1", $values);
-		$this->assertArrayHasKey("property2", $values);
-		$this->assertArrayHasKey("property3", $values);
-		$this->assertEquals("value1", $values["property1"]);
-		$this->assertEquals("value2", $values["property2"]);
-		$this->assertEquals("value3", $values["property3"]);
-	}
-	
-	/**
-	 * @covers \Cougar\UtilQueryParameter::__construct
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlCompound() {
-		$query = array(
-			new QueryParameter(
-				array(
-					new QueryParameter("property1", "value1"),
-					new QueryParameter("property2", "value2", "<", "AND", true),
-				)),
-			new QueryParameter(
-				array(
-					new QueryParameter("property3", "value3", "**", "OR"),
-					new QueryParameter("property4", "value4", ">=")
-			), null, "=", "OR")
-		);
-		$column_map = array(
-			"property1" => "Column1",
-			"property2" => "Column2",
-			"property3" => "Column3",
-			"property4" => "Column4"
-		);
-		$aliases = array(
-			"property1" => "property1",
-			"property2" => "property2",
-			"property3" => "property3",
-			"property4" => "property4"
-		);
-		$values = array();
-		
-		$this->assertEquals(
-			"(Column1 = :property1 AND " .
-				"(Column2 < :property2 OR Column2 IS NULL)) OR " .
-				"(Column3 LIKE :property3 AND ".
-				"Column4 >= :property4)",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(4, $values);
-		$this->assertArrayHasKey("property1", $values);
-		$this->assertArrayHasKey("property2", $values);
-		$this->assertArrayHasKey("property3", $values);
-		$this->assertArrayHasKey("property4", $values);
-		$this->assertEquals("value1", $values["property1"]);
-		$this->assertEquals("value2", $values["property2"]);
-		$this->assertEquals("%value3%", $values["property3"]);
-		$this->assertEquals("value4", $values["property4"]);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlAdditionalParameters()
-	{
-		$query = array(new QueryParameter("property", "value"),
-			new QueryParameter("something_else", "some_other_value"));
-		$column_map = array("property" => "Column");
-		$aliases = array("property" => "property", "Property" => "property");
-		$values = array();
-		
-		$this->assertEquals("Column = :property",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(1, $values);
-		$this->assertArrayHasKey("property", $values);
-		$this->assertEquals("value", $values["property"]);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::toSql
-	 */
-	public function testToSqlRepeatedParameters()
-	{
-		$query = array(new QueryParameter("property", "value1", ">="),
-			new QueryParameter("property", "value2", "<="));
-		$column_map = array("property" => "Column");
-		$aliases = array("property" => "property", "Property" => "property");
-		$values = array();
-		
-		$this->assertEquals("Column >= :property AND Column <= :property_1",
-			QueryParameter::toSql($query, $column_map, $aliases, false,
-				$values));
-		$this->assertCount(2, $values);
-		$this->assertArrayHasKey("property", $values);
-		$this->assertArrayHasKey("property_1", $values);
-		$this->assertEquals("value1", $values["property"]);
-		$this->assertEquals("value2", $values["property_1"]);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testFromUriNoData()
-	{
-		$parameters = QueryParameter::fromUri("");
-		$this->assertCount(0, $parameters);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testFromUriSingleValue()
-	{
-		$parameters = QueryParameter::fromUri("?this=that");
-		$this->assertCount(1, $parameters);
-		$this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
-		$this->assertEquals("this", $parameters[0]->property);
-		$this->assertEquals("that", $parameters[0]->value);
-		$this->assertEquals("AND", $parameters[0]->mode);
-		$this->assertEquals("=", $parameters[0]->operator);
-		$this->assertFalse($parameters[0]->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testFromUriSingleValueLessThanOperator()
-	{
-		$parameters = QueryParameter::fromUri("?this<that");
-		$this->assertCount(1, $parameters);
-		$this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
-		$this->assertEquals("this", $parameters[0]->property);
-		$this->assertEquals("that", $parameters[0]->value);
-		$this->assertEquals("AND", $parameters[0]->mode);
-		$this->assertEquals("<", $parameters[0]->operator);
-		$this->assertFalse($parameters[0]->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testFromUriSingleValueLessThanOrEqualOperator()
-	{
-		$parameters = QueryParameter::fromUri("?this<=that");
-		$this->assertCount(1, $parameters);
-		$this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
-		$this->assertEquals("this", $parameters[0]->property);
-		$this->assertEquals("that", $parameters[0]->value);
-		$this->assertEquals("AND", $parameters[0]->mode);
-		$this->assertEquals("<=", $parameters[0]->operator);
-		$this->assertFalse($parameters[0]->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testFromUriSingleValueLikeOperator()
-	{
-		$parameters = QueryParameter::fromUri("?this**that");
-		$this->assertCount(1, $parameters);
-		$this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
-		$this->assertEquals("this", $parameters[0]->property);
-		$this->assertEquals("that", $parameters[0]->value);
-		$this->assertEquals("AND", $parameters[0]->mode);
-		$this->assertEquals("**", $parameters[0]->operator);
-		$this->assertFalse($parameters[0]->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testFromUriSingleMultipleOperators()
-	{
-		$parameters = QueryParameter::fromUri(
-			"?this=that&blue!=green|red>=circle");
-		$this->assertCount(3, $parameters);
-		$this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
-		$this->assertEquals("this", $parameters[0]->property);
-		$this->assertEquals("that", $parameters[0]->value);
-		$this->assertEquals("AND", $parameters[0]->mode);
-		$this->assertEquals("=", $parameters[0]->operator);
-		$this->assertFalse($parameters[0]->orNull);
-		
-		$this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[1]);
-		$this->assertEquals("blue", $parameters[1]->property);
-		$this->assertEquals("green", $parameters[1]->value);
-		$this->assertEquals("AND", $parameters[1]->mode);
-		$this->assertEquals("!=", $parameters[1]->operator);
-		$this->assertFalse($parameters[1]->orNull);
-		
-		$this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[2]);
-		$this->assertEquals("red", $parameters[2]->property);
-		$this->assertEquals("circle", $parameters[2]->value);
-		$this->assertEquals("OR", $parameters[2]->mode);
-		$this->assertEquals(">=", $parameters[2]->operator);
-		$this->assertFalse($parameters[2]->orNull);
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testToHtmlSingleValueLessThanOperator()
-	{
-		$query = "this<that";
-		$parameters = QueryParameter::fromUri("? " . $query);
-		$this->assertEquals($query, QueryParameter::toHtml($parameters));
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testToHtmlSingleValueLessThanOrEqualOperator()
-	{
-		$query = "this<=that";
-		$parameters = QueryParameter::fromUri("? " . $query);
-		$this->assertEquals($query, QueryParameter::toHtml($parameters));
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testToHtmlSingleValueLikeOperator()
-	{
-		$query = "this**that";
-		$parameters = QueryParameter::fromUri("? " . $query);
-		$this->assertEquals($query, QueryParameter::toHtml($parameters));
-	}
-	
-	/**
-	 * @covers \Cougar\Util\QueryParameter::fromUri
-	 */
-	public function testToHtmlSingleMultipleOperators()
-	{
-		$query = "this=that&blue!=green|red>=circle";
-		$parameters = QueryParameter::fromUri("? " . $query);
-		$this->assertEquals($query, QueryParameter::toHtml($parameters));
-	}
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     */
+    public function testEmptyConstructor()
+    {
+        $object = new QueryParameter();
+        $this->assertNull($object->property);
+        $this->assertNull($object->value);
+        $this->assertEquals("=", $object->operator);
+        $this->assertEquals("AND", $object->mode);
+        $this->assertFalse($object->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     */
+    public function testConstructor()
+    {
+        $object = new QueryParameter("property", "value", "<", "OR", true);
+        $this->assertEquals("property", $object->property);
+        $this->assertEquals("value", $object->value);
+        $this->assertEquals("<", $object->operator);
+        $this->assertEquals("OR", $object->mode);
+        $this->assertTrue($object->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     */
+    public function testConstructorNoOptionalParameters()
+    {
+        $object = new QueryParameter("property", "value");
+        $this->assertEquals("property", $object->property);
+        $this->assertEquals("value", $object->value);
+        $this->assertEquals("=", $object->operator);
+        $this->assertEquals("AND", $object->mode);
+        $this->assertFalse($object->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     */
+    public function testConstructorWithPropertyArray()
+    {
+        $object = new QueryParameter(array(new QueryParameter()), "");
+        $this->assertCount(1, $object->property);
+        $this->assertEquals("", $object->value);
+        $this->assertEquals("=", $object->operator);
+        $this->assertEquals("AND", $object->mode);
+        $this->assertFalse($object->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testConstructorWithInvalidPropertyArray()
+    {
+        $object = new QueryParameter(array(new \stdClass()), "");
+        $this->fail("Expected exception was not thrown");
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testConstructorWithInvalidComparison()
+    {
+        $object = new QueryParameter("property", "value", "%");
+        $this->fail("Expected exception was not thrown");
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testConstructorWithInvalidOperator()
+    {
+        $object = new QueryParameter("property", "value", "=", "BUT");
+        $this->fail("Expected exception was not thrown");
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlNoParameters() {
+        $query = array();
+        $column_map = array("property" => "Column");
+        $aliases = array("property" => "property", "Property" => "property");
+        $values = array();
+        
+        $this->assertEquals("",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(0, $values);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlOneParameterDefault() {
+        $query = array(new QueryParameter("property", "value"));
+        $column_map = array("property" => "Column");
+        $aliases = array("property" => "property", "Property" => "property");
+        $values = array();
+        
+        $this->assertEquals("Column = :property",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(1, $values);
+        $this->assertArrayHasKey("property", $values);
+        $this->assertEquals("value", $values["property"]);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlThreeParameterMixed() {
+        $query = array(
+            new QueryParameter("property1", "value1"),
+            new QueryParameter("property2", "value2", "!="),
+            new QueryParameter("property3", "value3", "<", "OR")
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3",
+        );
+        $values = array();
+        
+        $this->assertEquals(
+            "Column1 = :property1 AND Column2 != :property2 OR " .
+                "Column3 < :property3",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(3, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertEquals("value1", $values["property1"]);
+        $this->assertEquals("value2", $values["property2"]);
+        $this->assertEquals("value3", $values["property3"]);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlLikeOperator() {
+        $query = array(
+            new QueryParameter("property1", "value1", "**"),
+            new QueryParameter("property2", "value2", "=*"),
+            new QueryParameter("property3", "value3", "*=", "OR")
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3",
+        );
+        $values = array();
+        
+        $this->assertEquals(
+            "Column1 LIKE :property1 AND Column2 LIKE :property2 OR " .
+                "Column3 LIKE :property3",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(3, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertEquals("%value1%", $values["property1"]);
+        $this->assertEquals("value2%", $values["property2"]);
+        $this->assertEquals("%value3", $values["property3"]);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlThreeParameterMixedWithOrNull() {
+        $query = array(
+            new QueryParameter("property1", "value1"),
+            new QueryParameter("property2", "value2", "!=", "AND", true),
+            new QueryParameter("property3", "value3", "<", "OR")
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3",
+        );
+        $values = array();
+        
+        $this->assertEquals(
+            "Column1 = :property1 AND " .
+                "(Column2 != :property2 OR Column2 IS NULL) OR " .
+                "Column3 < :property3",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(3, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertEquals("value1", $values["property1"]);
+        $this->assertEquals("value2", $values["property2"]);
+        $this->assertEquals("value3", $values["property3"]);
+    }
+    
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlCompound() {
+        $query = array(
+            new QueryParameter(
+                array(
+                    new QueryParameter("property1", "value1"),
+                    new QueryParameter("property2", "value2", "<", "AND", true),
+                )),
+            new QueryParameter(
+                array(
+                    new QueryParameter("property3", "value3", "**", "OR"),
+                    new QueryParameter("property4", "value4", ">=")
+            ), null, "=", "OR")
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3",
+            "property4" => "Column4"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3",
+            "property4" => "property4"
+        );
+        $values = array();
+        
+        $this->assertEquals(
+            "(Column1 = :property1 AND " .
+                "(Column2 < :property2 OR Column2 IS NULL)) OR " .
+                "(Column3 LIKE :property3 AND ".
+                "Column4 >= :property4)",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(4, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertArrayHasKey("property4", $values);
+        $this->assertEquals("value1", $values["property1"]);
+        $this->assertEquals("value2", $values["property2"]);
+        $this->assertEquals("%value3%", $values["property3"]);
+        $this->assertEquals("value4", $values["property4"]);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlAdditionalParameters()
+    {
+        $query = array(new QueryParameter("property", "value"),
+            new QueryParameter("something_else", "some_other_value"));
+        $column_map = array("property" => "Column");
+        $aliases = array("property" => "property", "Property" => "property");
+        $values = array();
+        
+        $this->assertEquals("Column = :property",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(1, $values);
+        $this->assertArrayHasKey("property", $values);
+        $this->assertEquals("value", $values["property"]);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlRepeatedParameters()
+    {
+        $query = array(new QueryParameter("property", "value1", ">="),
+            new QueryParameter("property", "value2", "<="));
+        $column_map = array("property" => "Column");
+        $aliases = array("property" => "property", "Property" => "property");
+        $values = array();
+        
+        $this->assertEquals("Column >= :property AND Column <= :property_1",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(2, $values);
+        $this->assertArrayHasKey("property", $values);
+        $this->assertArrayHasKey("property_1", $values);
+        $this->assertEquals("value1", $values["property"]);
+        $this->assertEquals("value2", $values["property_1"]);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testFromUriNoData()
+    {
+        $parameters = QueryParameter::fromUri("");
+        $this->assertCount(0, $parameters);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testFromUriSingleValue()
+    {
+        $parameters = QueryParameter::fromUri("?this=that");
+        $this->assertCount(1, $parameters);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertEquals("this", $parameters[0]->property);
+        $this->assertEquals("that", $parameters[0]->value);
+        $this->assertEquals("AND", $parameters[0]->mode);
+        $this->assertEquals("=", $parameters[0]->operator);
+        $this->assertFalse($parameters[0]->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testFromUriSingleValueLessThanOperator()
+    {
+        $parameters = QueryParameter::fromUri("?this<that");
+        $this->assertCount(1, $parameters);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertEquals("this", $parameters[0]->property);
+        $this->assertEquals("that", $parameters[0]->value);
+        $this->assertEquals("AND", $parameters[0]->mode);
+        $this->assertEquals("<", $parameters[0]->operator);
+        $this->assertFalse($parameters[0]->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testFromUriSingleValueLessThanOrEqualOperator()
+    {
+        $parameters = QueryParameter::fromUri("?this<=that");
+        $this->assertCount(1, $parameters);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertEquals("this", $parameters[0]->property);
+        $this->assertEquals("that", $parameters[0]->value);
+        $this->assertEquals("AND", $parameters[0]->mode);
+        $this->assertEquals("<=", $parameters[0]->operator);
+        $this->assertFalse($parameters[0]->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testFromUriSingleValueLikeOperator()
+    {
+        $parameters = QueryParameter::fromUri("?this**that");
+        $this->assertCount(1, $parameters);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertEquals("this", $parameters[0]->property);
+        $this->assertEquals("that", $parameters[0]->value);
+        $this->assertEquals("AND", $parameters[0]->mode);
+        $this->assertEquals("**", $parameters[0]->operator);
+        $this->assertFalse($parameters[0]->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testFromUriSingleMultipleOperators()
+    {
+        $parameters = QueryParameter::fromUri(
+            "?this=that&blue!=green|red>=circle");
+        $this->assertCount(3, $parameters);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertEquals("this", $parameters[0]->property);
+        $this->assertEquals("that", $parameters[0]->value);
+        $this->assertEquals("AND", $parameters[0]->mode);
+        $this->assertEquals("=", $parameters[0]->operator);
+        $this->assertFalse($parameters[0]->orNull);
+        
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[1]);
+        $this->assertEquals("blue", $parameters[1]->property);
+        $this->assertEquals("green", $parameters[1]->value);
+        $this->assertEquals("AND", $parameters[1]->mode);
+        $this->assertEquals("!=", $parameters[1]->operator);
+        $this->assertFalse($parameters[1]->orNull);
+        
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[2]);
+        $this->assertEquals("red", $parameters[2]->property);
+        $this->assertEquals("circle", $parameters[2]->value);
+        $this->assertEquals("OR", $parameters[2]->mode);
+        $this->assertEquals(">=", $parameters[2]->operator);
+        $this->assertFalse($parameters[2]->orNull);
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testToHtmlSingleValueLessThanOperator()
+    {
+        $query = "this<that";
+        $parameters = QueryParameter::fromUri("? " . $query);
+        $this->assertEquals($query, QueryParameter::toHtml($parameters));
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testToHtmlSingleValueLessThanOrEqualOperator()
+    {
+        $query = "this<=that";
+        $parameters = QueryParameter::fromUri("? " . $query);
+        $this->assertEquals($query, QueryParameter::toHtml($parameters));
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testToHtmlSingleValueLikeOperator()
+    {
+        $query = "this**that";
+        $parameters = QueryParameter::fromUri("? " . $query);
+        $this->assertEquals($query, QueryParameter::toHtml($parameters));
+    }
+    
+    /**
+     * @covers \Cougar\Util\QueryParameter::fromUri
+     */
+    public function testToHtmlSingleMultipleOperators()
+    {
+        $query = "this=that&blue!=green|red>=circle";
+        $parameters = QueryParameter::fromUri("? " . $query);
+        $this->assertEquals($query, QueryParameter::toHtml($parameters));
+    }
 }

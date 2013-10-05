@@ -20,17 +20,17 @@ class ErrorExceptionTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-	 * @covers Cougar\Exceptions\Errors::setErrorHandler
+     * @covers Cougar\Exceptions\Errors::setErrorHandler
      * @covers Cougar\Exceptions\Errors::exceptionErrorHandler
-	 * @expectedException \ErrorException
+     * @expectedException \ErrorException
      * @depends testErrorHandling
-	 */
-	public function testSetErrorHandler()
-	{
-		require_once(__DIR__ . "/../../Cougar/Exceptions/Errors.php");
+     */
+    public function testSetErrorHandler()
+    {
+        require_once(__DIR__ . "/../../Cougar/Exceptions/Errors.php");
         Errors::setErrorHandler();
-		$fh = fopen("/path/to/some/non/existent/file", "r");
-		fclose($fh);
-		$this->fail("No exception was thrown");
-	}
+        $fh = fopen("/path/to/some/non/existent/file", "r");
+        fclose($fh);
+        $this->fail("No exception was thrown");
+    }
 }

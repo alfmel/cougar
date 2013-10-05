@@ -25,36 +25,36 @@ namespace Cougar\Util;
  */
 interface iSecureString
 {
-	/**
-	 * Encodes the given string.
-	 *
+    /**
+     * Encodes the given string.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param string $string
+     * 
+     * @param string $string
      *   The string to encode
-	 * @return string Encoded string
-	 */
-	
-	static function encode($string);
-	/**
-	 * Decodes the given string.
-	 *
+     * @return string Encoded string
+     */
+    
+    static function encode($string);
+    /**
+     * Decodes the given string.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param string $encoded_string
+     * 
+     * @param string $encoded_string
      *   The string to decode
-	 * @return string Decoded string
-	 */
-	static function decode($encoded_string);
+     * @return string Decoded string
+     */
+    static function decode($encoded_string);
 }
 ?>

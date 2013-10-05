@@ -37,7 +37,7 @@ namespace Cougar;
 # Define the ENVIRONMENT constant if it has not been defined
 if (! defined("ENVIRONMENT"))
 {
-	define("ENVIRONMENT", "local");
+    define("ENVIRONMENT", "local");
 }
 
 # Include the Autoload class file

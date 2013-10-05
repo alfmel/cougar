@@ -23,24 +23,24 @@ require_once("cougar.php");
  */
 class ClassAnnotations extends Struct
 {
-	/**
-	 * @var array List of annotations for the class
-	 */
-	public $class = array();
-	
-	/**
-	 * @var array Associative array of properties and their annotations
-	 */
-	public $properties = array();
-	
-	/**
-	 * @var array Associative array of properties and their annotations
-	 */
-	public $methods = array();
-	
-	/**
-	 * @var bool Whether the annotations were retrieved from the cache
-	 */
-	public $cached = false;
+    /**
+     * @var array List of annotations for the class
+     */
+    public $class = array();
+    
+    /**
+     * @var array Associative array of properties and their annotations
+     */
+    public $properties = array();
+    
+    /**
+     * @var array Associative array of properties and their annotations
+     */
+    public $methods = array();
+    
+    /**
+     * @var bool Whether the annotations were retrieved from the cache
+     */
+    public $cached = false;
 }
 ?>

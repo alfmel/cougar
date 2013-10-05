@@ -33,9 +33,9 @@ require_once("cougar.php");
  */
 class PDOFactory
 {
-	/***************************************************************************
-	 * STATIC PROPERTIES AND METHODS
-	 **************************************************************************/
+    /***************************************************************************
+     * STATIC PROPERTIES AND METHODS
+     **************************************************************************/
 
     /**
      * Returns a database connection to the named database.
@@ -92,175 +92,175 @@ class PDOFactory
      * @throws \Cougar\Exceptions\Exception
      * @throws \Cougar\Exceptions\ConfigurationFileNotFoundException
      */
-	static public function getConnection($name, $environment = null)
-	{
-		# Make sure we have a database name
-		$name = strtolower($name);
-		if (! $name)
-		{
-			throw new Exception("Database name is required");
-		}
-		
-		# See if we have an environment
-		if ($environment)
-		{
-			# Convert the environment to lowercase
-			$environment = strtolower($environment);
-			
-			# Make sure we are not trying to set "production" as environment
-			if ($environment == "production")
-			{
-				throw new Exception("You may not override the environment " .
-					"\"production\"");
-			}
-		}
-		else
-		{
-			# Grab the environment from the ENVIROMENT constant
-			if (defined("ENVIRONMENT"))
-			{
-				$environment = strtolower(ENVIRONMENT);
-			}
-			else
-			{
-				$environment = "local";
-			}
-		}
-		
-		# Define the list of filenames to look for
-		$filenames = array(
-			$name . "." . $environment . ".conf",
-			$name . ".conf",
-			"database.conf"
-		);
-		
-		# Try to load one of the configuration files
-		$config = null;
-		foreach($filenames as $filename)
-		{
-			try
-			{
-				$config = new Config($filename);
-				break;
-			}
-			catch (ConfigurationFileNotFoundException $e)
-			{
-				# Ignore file not found exceptions
-			}
-		}
-		
-		if (! $config)
-		{
-			throw new ConfigurationFileNotFoundException(
-				"Could not load configuration file for " . $name .
-				" database for " . $environment);
-		}
-		
-		# Get the values
-		$dsn = $config->value("dsn");
-		$orig_username = $config->value("username");
-		$orig_password = $config->value("password");
-		
-		if (! $dsn)
-		{
-			throw new Exception(
-				"DSN is not declared in the configuration file");
-		}
-		
-		# Try to decode the username and password via obfuscation
-		$username = StringObfuscator::decode($orig_username);
-		$password = StringObfuscator::decode($orig_password);
-		
-		if ($username == $orig_username && $password == $orig_password)
-		{
-			# Try to decode with Arc4
-			$param_file = $config->value("arc4");
-			if (! $param_file)
-			{
-				$param_file = $config->value("encryption");
-			}
-			if ($param_file)
-			{
-				Arc4::loadParameters($param_file);
-			}
-			$username = Arc4::decode($username);
-			$password = Arc4::decode($password);
-		}
-		
-		# Return the new database connection
-		return new PDO($dsn, $username, $password);
-	}
+    static public function getConnection($name, $environment = null)
+    {
+        # Make sure we have a database name
+        $name = strtolower($name);
+        if (! $name)
+        {
+            throw new Exception("Database name is required");
+        }
+        
+        # See if we have an environment
+        if ($environment)
+        {
+            # Convert the environment to lowercase
+            $environment = strtolower($environment);
+            
+            # Make sure we are not trying to set "production" as environment
+            if ($environment == "production")
+            {
+                throw new Exception("You may not override the environment " .
+                    "\"production\"");
+            }
+        }
+        else
+        {
+            # Grab the environment from the ENVIROMENT constant
+            if (defined("ENVIRONMENT"))
+            {
+                $environment = strtolower(ENVIRONMENT);
+            }
+            else
+            {
+                $environment = "local";
+            }
+        }
+        
+        # Define the list of filenames to look for
+        $filenames = array(
+            $name . "." . $environment . ".conf",
+            $name . ".conf",
+            "database.conf"
+        );
+        
+        # Try to load one of the configuration files
+        $config = null;
+        foreach($filenames as $filename)
+        {
+            try
+            {
+                $config = new Config($filename);
+                break;
+            }
+            catch (ConfigurationFileNotFoundException $e)
+            {
+                # Ignore file not found exceptions
+            }
+        }
+        
+        if (! $config)
+        {
+            throw new ConfigurationFileNotFoundException(
+                "Could not load configuration file for " . $name .
+                " database for " . $environment);
+        }
+        
+        # Get the values
+        $dsn = $config->value("dsn");
+        $orig_username = $config->value("username");
+        $orig_password = $config->value("password");
+        
+        if (! $dsn)
+        {
+            throw new Exception(
+                "DSN is not declared in the configuration file");
+        }
+        
+        # Try to decode the username and password via obfuscation
+        $username = StringObfuscator::decode($orig_username);
+        $password = StringObfuscator::decode($orig_password);
+        
+        if ($username == $orig_username && $password == $orig_password)
+        {
+            # Try to decode with Arc4
+            $param_file = $config->value("arc4");
+            if (! $param_file)
+            {
+                $param_file = $config->value("encryption");
+            }
+            if ($param_file)
+            {
+                Arc4::loadParameters($param_file);
+            }
+            $username = Arc4::decode($username);
+            $password = Arc4::decode($password);
+        }
+        
+        # Return the new database connection
+        return new PDO($dsn, $username, $password);
+    }
 
-	/**
-	 * Creates a new connection file with the parameters given. The username
-	 * and password will encoded either in ARC4 or via obfuscation. The key and
-	 * other pertinent values must be set up beforehand.
-	 *
+    /**
+     * Creates a new connection file with the parameters given. The username
+     * and password will encoded either in ARC4 or via obfuscation. The key and
+     * other pertinent values must be set up beforehand.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 *
-	 * @param string $name
+     *
+     * @param string $name
      *   The name of the database connection
-	 * @param string $environment
+     * @param string $environment
      *   Connection environment
-	 * @param string $dsn
+     * @param string $dsn
      *   PDO DSN connection string
-	 * @param string $username
+     * @param string $username
      *   Username
-	 * @param string $password
+     * @param string $password
      *   Password
-	 * @param string $encoding
+     * @param string $encoding
      *   Encoding to use (Arc4 or Obfuscation)
      * @param string $arc4_config_file
      *   Configuration file with ARC4 parameters
-	 * @return string Filename of created file
+     * @return string Filename of created file
      * @throws \Cougar\Exceptions\Exception
-	 */
-	static public function createConnectionFile($name, $environment, $dsn,
-		$username, $password, $encoding = "Arc4", $arc4_config_file = null)
-	{
-		# Make sure we have a name
-		if (! $name)
-		{
-			throw new Exception("Connection name is required");
-		}
-			
-		# Come up with the filename
-		if ($environment)
-		{
-			$filename = strtolower($name . "." . $environment . ".conf");
-			$env = $environment;
-		}
-		else
-		{
-			$filename = strtolower($name . ".conf");
-			$env = "(default)";
-		}
-		
-		# Make sure we have a DSN
-		if (! $dsn)
-		{
-			throw new Exception("PDO DSN is required");
-		}
-		
-		# Encode the username and password
-		switch ($encoding)
-		{
-			case "Arc4":
-				$enc_username = Arc4::encode($username);
-				$enc_password = Arc4::encode($password);
-				break;
-			case "Obfuscation":
-				$enc_username = StringObfuscator::encode($username);
-				$enc_password = StringObfuscator::encode($password);
-				break;
-			default:
-				throw new Exception("Invalid encoding: " . $encoding);
-		}
+     */
+    static public function createConnectionFile($name, $environment, $dsn,
+        $username, $password, $encoding = "Arc4", $arc4_config_file = null)
+    {
+        # Make sure we have a name
+        if (! $name)
+        {
+            throw new Exception("Connection name is required");
+        }
+            
+        # Come up with the filename
+        if ($environment)
+        {
+            $filename = strtolower($name . "." . $environment . ".conf");
+            $env = $environment;
+        }
+        else
+        {
+            $filename = strtolower($name . ".conf");
+            $env = "(default)";
+        }
+        
+        # Make sure we have a DSN
+        if (! $dsn)
+        {
+            throw new Exception("PDO DSN is required");
+        }
+        
+        # Encode the username and password
+        switch ($encoding)
+        {
+            case "Arc4":
+                $enc_username = Arc4::encode($username);
+                $enc_password = Arc4::encode($password);
+                break;
+            case "Obfuscation":
+                $enc_username = StringObfuscator::encode($username);
+                $enc_password = StringObfuscator::encode($password);
+                break;
+            default:
+                throw new Exception("Invalid encoding: " . $encoding);
+        }
 
         # See if we had an ARC4 encryption file
         $arc4_config_line = "";
@@ -268,9 +268,9 @@ class PDOFactory
         {
             $arc4_config_line = "arc4 = " . $arc4_config_file;
         }
-		
-		# Create the contents of the file
-		$file =
+        
+        # Create the contents of the file
+        $file =
 "# Begin Database Connection File
 
 # Connection name: " . $name . "
@@ -283,12 +283,12 @@ password = " . $enc_password . "
 
 # End Database connection File
 ";
-		
-		# Write out the contents
-		file_put_contents($filename, $file);
-	
-		# Return the filename
-		return $filename;
-	}
+        
+        # Write out the contents
+        file_put_contents($filename, $file);
+    
+        # Return the filename
+        return $filename;
+    }
 }
 ?>

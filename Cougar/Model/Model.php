@@ -30,6 +30,6 @@ require_once("cougar.php");
  */
 abstract class Model implements iModel
 {
-	use tModel;
+    use tModel;
 }
 ?>

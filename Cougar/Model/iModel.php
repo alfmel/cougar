@@ -98,57 +98,57 @@ namespace Cougar\Model;
 interface iModel
 extends iStruct, iAnnotatedClass, \Iterator, \JsonSerializable
 {
-	/**
-	 * Sets the view of the object to the specified view. If the view does not
+    /**
+     * Sets the view of the object to the specified view. If the view does not
      * exist, this method will throw an Exception.
-	 * 
-	 * To reset the view to the default, omit the view parameter or set it to
-	 * null.
-	 *
+     * 
+     * To reset the view to the default, omit the view parameter or set it to
+     * null.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 *
+     *
      * @param string $view
      *  View name
      * @throws \Cougar\Exceptions\Exception
-	 */
-	public function __setView($view = null);
-	
-	/**
-	 * Imports values from an object or array. 
-	 *
+     */
+    public function __setView($view = null);
+    
+    /**
+     * Imports values from an object or array. 
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 * 
-	 * @param mixed $object
+     * 
+     * @param mixed $object
      *   Object or associative array to import values from
-	 * @param bool $strict
+     * @param bool $strict
      *   Whether to perform strict property checking (on by default). If strict,
      *   any values in the incoming object that are not part of the Model will
      *   throw an Exception. If not strict, the method will simply ignore them.
      * @throws \Cougar\Exceptions\Exception
-	 */
-	public function __import($object, $strict = true);
-	
-	/**
-	 * Ensures all properties are of the given type and conform to their
+     */
+    public function __import($object, $strict = true);
+    
+    /**
+     * Ensures all properties are of the given type and conform to their
      * specified behavior.
-	 *
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-	 */
-	public function __validate();
+     */
+    public function __validate();
 }
 ?>

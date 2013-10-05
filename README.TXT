@@ -16,13 +16,13 @@ a web service end point, you would write:
   class MyClass
   {
     /**
-	 * @Path /resource/:id
-	 * @Methods GET
-	 */
-	public function myMethod($id)
-	{
-	  // Your code here
-	}
+     * @Path /resource/:id
+     * @Methods GET
+     */
+    public function myMethod($id)
+    {
+      // Your code here
+    }
   }
 
 and then plumb it together with a REST request handler as follows:

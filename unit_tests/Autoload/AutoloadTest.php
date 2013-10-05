@@ -12,44 +12,44 @@ require_once(__DIR__ . "/../../Cougar/Autoload/Autoload.php");
  */
 class AutoloadTest extends \PHPUnit_Framework_TestCase {
 
-	/**
-	 * @covers Cougar\Autoload\Autoload:;register
-	 */
-	public function testRegister()
-	{
-		# Get the number of autoload functions
-		$function_count = count(spl_autoload_functions());
-		
-		# Register the autoloader
+    /**
+     * @covers Cougar\Autoload\Autoload:;register
+     */
+    public function testRegister()
+    {
+        # Get the number of autoload functions
+        $function_count = count(spl_autoload_functions());
+        
+        # Register the autoloader
         Autoload::register(dirname(dirname(__DIR__)));
 
         # Count should now be pervious count + 1
-		$this->assertEquals($function_count + 1,
-			count(spl_autoload_functions()));
-	}
-	
-	/**
-     * @covers Cougar\Autoload\Autoload:;register
-	 * @depends testRegister
-	 */
-	public function testRegisterMultipleCalls()
-	{
-        # Get the current count of spl_autoload functions
-		$function_count = count(spl_autoload_functions());
-
-		# Re-register; number should be the same
-		Autoload::register(dirname(dirname(__DIR__)));
-		$this->assertEquals($function_count, count(spl_autoload_functions()));
-	}
-	
-	/**
+        $this->assertEquals($function_count + 1,
+            count(spl_autoload_functions()));
+    }
+    
+    /**
      * @covers Cougar\Autoload\Autoload:;register
      * @depends testRegister
-	 */
-	public function testSplAutoload()
-	{
+     */
+    public function testRegisterMultipleCalls()
+    {
+        # Get the current count of spl_autoload functions
+        $function_count = count(spl_autoload_functions());
+
+        # Re-register; number should be the same
+        Autoload::register(dirname(dirname(__DIR__)));
+        $this->assertEquals($function_count, count(spl_autoload_functions()));
+    }
+    
+    /**
+     * @covers Cougar\Autoload\Autoload:;register
+     * @depends testRegister
+     */
+    public function testSplAutoload()
+    {
         # Get a value from a known class
         $value = FlexAutoload::$cacheTime;
         $this->assertNotNull($value);
-	}
+    }
 }
