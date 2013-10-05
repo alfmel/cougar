@@ -6,8 +6,8 @@ above. Cougar aims to simplify the development of RESTful APIs by integrating,
 simplifying and optimizing security, URI routing and database access.
 
 Cougar is not a general-purpose framework. It only focuses on making it easier
-to create RESTful APIs. It does not have shopping carts, templeting, or much in
-the way of an interface.
+to create REST Web Services. It does not have shopping carts, templeting, or
+much in the way of an interface.
 
 Cougar promotes Inversion of Control (dependency injection) and Attribute-
 Oriented programming via annotations. For example, to publish a class method as
