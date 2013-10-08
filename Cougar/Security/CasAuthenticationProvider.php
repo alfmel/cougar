@@ -11,7 +11,7 @@ require_once("cougar.php");
  * Attempts to authenticate the current user using CAS if a CAS session exists.
  * This provider will not force CAS authentication.
  *
- * This provider only works with the official phpCAS client from JSIG.
+ * This provider only works with the official phpCAS client from JASIG.
  *
  * Because the phpCAS client uses static classes, there are no references to a
  * CAS object that are required. However, you *must* set up the phpCAS client

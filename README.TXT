@@ -35,5 +35,6 @@ and then plumb it together with a REST request handler as follows:
 As you can see, Cougar allows you to publish your API via REST with less than 10
 lines of code! The ZF2 Album tutorial can be written in its entirety in Cougar
 in about 125 lines of code, complete with database connectivity, transaction
-control and hierarchical models.
+control and hierarchical models. To see the code, go to:
 
+  https://github.com/alfmel/zend_tutorial_in_cougar
