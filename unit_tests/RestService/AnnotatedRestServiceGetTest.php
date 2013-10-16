@@ -535,7 +535,7 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
         $object = new AnnotatedRestServiceGetTests();
         $this->expectOutputString(serialize(
             $object->getMultiplePaths("MyVar")));
-        
+
         $service = new AnnotatedRestService(new Security());
         $service->bindFromObject($object);
         $service->handleRequest();
@@ -558,6 +558,98 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
             $object->getMultiplePaths("MyVar")));
         
         $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testMultipleBindings() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $object2 = new AnnotatedRestServiceGetAdditionalBindingTests();
+
+        $this->expectOutputString(serialize($object->simpleCase()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->bindFromObject($object2);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testMultipleBindingsSecondBinding() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/additional/binding/simpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $object2 = new AnnotatedRestServiceGetAdditionalBindingTests();
+
+        $this->expectOutputString(serialize($object2->additionalSimpleCase()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->bindFromObject($object2);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testMultipleBindingsReverse() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/SimpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $object2 = new AnnotatedRestServiceGetAdditionalBindingTests();
+
+        $this->expectOutputString(serialize($object->simpleCase()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object2);
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testMultipleBindingsReverseSecondBinding() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/additional/binding/simpleCase";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $object2 = new AnnotatedRestServiceGetAdditionalBindingTests();
+
+        $this->expectOutputString(serialize($object2->additionalSimpleCase()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object2);
         $service->bindFromObject($object);
         $service->handleRequest();
     }
@@ -737,5 +829,18 @@ class AnnotatedRestServiceGetTests
     {
         return array("method" => __FUNCTION__,
             "argument" => $variable);
+    }
+}
+
+class AnnotatedRestServiceGetAdditionalBindingTests
+{
+    /**
+     * @Path /get/additional/binding/simpleCase
+     * @Methods GET
+     */
+    public function additionalSimpleCase()
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
     }
 }

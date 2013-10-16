@@ -92,7 +92,7 @@ trait tPdoModel
         
         # Call the parent constructor
         $this->__constructModel(null, $view);
-        
+
         # See if the execution cache has the object properties
         $parsed_annotations = false;
         if (array_key_exists($class, self::$__executionCache))

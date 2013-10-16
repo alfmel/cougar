@@ -28,8 +28,11 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.10.16:
+ *   (AT)  Fix issue where calling bindFromObject() twice will destroy bindings
+ *         from previous calls
  *
- * @version 2013.09.30
+ * @version 2013.10.16
  * @package Cougar
  * @license MIT
  *
@@ -92,8 +95,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.16:
+     *   (AT)  Fix clobbering issue where calling the method a second time
+     *         deletes previous bindings
      *
-     * @version 2013.09.30
+     * @version 2013.10.16
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param object $object_reference
@@ -128,22 +134,22 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
             $object_reference);
         
         # See if we have pre-parsed bindings
+        $bindings = false;
         if ($annotations->cached)
         {
-            $this->bindings = $this->localCache->get($cache_key);
+            $bindings = $this->localCache->get($cache_key);
         }
-        else
-        {
-            $this->bindings = false;
-        }
-        
+
         # See if we need to extract the bindings from the annotations
-        if ($this->bindings === false)
+        if ($bindings === false)
         {
+            # Start a blank bindings list
+            $bindings = array();
+
             # Go through the object's methods
             foreach($annotations->methods as $method => $annotations)
             {
-                # Create the binidng and initialize the paths and methods array
+                # Create the binding and initialize the paths and methods array
                 $binding = new Binding();
                 $paths = array();
                 
@@ -446,14 +452,17 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                     $new_path = implode("/", $path);
                     
                     # Add the binding
-                    $this->bindings[$new_path][] = $real_binding;
+                    $bindings[$new_path][] = $real_binding;
                 }
             }
             
-            # Store the parsed bandings
-            $this->localCache->set($cache_key, $this->bindings,
+            # Store the parsed bindings
+            $this->localCache->set($cache_key, $bindings,
                 Annotations::$cacheTime);
         }
+
+        # Add the bindings to our bindings list
+        $this->bindings = array_merge($this->bindings, $bindings);
         
         # Store the object reference
         $this->objects[$class] = $object_reference;
