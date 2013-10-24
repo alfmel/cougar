@@ -53,8 +53,10 @@ trait tPdoModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.24:
+     *   (AT)  Change authorization() call parameter order
      *
-     * @version 2013.09.30
+     * @version 2013.10.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param \Cougar\Model\iSecurity|\Cougar\Security\iSecurity $security
@@ -437,10 +439,10 @@ trait tPdoModel
                 $this->getRecord();
 
                 # Call the authorization method
-                $this->authorization($this->__security, $this->__columnMap,
-                    $this->__allowRead, $this->__allowCreate,
-                    $this->__allowUpdate, $this->__allowDelete,
-                    $this->__readOnly);
+                $this->authorization($this->__security, $this->__allowCreate,
+                    $this->__allowRead, $this->__allowUpdate,
+                    $this->__allowDelete, $this->__allowQuery,
+                    $this->__columnMap, $this->__readOnly, $this->__visible);
                 
                 # Save the default values
                 foreach($this->__properties as $property)
@@ -472,16 +474,16 @@ trait tPdoModel
                 $this->__performCasts();
             }
             
-            # Delcare we have changes
+            # Declare we have changes
             $this->__hasChanges = true;
         }
         else
         {
             # Call the authorization method
-            $this->authorization($this->__security, $this->__columnMap,
-                $this->__allowRead, $this->__allowCreate,
-                $this->__allowUpdate, $this->__allowDelete,
-                $this->__readOnly);
+            $this->authorization($this->__security, $this->__allowCreate,
+                $this->__allowRead, $this->__allowUpdate, $this->__allowDelete,
+                $this->__allowQuery, $this->__columnMap, $this->__readOnly,
+                $this->__visible);
             
             $this->__insertMode = true;
             $this->__enforceReadOnly = false;
@@ -1101,28 +1103,35 @@ trait tPdoModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.24:
+     *   (AT)  Change the order of the parameters to make them more logical
+     *   (AT)  Add query parameter to control whether queries are allowed
+     *   (AT)  Add ability to modify hidden property attribute
      *
-     * @version 2013.09.30
+     * @version 2013.10.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
-     * @param \Cougar\Model\iSecurity|\Cougar\Security\iSecurity $security
+     * @param \Cougar\Security\iSecurity $security
      *   Security context
-     * @param array $columns
-     *   Columns accessed by this object
-     * @param bool $select
-     *   Whether to allow SELECT operation
-     * @param bool $insert
-     *   Whether to allow INSERT operation
+     * @param bool $create
+     *   Whether to allow CREATE operation
+     * @param bool $read
+     *   Whether to allow READ operation
      * @param bool $update
      *   Whether to allow UPDATE operation
      * @param bool $delete
-     *   Whether to allow DELETE operation
-     * @param array $readOnlyPropertyStatus
+     *   Whether to allow QUERY operation
+     * @param $query
+     * @param array $columns
+     *   Columns accessed by this object
+     * @param array $readOnlyPropertyAttributes
      *   Whether the properties are ready-only
+     * @param array $propertyVisibility
+     *   Whether the properties are visible
      */
-    protected function authorization(iSecurity $security,
-        array $columns, &$select, &$insert, &$update, &$delete,
-        array &$readOnlyPropertyStatus)
+    protected function authorization(iSecurity $security, &$create, &$read,
+        &$update, &$delete, &$query, array $columns,
+        array &$readOnlyPropertyAttributes, array &$propertyVisibility)
     {
         # Don't do anything; will be overridden as needed.
     }
