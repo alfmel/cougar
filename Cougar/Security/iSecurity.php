@@ -81,9 +81,10 @@ interface iSecurity
     
     /**
      * Adds the provided authorization provider to the list. An optional alias
-     * may be provided. If no alias is given, the provider's name will be
-     * used. Any providers added with the same class name or with the same alias
-     * will replace the existing provider.
+     * may be provided. If no alias is given, the alias will be set by the
+     * object's providerAlias property if it exists. Otherwise, the provider's
+     * class name (without namespace) will be used. Any providers added with the
+     * same alias will replace any existing providers.
      *
      * @history
      * 2013.09.30:

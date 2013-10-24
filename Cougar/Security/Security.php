@@ -26,6 +26,8 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.10.24:
+ *   (AT)  Made improvements to the authorization provider alias capabilities
  *
  * @version 2013.09.30
  * @package Cougar
@@ -169,15 +171,19 @@ class Security implements iSecurity
     
     /**
      * Adds the provided authorization provider to the list. An optional alias
-     * may be provided. If no alias is given, the provider's name will be
-     * used. Any providers added with the same class name or with the same alias
-     * will replace the existing provider.
+     * may be provided. If no alias is given, the alias will be set by the
+     * object's providerAlias property if it exists. Otherwise, the provider's
+     * class name (without namespace) will be used. Any providers added with the
+     * same alias will replace any existing providers.
      *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.24:
+     *   (AT)  See if object has providerAlias property to set alias
+     *   (AT)  Strip namespace from class name if no aliases are provided
      *
-     * @version 2013.09.30
+     * @version 2013.10.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param iAuthorizationProvider $authorization_provider
@@ -188,10 +194,22 @@ class Security implements iSecurity
     public function addAuthorizationProvider(
         iAuthorizationProvider $authorization_provider, $alias = null)
     {
-        # If we don't have an alias, use the class name
+        # If we don't have an alias, use the providerAlias or class name
         if (! $alias)
         {
-            $alias = get_class($authorization_provider);
+            # See if the providerAlias property exists
+            if (property_exists($authorization_provider, "providerAlias"))
+            {
+                # Use the providerAlias
+                $alias = $authorization_provider->providerAlias;
+            }
+            else
+            {
+                # Remove the namespace
+                $class_name_array =
+                    explode("\\", get_class($authorization_provider));
+                $alias = end($class_name_array);
+            }
         }
         
         # Add the provider to the list
