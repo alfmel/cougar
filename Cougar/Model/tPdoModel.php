@@ -10,6 +10,7 @@ use Cougar\Security\iSecurity;
 use Cougar\Util\Annotations;
 use Cougar\Util\QueryParameter;
 use Cougar\Exceptions\Exception;
+use Cougar\Exceptions\AccessDeniedException;
 use Cougar\Exceptions\BadRequestException;
 use Cougar\Exceptions\RecordNotFoundException;
 
@@ -29,8 +30,13 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.10.24:
+ *   (AT)  Refactor authorization() call
+ * 2013.10.25:
+ *   (AT)  Add security checks to save()
+ *   (AT)  Match all security-related exceptions
  *
- * @version 2013.09.30
+ * @version 2013.10.25
  * @package Cougar
  * @license MIT
  *
@@ -59,7 +65,7 @@ trait tPdoModel
      * @version 2013.10.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
-     * @param \Cougar\Model\iSecurity|\Cougar\Security\iSecurity $security
+     * @param \Cougar\Security\iSecurity $security
      *   Security context
      * @param \Cougar\Cache\iCache $cache
      *   Cache object
@@ -505,8 +511,10 @@ trait tPdoModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.25:
+     *   (AT)  Add missing security checks :-D
      *
-     * @version 2013.09.30
+     * @version 2013.10.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
@@ -519,6 +527,13 @@ trait tPdoModel
         # See if we are inserting or updating
         if ($this->__insertMode)
         {
+            # Make sure we can create new records
+            if (! $this->__allowCreate)
+            {
+                throw new AccessDeniedException(
+                    "You are not allowed to create this record");
+            }
+
             # Create the INSERT statement
             $vars = $this->__properties;
             foreach($vars  as &$var)
@@ -600,6 +615,13 @@ trait tPdoModel
         }
         else
         {
+            # Make sure we can create new records
+            if (! $this->__allowUpdate)
+            {
+                throw new AccessDeniedException(
+                    "You are not allowed to update this record");
+            }
+
             # See which columns have changed
             $parameters = array();
             $sets = array();
@@ -698,24 +720,30 @@ trait tPdoModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.25:
+     *   (AT)  Improve thrown exceptions
      *
-     * @version 2013.09.30
+     * @version 2013.10.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
+     * @throws \Cougar\Exceptions\AccessDeniedException
+     * @throws \Cougar\Exceptions\BadRequestException
      */
     public function delete()
     {
         # Make sure the record can be deleted
         if (! $this->__allowDelete)
         {
-            throw new Exception("Cannot delete this record");
+            throw new AccessDeniedException(
+                "You are not allowed to delete record");
         }
         
         # See if we are in insert mode
         if ($this->__insertMode)
         {
-            throw new Exception("Cannot delete record: it doesn't exist!");
+            throw new BadRequestException(
+                "Cannot delete record: it doesn't exist!");
         }
         
         # See if we just need to flag a property as deleted
@@ -769,6 +797,8 @@ trait tPdoModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.25:
+     *   (AT)  Improve thrown exceptions
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
@@ -780,7 +810,7 @@ trait tPdoModel
      * @param array $ctoargs
      *   Constructor arguments if returning objects
      * @return array Record list
-     * @throws \Cougar\Exceptions\BadRequestException;
+     * @throws \Cougar\Exceptions\AccessDeniedException;
      */
     public function query(array $parameters = array(), $class_name = "array",
         array $ctorargs = array())
@@ -788,7 +818,7 @@ trait tPdoModel
         # See if querying is allowed
         if (! $this->__allowQuery)
         {
-            throw new BadRequestException(
+            throw new AccessDeniedException(
                 "This model does not support querying");
         }
         

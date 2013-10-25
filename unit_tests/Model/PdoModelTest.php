@@ -31,7 +31,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
         
-        $pdo_statement = $this->getMock("\PDOStatement");
+        $pdo_statement = $this->getMock("\\PDOStatement");
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
@@ -49,7 +49,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("fetch")
             ->will($this->returnValue(false));
         
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->once())
@@ -80,7 +80,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->with("unittest.model.12345")
             ->will($this->returnValue(false));
         
-        $pdo_statement = $this->getMock("\PDOStatement");
+        $pdo_statement = $this->getMock("\\PDOStatement");
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
@@ -89,7 +89,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("fetch")
             ->will($this->returnValue(false));
         
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->once())
@@ -121,7 +121,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
         
-        $pdo_statement = $this->getMock("\PDOStatement");
+        $pdo_statement = $this->getMock("\\PDOStatement");
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
@@ -136,7 +136,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("rowCount")
             ->will($this->returnValue(1));
 
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->once())
@@ -199,7 +199,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
         
-        $pdo_statement = $this->getMock("\PDOStatement");
+        $pdo_statement = $this->getMock("\\PDOStatement");
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
@@ -214,7 +214,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("rowCount")
             ->will($this->returnValue(1));
 
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->once())
@@ -281,7 +281,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
         
-        $pdo_statement_select = $this->getMock("\PDOStatement");
+        $pdo_statement_select = $this->getMock("\\PDOStatement");
         $pdo_statement_select->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
@@ -298,7 +298,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("fetch")
             ->will($this->returnValue(false));
         
-        $pdo_statement_update = $this->getMock("\PDOStatement");
+        $pdo_statement_update = $this->getMock("\\PDOStatement");
         $pdo_statement_update->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
@@ -312,7 +312,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("rowCount")
             ->will($this->returnValue(1));
 
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->at(0))
@@ -375,7 +375,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
         
-        $pdo_statement_select = $this->getMock("\PDOStatement");
+        $pdo_statement_select = $this->getMock("\\PDOStatement");
         $pdo_statement_select->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
@@ -392,7 +392,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("fetch")
             ->will($this->returnValue(false));
         
-        $pdo_statement_update = $this->getMock("\PDOStatement");
+        $pdo_statement_update = $this->getMock("\\PDOStatement");
         $pdo_statement_update->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
@@ -405,7 +405,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("rowCount")
             ->will($this->returnValue(1));
 
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->at(0))
@@ -462,7 +462,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->with("unittest.model.12345")
             ->will($this->returnValue(false));
         
-        $pdo_statement_select = $this->getMock("\PDOStatement");
+        $pdo_statement_select = $this->getMock("\\PDOStatement");
         $pdo_statement_select->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
@@ -479,7 +479,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("fetch")
             ->will($this->returnValue(false));
         
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->at(0))
@@ -515,7 +515,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("clear")
             ->will($this->returnValue(false));
         
-        $pdo_statement_select = $this->getMock("\PDOStatement");
+        $pdo_statement_select = $this->getMock("\\PDOStatement");
         $pdo_statement_select->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
@@ -532,7 +532,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("fetch")
             ->will($this->returnValue(false));
         
-        $pdo_statement_delete = $this->getMock("\PDOStatement");
+        $pdo_statement_delete = $this->getMock("\\PDOStatement");
         $pdo_statement_delete->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
@@ -541,7 +541,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("rowCount")
             ->will($this->returnValue(1));
 
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->at(0))
@@ -625,7 +625,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $cache->expects($this->never())
             ->method("set");
         
-        $pdo_statement = $this->getMock("\PDOStatement");
+        $pdo_statement = $this->getMock("\\PDOStatement");
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
@@ -641,7 +641,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
                 "emailAddress" => "alberto@byu.edu",
                 "phone" => "801-555-1212"))));
         
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("prepare"),
             array("mysql:"));
         $pdo->expects($this->once())
@@ -697,6 +697,173 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $object = new PdoModelUnitTest($security, $cache, $pdo);
         $object->save();
     }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::save
+     * @expectedException \Cougar\Exceptions\AccessDeniedException
+     */
+    public function testCreateSecurity()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->never())
+            ->method("set");
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->never())
+            ->method("prepare");
+
+        $object = new PdoModelNoCreateUnitTest($security, $cache, $pdo);
+        $object->id = "abc";
+        $object->save();
+
+        $this->fail("Expected exception was not thrown");
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @expectedException \Cougar\Exceptions\AccessDeniedException
+     */
+    public function testReadSecurity()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->never())
+            ->method("set");
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->never())
+            ->method("prepare");
+
+        $object = new PdoModelNoReadUnitTest($security, $cache, $pdo,
+            array("id" => "id"));
+
+        $this->fail("Expected exception was not thrown");
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::save
+     * @expectedException \Cougar\Exceptions\AccessDeniedException
+     */
+    public function testUpdateSecurity()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+        ->will($this->returnValue(false));
+
+        $pdo_statement = $this->getMock("\\PDOStatement");
+        $pdo_statement->expects($this->once())
+            ->method("execute")
+            ->will($this->returnValue(true));
+        $pdo_statement->expects($this->at(2))
+            ->method("fetch")
+            ->will($this->returnValue(array(
+                "id" => "id")));
+        $pdo_statement->expects($this->at(3))
+            ->method("fetch")
+            ->will($this->returnValue(false));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->once())
+            ->method("prepare")
+            ->will($this->returnValue($pdo_statement));
+
+        $object = new PdoModelNoUpdateUnitTest($security, $cache, $pdo,
+            array("id" => "id"));
+        $object->save();
+
+        $this->fail("Expected exception was not thrown");
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::delete
+     * @expectedException \Cougar\Exceptions\AccessDeniedException
+     */
+    public function testDeleteSecurity()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+
+        $pdo_statement = $this->getMock("\\PDOStatement");
+        $pdo_statement->expects($this->once())
+            ->method("execute")
+            ->will($this->returnValue(true));
+        $pdo_statement->expects($this->at(2))
+            ->method("fetch")
+            ->will($this->returnValue(array(
+                "id" => "id")));
+        $pdo_statement->expects($this->at(3))
+            ->method("fetch")
+            ->will($this->returnValue(false));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->once())
+            ->method("prepare")
+            ->will($this->returnValue($pdo_statement));
+
+        $object = new PdoModelNoUpdateUnitTest($security, $cache, $pdo,
+            array("id" => "id"));
+        $object->delete();
+
+        $this->fail("Expected exception was not thrown");
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::query
+     * @expectedException \Cougar\Exceptions\AccessDeniedException
+     */
+    public function testQuerySecurity()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->never())
+            ->method("set");
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->never())
+            ->method("prepare");
+
+        $object = new PdoModelNoQueryUnitTest($security, $cache, $pdo);
+        $object->query();
+
+        $this->fail("Expected exception was not thrown");
+    }
 }
 
 /**
@@ -706,7 +873,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
  * parsing routines.
  * 
  * @Table user
- *    @Allow  SELECT  INSERT UPDATE DELETE QUERY
+ * @Allow CREATE READ UPDATE DELETE QUERY
  * @PrimaryKey userId
  * @CachePrefix unittest.model
  * @CacheTime    60
@@ -750,3 +917,57 @@ class PdoModelUnitTest extends \Cougar\Model\PdoModel
      */
     public $birthDate;
 }
+
+/**
+ * @Table user
+ * @Allow QUERY
+ * @PrimaryKey id
+ */
+class PdoModelNoReadUnitTest extends \Cougar\Model\PdoModel
+{
+    /**
+     * @var int ID
+     */
+    public $id;
+}
+
+/**
+ * @Table user
+ * @Allow QUERY
+ * @PrimaryKey id
+ */
+class PdoModelNoCreateUnitTest extends \Cougar\Model\PdoModel
+{
+    /**
+     * @var int ID
+     */
+    public $id;
+}
+
+/**
+ * @Table user
+ * @Allow READ QUERY
+ * @PrimaryKey id
+ */
+class PdoModelNoUpdateUnitTest extends \Cougar\Model\PdoModel
+{
+    /**
+     * @var int ID
+     */
+    public $id;
+}
+
+
+/**
+ * @Table user
+ * @Allow READ
+ * @PrimaryKey id
+ */
+class PdoModelNoQueryUnitTest extends \Cougar\Model\PdoModel
+{
+    /**
+     * @var int ID
+     */
+    public $id;
+}
+?>
