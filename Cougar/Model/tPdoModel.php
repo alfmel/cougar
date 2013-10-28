@@ -444,11 +444,19 @@ trait tPdoModel
                 # Get the record
                 $this->getRecord();
 
-                # Call the authorization method
+                # Call the authorization method; we call it after we get the
+                # record since the authorization may need all fields
                 $this->authorization($this->__security, $this->__allowCreate,
                     $this->__allowRead, $this->__allowUpdate,
                     $this->__allowDelete, $this->__allowQuery,
                     $this->__columnMap, $this->__readOnly, $this->__visible);
+
+                # Make sure the identity is authorized to read the record
+                if (! $this->__allowRead)
+                {
+                    throw new AccessDeniedException(
+                        "You do not have access to this record");
+                }
                 
                 # Save the default values
                 foreach($this->__properties as $property)
