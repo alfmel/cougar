@@ -26,8 +26,11 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.10.28:
+ *   (AT)  Fix bug when reading a property through an alias where the original
+ *         value was lost
  *
- * @version 2013.09.30
+ * @version 2013.10.28
  * @package Cougar
  * @license MIT
  *
@@ -359,8 +362,10 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.28:
+     *   (AT)  Don't set a value for the alias; just set the reference
      *
-     * @version 2013.09.30
+     * @version 2013.10.28
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $name Property name
@@ -382,8 +387,7 @@ trait tModel
         # See if the property exists
         if (array_key_exists($property, $this->__alias))
         {
-            # Create a new public property and link it to the real property
-            $this->$name = null;
+            # Create a new public property for the alias linked to the real one
             $this->$name = &$this->{$this->__alias[$property]};
             return $this->$name;
             

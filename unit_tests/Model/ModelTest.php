@@ -76,6 +76,22 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
      * @covers \Cougar\Model\Model::__set
      * @covers \Cougar\Model\Model::__get
      */
+    public function testNewObjectGetPropertiesWithAlias()
+    {
+        $object = new ModelUnitTest();
+        $this->assertNull($object->email);
+        $object->email = "cosmo@byu.edu";
+        $this->assertEquals("cosmo@byu.edu", $object->emailAddress);
+        $object->emailAddress = "cosmo.cougar@byu.edu";
+        $this->assertEquals("cosmo.cougar@byu.edu", $object->email);
+    }
+
+    /**
+     * @covers \Cougar\Model\Model::__construct
+     * @covers \Cougar\Model\Model::__isset
+     * @covers \Cougar\Model\Model::__set
+     * @covers \Cougar\Model\Model::__get
+     */
     public function testNewObjectSetPropertiesWithAlias()
     {
         $object = new ModelUnitTest();
@@ -86,7 +102,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $object->phone = "555-1212";
         $object->birthDate = "01 JUN 1960";
         $object->__validate();
-        
+
         $this->assertEquals(12345, $object->userId);
         $this->assertEquals("Cougar", $object->lastName);
         $this->assertEquals("Cosmo", $object->firstName);
@@ -97,7 +113,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("1960-06-01", (string) $object->birthDate);
         $this->assertTrue($object->active);
     }
-    
+
     /**
      * @covers \Cougar\Model\Model::__construct
      * @covers \Cougar\Model\Model::__isset
@@ -676,9 +692,7 @@ class ModelUnitTest extends \Cougar\Model\Model
     
     /**
      * This is marked read-only to test read-only status.
-     * 
-     * Note: the ReadOnly tag is not used in this class, but in child classes
-     * 
+     *
      * @ReadOnly
      * @var bool Whether record is active
      */

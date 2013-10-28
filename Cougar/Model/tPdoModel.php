@@ -35,8 +35,11 @@ require_once("cougar.php");
  * 2013.10.25:
  *   (AT)  Add security checks to save()
  *   (AT)  Match all security-related exceptions
+ * 2013.10.28:
+ *   (AT)  Perform extra __allowRead check after loading the record
+ *   (AT)  Add property aliaes to SELECT query in getRecord();
  *
- * @version 2013.10.25
+ * @version 2013.10.28
  * @package Cougar
  * @license MIT
  *
@@ -405,6 +408,11 @@ trait tPdoModel
             
             foreach($object as $key => $value)
             {
+                if ($this->__caseInsensitive)
+                {
+                    $key = strtolower($key);
+                }
+
                 # See if this is a value we handle
                 if (array_key_exists($key, $this->__alias))
                 {
@@ -414,10 +422,10 @@ trait tPdoModel
                     # See if this is a primary key value
                     if (in_array($key, $this->__primaryKey))
                     {
-                        # Add the value to the array
+                        # Add the value to our list of primary key values
                         $pk_values[$key] = $value;
                         
-                        # See if the value is not equvalent to default
+                        # See if the value is not equivalent to default
                         if ($value != $this->{$this->__alias[$key]})
                         {
                             # This is a primary key value; save the value
@@ -426,7 +434,7 @@ trait tPdoModel
                     }
                     else
                     {
-                        # This is an other value
+                        # This is an other value; store it separately
                         $values[$key] = $value;
                     }
                 }
@@ -1180,8 +1188,11 @@ trait tPdoModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.10.28:
+     *   (AT) Add column aliases to SELECT query to ensure properties are set
+     *        properly
      *
-     * @version 2013.09.30
+     * @version 2013.10.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     protected function getRecord()
@@ -1205,9 +1216,23 @@ trait tPdoModel
         
         if ($cache_entry === false)
         {
+            # See if the columns need aliases
+            $columns = array();
+            foreach($this->__columnMap as $property => $column)
+            {
+                if ($property == $column)
+                {
+                    $columns[] = $column;
+                }
+                else
+                {
+                    $columns[] = $column . " AS " . $property;
+                }
+            }
+
             # Create the statement
             $statement_query = "SELECT " .
-                implode(", ", array_values($this->__columnMap)) .
+                implode(", ", $columns) .
                 " FROM " . $this->__table;
             foreach($this->__joins as $join)
             {

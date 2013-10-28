@@ -51,7 +51,8 @@ class PdoModelNoCacheTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement));
         
@@ -87,7 +88,8 @@ class PdoModelNoCacheTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement));
         
@@ -205,7 +207,8 @@ class PdoModelNoCacheTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))
@@ -266,7 +269,8 @@ class PdoModelNoCacheTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         
@@ -324,7 +328,8 @@ class PdoModelNoCacheTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))

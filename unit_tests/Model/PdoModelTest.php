@@ -55,8 +55,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone, " .
-                    "birthDate " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone, birthDate " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement));
         
@@ -95,8 +95,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone, " .
-                    "birthDate " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone, birthDate " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement));
         
@@ -318,8 +318,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone, " .
-                    "birthDate " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone, birthDate " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))
@@ -411,8 +411,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone, " .
-                    "birthDate " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone, birthDate " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))
@@ -485,8 +485,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone, " .
-                    "birthDate " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone, birthDate " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         
@@ -547,8 +547,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
-                "SELECT userId, lastName, firstName, emailAddress, phone, " .
-                    "birthDate " .
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                    "phone, birthDate " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))
