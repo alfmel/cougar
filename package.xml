@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<package version="2.0" xmlns="http://pear.php.net/dtd/package-2.0"
+    xmlns:tasks="http://pear.php.net/dtd/tasks-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+		http://pear.php.net/dtd/tasks-1.0.xsd
+		http://pear.php.net/dtd/package-2.0
+		http://pear.php.net/dtd/package-2.0.xsd">
+	<name>Cougar</name>
+	<channel>alfmel.github.com/pear</channel>
+	<summary>Cougar Framework for PHP</summary>
+	<description>
+        Framework for quickly and securely developing RESTful APIs in PHP.
+	</description>
+	<lead>
+		<name>Alberto Trevino, OIT Core</name>
+		<user>at29</user>
+		<email>alberto@byu.edu</email>
+		<active>yes</active>
+	</lead>
+	<date>2013-11-08</date>
+	<version>
+		<release>2013.11.08</release>
+		<api>2013.11.08</api>
+	</version>
+	<stability>
+		<release>stable</release>
+		<api>stable</api>
+	</stability>
+	<license uri="https://github.com/alfmel/cougar/blob/master/LICENSE.TXT">MIT License</license>
+	<notes>
+		2013-11-08 Snapshot
+	</notes>
+	<contents>
+		<dir name="/">
+			<file name="cougar.php" role="php" />
+			<dir name="Cougar/Autoload">
+				<file name="Autoload.php" role="php" />
+				<file name="FlexAutoload.php" role="php" />
+			</dir>
+			<dir name="Cougar/Model">
+				<file name="tAnnotatedClass.php" role="php" />
+				<file name="AnnotatedClass.php" role="php" />
+				<file name="PdoModel.php" role="php" />
+				<file name="Model.php" role="php" />
+				<file name="cougar-model-builder" role="script" />
+				<file name="iModel.php" role="php" />
+				<file name="tPdoModel.php" role="php" />
+				<file name="tArrayExportable.php" role="php" />
+				<file name="RealStruct.php" role="php" />
+				<file name="tStruct.php" role="php" />
+				<file name="iAnnotatedClass.php" role="php" />
+				<file name="Struct.php" role="php" />
+				<file name="tStrictModel.php" role="php" />
+				<file name="tModel.php" role="php" />
+				<file name="PdoEnumeration.php" role="php" />
+				<file name="tRealStruct.php" role="php" />
+				<file name="tWsModel.php" role="php" />
+				<file name="WsModel.php" role="php" />
+				<file name="ArrayExportable.php" role="php" />
+				<file name="iStoredModel.php" role="php" />
+				<file name="iStruct.php" role="php" />
+				<file name="iArrayExportable.php" role="php" />
+				<file name="StrictModel.php" role="php" />
+			</dir>
+			<dir name="Cougar/Security">
+				<file name="Security.php" role="php" />
+				<file name="iAuthorizationProvider.php" role="php" />
+				<file name="iAuthenticationProvider.php" role="php" />
+				<file name="iSecurity.php" role="php" />
+				<file name="CasAuthenticationProvider.php" role="php" />
+				<file name="Identity.php" role="php" />
+				<file name="iClientAuthenticationProvider.php" role="php" />
+				<file name="iIdentity.php" role="php" />
+			</dir>		
+			<dir name="Cougar/Util">
+				<file name="iSecureString.php" role="php" />
+				<file name="ClassAnnotations.php" role="php" />
+				<file name="iArrays.php" role="php" />
+				<file name="DateTime.php" role="php" />
+				<file name="Format.php" role="php" />
+				<file name="iAnnotations.php" role="php" />
+				<file name="Config.php" role="php" />
+				<file name="iConfig.php" role="php" />
+				<file name="Arrays.php" role="php" />
+				<file name="StringObfuscator.php" role="php" />
+				<file name="Annotations.php" role="php" />
+				<file name="iXml.php" role="php" />
+				<file name="QueryParameter.php" role="php" />
+				<file name="Annotation.php" role="php" />
+				<file name="Xml.php" role="php" />
+				<file name="iFormat.php" role="php" />
+				<file name="cougar-obfuscate-string" role="script" />
+				<file name="Arc4.php" role="php" />
+			</dir>			
+			<dir name="Cougar/Cache">
+				<file name="iCache.php" role="php" />
+				<file name="CacheFactory.php" role="php" />
+				<file name="Cache.php" role="php" />
+			</dir>	
+			<dir name="Cougar/PDO">
+				<file name="PDO.php" role="php" />
+				<file name="cougar-create-pdo-connection-file" role="script" />
+				<file name="iPDO.php" role="php" />
+				<file name="PDOFactory.php" role="php" />
+			</dir>	
+			<dir name="Cougar/RestClient">
+				<file name="CurlWrapper.php" role="php" />
+				<file name="iRestClient.php" role="php" />
+				<file name="RestClient.php" role="php" />
+			</dir>	
+			<dir name="Cougar/RestService">
+				<file name="Parameter.php" role="php" />
+				<file name="RestService.php" role="php" />
+				<file name="iRestService.php" role="php" />
+				<file name="iAnnotatedRestService.php" role="php" />
+				<file name="Binding.php" role="php" />
+				<file name="AnnotatedRestService.php" role="php" />
+			</dir>		
+			<dir name="Cougar/Exceptions">
+				<file name="AuthenticationRequiredException.php" role="php" />
+				<file name="ServiceUnavailableException.php" role="php" />
+				<file name="BadRequestException.php" role="php" />
+				<file name="HttpRequestParseException.php" role="php" />
+				<file name="Errors.php" role="php" />
+				<file name="NotFoundException.php" role="php" />
+				<file name="ConfigurationFileNotFoundException.php" role="php" />
+				<file name="RecordNotFoundException.php" role="php" />
+				<file name="HttpRequestException.php" role="php" />
+				<file name="AccessDeniedException.php" role="php" />
+				<file name="InvalidAnnotationException.php" role="php" />
+				<file name="NotAcceptableException.php" role="php" />
+				<file name="Exception.php" role="php" />
+				<file name="NotImplementedException.php" role="php" />
+				<file name="InvalidRecordValueException.php" role="php" />
+				<file name="MethodNotAllowedException.php" role="php" />
+			</dir>	
+		</dir>		
+	</contents>
+	<dependencies>
+		<required>
+			<php>
+				<min>5.4</min>
+				<max>6.0.0</max>
+			</php>
+			<pearinstaller>
+				<min>1.4.0dev13</min>
+			</pearinstaller>
+		</required>
+	</dependencies>
+	<phprelease />
+	<changelog>
+		<release>
+			<version>
+				<release>2013.11.08</release>
+				<api>2013.11.08</api>
+			</version>
+			<stability>
+				<release>stable</release>
+				<api>stable</api>
+			</stability>
+			<date>2013-11.08</date>
+			<notes>2013.11.08 snapshot</notes>
+		</release>
+	</changelog>
+</package>

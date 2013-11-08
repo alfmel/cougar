@@ -1,4 +1,4 @@
-COUGAR FRAMEWORK
+# COUGAR FRAMEWORK
 ================
 
 The Cougar Framework is an object-oriented application framework for PHP 5.4 or
@@ -13,6 +13,7 @@ Cougar promotes Inversion of Control (dependency injection) and Attribute-
 Oriented programming via annotations. For example, to publish a class method as
 a web service end point, you would write:
 
+```php
   class MyClass
   {
     /**
@@ -24,17 +25,40 @@ a web service end point, you would write:
       // Your code here
     }
   }
+```
 
 and then plumb it together with a REST request handler as follows:
 
+```php
   $my_class = new MyClass();
   $rest_service = new Cougar\RestService\AnnotatedRestService();
   $rest_service->bindFromObject($my_class);
   $rest_service->handleRequest();
+```
 
 As you can see, Cougar allows you to publish your API via REST with less than 10
 lines of code! The ZF2 Album tutorial can be written in its entirety in Cougar
 in about 125 lines of code, complete with database connectivity, transaction
-control and hierarchical models. To see the code, go to:
+control and hierarchical models. To see the code, go to the
+[zend_tutorial_in_cougar.php](https://github.com/alfmel/zend_tutorial_in_cougar).
 
-  https://github.com/alfmel/zend_tutorial_in_cougar
+## Installation
+
+The easiest way to install Cougar for use is via Pear:
+
+```bash
+  pear channel-discover alfmel.github.com/pear
+  pear install cougar/cougar
+```
+
+To develop Cougar, clone from github and follow the instructions in INSTALL.txt:
+
+```bash
+  git clone https://github.com/alfmel/cougar
+```
+
+## Tutorial
+
+We have published a [tutorial](https://github.com/alfmel/cougar_tutorial/wiki) that
+walks you through the development of a Cougar-based application.
+
