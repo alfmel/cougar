@@ -18,9 +18,9 @@
 		<email>alberto@byu.edu</email>
 		<active>yes</active>
 	</lead>
-	<date>2013-11-08</date>
+	<date>2013-11-13</date>
 	<version>
-		<release>2013.11.08</release>
+		<release>2013.11.13</release>
 		<api>2013.11.08</api>
 	</version>
 	<stability>
@@ -29,7 +29,7 @@
 	</stability>
 	<license uri="https://github.com/alfmel/cougar/blob/master/LICENSE.TXT">MIT License</license>
 	<notes>
-		2013-11-08 Snapshot
+		2013-11-13 Snapshot
 	</notes>
 	<contents>
 		<dir name="/">
@@ -148,18 +148,24 @@
 			</pearinstaller>
 		</required>
 	</dependencies>
-	<phprelease />
+	<phprelease>
+		<filelist>
+			<install name="Cougar/Model/cougar-model-builder" as="cougar-model-builder" />
+			<install name="Cougar/Util/cougar-obfuscate-string" as="cougar-obfuscate-string" />
+			<install name="Cougar/PDO/cougar-create-pdo-connection-file" as="cougar-create-pdo-connection-file" />
+		</filelist>
+	</phprelease>
 	<changelog>
 		<release>
 			<version>
-				<release>2013.11.08</release>
+				<release>2013.11.13</release>
 				<api>2013.11.08</api>
 			</version>
 			<stability>
 				<release>stable</release>
 				<api>stable</api>
 			</stability>
-			<date>2013-11.08</date>
+			<date>2013-11.13</date>
 			<notes>2013.11.08 snapshot</notes>
 		</release>
 	</changelog>
