@@ -28,6 +28,10 @@ use Cougar\Exceptions\Exception;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.11.13:
+ *   (AT)  Improve the autoload rescan heuristics to find moved files
+ *   (AT)  Fix bug where new files did not trigger a rescan and were therefore
+ *         not found
  *
  * @version 2013.09.30
  * @package Cougar
@@ -144,8 +148,13 @@ class FlexAutoload
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.13:
+     *   (AT)  Make sure we re-initialize the class map if the file we are
+     *         trying to load does not exist (for example, has moved or has been
+     *         deleted)
+     *   (AT)  Search the namespace hierarchy when looking for a class
      *
-     * @version 2013.09.30
+     * @version 2013.11.13
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @var string $class_name
@@ -154,19 +163,26 @@ class FlexAutoload
     public static function splAutoload($class_name)
     {
         # See if this class is in the class map
+        $class_exists = false;
         if (array_key_exists($class_name, self::$classMap))
         {
-            # Load the file
-            include(self::$classMap[$class_name]);
-        }
-        else
-        {
-            # Extract the namespace from the class_name
-            $last_namespace_pos = strrpos($class_name, "\\");
-
-            if ($last_namespace_pos !== false)
+            # Make sure the file exists
+            if (file_exists(self::$classMap[$class_name]))
             {
-                $namespace = substr($class_name, 0, $last_namespace_pos);
+                $class_exists = true;
+            }
+        }
+
+        # See if we need to look for classes again
+        if (! $class_exists)
+        {
+            # Break up the namespace hierarchy
+            $namespace_hierarchy = explode("\\", $class_name);
+
+            # Go through the namespace hierarchy, from most specific to least
+            while (count($namespace_hierarchy) > 0 && ! $class_exists)
+            {
+                $namespace = implode("\\", $namespace_hierarchy);
 
                 # See if we have directory entries for this namespace
                 if (array_key_exists($namespace, self::$namespaceMap))
@@ -188,13 +204,26 @@ class FlexAutoload
                     # Check again if this class is in the class map
                     if (array_key_exists($class_name, self::$classMap))
                     {
-                        # Load the file
-                        include(self::$classMap[$class_name]);
+                        # Make sure the file exists
+                        if (file_exists(self::$classMap[$class_name]))
+                        {
+                            $class_exists = true;
+                        }
                     }
                 }
+
+                # Remove the last part of the element
+                array_pop($namespace_hierarchy);
             }
         }
+
+        # Attempt to load the file
+        if ($class_exists)
+        {
+            include(self::$classMap[$class_name]);
+        }
     }
+
 
     /***********************************************************************
      * PROTECTED STATIC PROPERTIES AND METHODS
@@ -232,6 +261,8 @@ class FlexAutoload
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.13:
+     *   (AT)  Actually build the namespace map
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
@@ -281,7 +312,7 @@ class FlexAutoload
             # Prepare the cached class map values
             $cached_maps = array("classes" => $classes,
                 "directories" => $dir_list,
-                "namespaces" => $dir_list);
+                "namespaces" => $namespaces);
 
             # Store the class map and directory list in the cache
             $cache->set($key, $cached_maps, self::$cacheTime);
