@@ -12,8 +12,11 @@ use Cougar\Util\Config;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.11.19:
+ *   (AT)  Generate files as defined in tutorial
+ *   (AT)  Misc. bug fixes
  *
- * @version 2013.09.30
+ * @version 2013.11.19
  * @package Cougar
  * @license MIT
  *
@@ -26,17 +29,17 @@ if ($argc < 2)
     echo("
 Usage:
 
-  ". $argv[0] . " pdo_connection.conf
+  " . $argv[0] . " pdo_connection.conf
 
     Lists all tables in the current schema
 
 
-  ". $argv[0] . " pdo_connection.conf [table1 [table2 [...]]]
+  " . $argv[0] . " pdo_connection.conf [table1 [table2 [...]]]
 
     Creates models for table1, table2, and so forth
 
   
-  ". $argv[0] . " pdo_connection.conf *all*
+  " . $argv[0] . " pdo_connection.conf *all*
 
     Creates models for all tables in the schema
     
@@ -51,7 +54,7 @@ All Model files will be written to the current directory
 }
 
 # Initialize the Cougar framework
-require_once("cougar.php");
+require_once("/opt/php/cougar/cougar.php");
 
 # Try to find the file
 $pdo_file = $argv[1];
@@ -120,19 +123,11 @@ foreach($tables as $table)
     # Define the list of primary key properties
     $primary_key = array();
     
-    # Start writing the code
+    # Start writing the code for the base model
     $code =
 '<?php
-namespace PUT_YOUR_NAMESAPCE_HERE;
 
-use Cougar\Autoload\FlexAutoload;
-use Cougar\Model\iModel;
-use Cougar\Model    Model;
-use Cougar\Model\Model;
-
-# Initialize Cougar framework and add application directory to FlexAutoload
-require_once("cougar.php");
-FlexAutoload::addPath(__DIR__, 2);
+namespace PUT_YOUR_NAMESPACE_HERE\Model;
 
 /**
  * Defines the properties and data constraints of the ' . $table . ' table in
@@ -143,14 +138,12 @@ FlexAutoload::addPath(__DIR__, 2);
  *   (Initials) Initial implementation
  *
  * @version ' . $date . ':
- * @package ???
- * @license ???
  *
  * @author (Initials) Full Name, Organization <email_address@nowhere.com>
  * 
  * @CaseInsensitive
  */
-abstract class ' . $class . 'BaseModel
+abstract class ' . $class . 'Base
 {
 ';
     
@@ -233,6 +226,18 @@ abstract class ' . $class . 'BaseModel
         // TODO: Put any additional property validations here
     }
 }
+?>
+';
+    echo("Creating " . $class . "Base.php\n");
+    file_put_contents($class . "Base.php", $code);
+
+	$code =
+'<?php
+
+namespace PUT_YOUR_NAMESPACE_HERE\Model
+
+use Cougar\Model\iModel;
+use Cougar\Model\tModel;
 
 /**
  * Defines the ' . $class . ' model.
@@ -242,17 +247,26 @@ abstract class ' . $class . 'BaseModel
  *   (Initials) Initial implementation
  *
  * @version ' . $date . ':
- * @package ???
- * @license ???
  *
  * @author (Initials) Full Name, Organization <email_address@nowhere.com>
  */
-class ' . $class . 'Model extends ' . $class . 'BaseModel
-implements \Cougar\Model\iModel
+class ' . $class . ' extends ' . $class . 'Base implements iModel
 {
     use \Cougar\Model\tModel;
 }
+?>
+';
 
+    echo("Creating " . $class . ".php\n");
+    file_put_contents($class . ".php", $code);
+
+	$code =
+'<?php
+
+namespace PUT_YOUR_NAMESPACE_HERE\Model
+
+use Cougar\Model\iStoredModel;
+use Cougar\Model\tPdoModel;
 
 /**
  * Defines the ' . $class . ' PDO model.
@@ -262,8 +276,6 @@ implements \Cougar\Model\iModel
  *   (Initials) Initial implementation
  *
  * @version ' . $date . ':
- * @package ???
- * @license ???
  *
  * @author (Initials) Full Name, Organization <email_address@nowhere.com>
  *
@@ -272,10 +284,9 @@ implements \Cougar\Model\iModel
  * @PrimaryKey ' . implode(" ", $primary_key) . '
  * @CacheTime 3600
  */
-class ' . $class . 'PdoModel extends ' . $class . 'BaseModel
-implements \Cougar\Model\iStoredModel
+class ' . $class . 'Pdo extends ' . $class . 'Base implements iStoredModel
 {
-    use \Cougar\Model\iStoredModel;
+    use tPdoModel;
     
     /**
      * Sets primary key values and performs additional property validation
@@ -299,8 +310,8 @@ implements \Cougar\Model\iStoredModel
 ?>
 ';
     
-    echo("Creating " . $class . "Model.php\n");
-    file_put_contents($class . "Model.php", $code);
+    echo("Creating " . $class . "Pdo.php\n");
+    file_put_contents($class . "Pdo.php", $code);
 }
 
 /**
@@ -323,7 +334,7 @@ function toCamelCase($value)
     $value = trim($value);
     while($pos = mb_strpos($value, " "))
     {
-        $value = mb_substr($value, 0, $pos - 1) .
+        $value = mb_substr($value, 0, $pos) .
             mb_strtoupper(mb_substr($value, $pos + 1, 1)) .
             mb_substr($value, $pos + 2);
     }
