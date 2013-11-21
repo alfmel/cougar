@@ -21,8 +21,11 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.11.21:
+ *   (AT)  Add ability to pass setup() callable during construction so that
+ *         setup can occur only when authenticate() is called
  *
- * @version 2013.09.30
+ * @version 2013.11.21
  * @package Cougar
  * @license MIT
  *
@@ -32,6 +35,28 @@ require_once("cougar.php");
  */
 class CasAuthenticationProvider implements iAuthenticationProvider
 {
+    /**
+     * Accepts a callable to set up the CAS client before authenticating. By
+     * using a call back we don't have to set up CAS unless we absolutely have
+     * to.
+     *
+     * @history:
+     * 2013.11.21:
+     *   (AT)  Initial implementation
+     *
+     * @param callable CAS setup function
+     */
+    public function __construct(callable $setup_callable = null)
+    {
+        # Store the callable
+        if ($setup_callable)
+        {
+            $this->setup = $setup_callable;
+            $this->callSetup = true;
+        }
+    }
+
+
     /***************************************************************************
      * PUBLIC PROPERTIES AND METHODS
      **************************************************************************/
@@ -47,17 +72,27 @@ class CasAuthenticationProvider implements iAuthenticationProvider
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.21:
+     *   (AT)  Call setup function if one exists
      *
-     * @version 2013.09.30
+     * @version 2013.11.21
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @return iIdentity Identity object
      */
     public function authenticate()
     {
+        # See if we need to call the setup function
+        if ($this->callSetup)
+        {
+            $setup = $this->setup;
+            $setup();
+            $this->callSetup = false;
+        }
+
         # Check for CAS authentication
-        \phpCAS::setCacheTimesForAuthRecheck(0);
-        if (\phpCAS::checkAuthentication())
+        phpCAS::setCacheTimesForAuthRecheck(0);
+        if (phpCAS::checkAuthentication())
         {
             # Get the ID
             $id = phpCAS::getUser();
@@ -73,5 +108,19 @@ class CasAuthenticationProvider implements iAuthenticationProvider
             return null;
         }
     }
+
+    /***************************************************************************
+     * PROTECTED PROPERTIES AND METHODS
+     **************************************************************************/
+
+    /**
+     * @var callable Setup function
+     */
+    protected $setup;
+
+    /**
+     * @var bool Whether to call the setup function
+     */
+    protected $callSetup = false;
 }
 ?>
