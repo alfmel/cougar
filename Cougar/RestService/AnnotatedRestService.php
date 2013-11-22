@@ -31,8 +31,11 @@ require_once("cougar.php");
  * 2013.10.16:
  *   (AT)  Fix issue where calling bindFromObject() twice will destroy bindings
  *         from previous calls
+ * 2013.11.21:
+ *   (AT)  Add __toHtml() and __toXml() support when converting method response
+ *         to HTML or XML
  *
- * @version 2013.10.16
+ * @version 2013.11.21
  * @package Cougar
  * @license MIT
  *
@@ -477,8 +480,12 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.21:
+     *   (AT)  Add __toHtml() and __toXml() support when converting method
+     *         response to HTML or XML
      *
-     * @version 2013.09.30
+     * @version 2013.11.21
+     *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * @throws \Cougar\Exceptions\Exception
      * @throws \Cougar\Exceptions\AuthenticationRequiredException
@@ -816,28 +823,102 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                 case "application/xml":
                 case "text/xml":
                     # TODO: Implement XSD
-                    $this->sendResponse(200, Xml::toXml($data,
-                            $binding->xmlRootElement, $binding->xmlObjectName,
-                            $binding->xmlObjectList)->asXML(),
-                        array(), $response_type);
-                    break;
-                case "text/html":
-                    $xml = Xml::toXml($data, $binding->xmlRootElement,
-                        $binding->xmlObjectName, $binding->xmlObjectList);
-
-                    # See if we have an XSL transform
-                    if ($binding->xsl)
+                    # See if we have an object
+                    if (is_object($data))
                     {
-                        $xsl = new \SimpleXMLElement($binding["xsl"]);
-                        $xslt = new \XSLTProcessor();
-                        $xslt->importStylesheet($xsl);
-                        $this->sendResponse(200, $xslt->transformToXml($xml),
-                            array(), $response_type);
+                        # See if this is a SimpleXMLElement
+                        if ($data instanceof \SimpleXMLElement)
+                        {
+                            $xml = $data->asXML();
+                        }
+                        # See if the object has the __toXml() method
+                        else if (method_exists($data, "__toXml"))
+                        {
+                            $xml = $data->__toXml();
+                        }
+                        # Convert data to XML
+                        else
+                        {
+                            $xml = Xml::toXml($data, $binding->xmlRootElement,
+                                $binding->xmlObjectName,
+                                $binding->xmlObjectList);
+                        }
                     }
                     else
                     {
-                        $this->sendResponse(200, $xml->asXML(), array(),
-                            "text/xml");
+                        # Convert data to XML
+                        $xml = Xml::toXml($data, $binding->xmlRootElement,
+                            $binding->xmlObjectName, $binding->xmlObjectList);
+                    }
+
+                    if (is_object($xml))
+                    {
+                        if ($xml instanceof \SimpleXMLElement)
+                        {
+                            $xml = $xml->asXML();
+                        }
+                    }
+
+                    # Send the response
+                    $this->sendResponse(200, $xml, array(), $response_type);
+                    break;
+                case "text/html":
+                    # See if this is an object
+                    $html = null;
+                    $xml = null;
+                    if (is_object($data))
+                    {
+                        # See if object has __toHtml() method
+                        if (method_exists($data, "__toHtml"))
+                        {
+                            $html = $data->__toHtml();
+                        }
+                        # See if this is a SimpleXMLElement
+                        else if ($data instanceof \SimpleXMLElement)
+                        {
+                            $xml = $data->asXML();
+                        }
+                        # See if the object has the __toXml() method
+                        else if (method_exists($data, "__toXml"))
+                        {
+                            $xml = $data->__toXml();
+                        }
+                    }
+
+                    if ($html === null && $xml === null)
+                    {
+                        # Convert data to XML
+                        $xml = Xml::toXml($data, $binding->xmlRootElement,
+                            $binding->xmlObjectName, $binding->xmlObjectList);
+
+                        # See if we have an XSL transform
+                        if ($binding->xsl)
+                        {
+                            $xsl = new \SimpleXMLElement($binding["xsl"]);
+                            $xslt = new \XSLTProcessor();
+                            $xslt->importStylesheet($xsl);
+
+                            $html = $xslt->transformToXml($xml);
+                        }
+                    }
+
+                    # See which kind of response we have
+                    if ($html !== null)
+                    {
+                        $this->sendResponse(200, $html, array(),
+                            $response_type);
+                    }
+                    else
+                    {
+                        if (is_object($xml))
+                        {
+                            if ($xml instanceof \SimpleXMLElement)
+                            {
+                                $xml = $xml->asXML();
+                            }
+                        }
+
+                        $this->sendResponse(200, $xml, array(), "text/xml");
                     }
                     break;
                 default:
@@ -874,6 +955,5 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * @var array Objects
      */
     protected $objects = array();
-
 }
 ?>

@@ -653,6 +653,69 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
         $service->bindFromObject($object);
         $service->handleRequest();
     }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testObjectMagicMethodResponseJson() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/return/magic/method";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/json";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $this->expectOutputString(json_encode($object->getReturnMagicMethod()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testObjectMagicMethodResponseXml() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/return/magic/method";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/xml";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $this->expectOutputString($object->getReturnMagicMethod()->__toXml());
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testObjectMagicMethodResponseHtml() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/return/magic/method";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "text/html";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $this->expectOutputString($object->getReturnMagicMethod()->__toHtml());
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 }
 
 class AnnotatedRestServiceGetTests
@@ -830,6 +893,15 @@ class AnnotatedRestServiceGetTests
         return array("method" => __FUNCTION__,
             "argument" => $variable);
     }
+
+    /**
+     * @Path /get/return/magic/method
+     * @Methods GET
+     */
+    public function getReturnMagicMethod()
+    {
+        return new SampleObjectWithXmlAndHtmlExport();
+    }
 }
 
 class AnnotatedRestServiceGetAdditionalBindingTests
@@ -842,5 +914,21 @@ class AnnotatedRestServiceGetAdditionalBindingTests
     {
         return array("method" => __FUNCTION__,
             "arguments" => func_get_args());
+    }
+}
+
+class SampleObjectWithXmlAndHtmlExport
+{
+    public $foo = "bar";
+    public $bar = "foo";
+
+    public function __toHtml()
+    {
+        return "<div>Foo/Bar</div>";
+    }
+
+    public function __toXml()
+    {
+        return "<foo>bar</foo>";
     }
 }
