@@ -267,7 +267,7 @@ class ' . $class . ' extends ' . $class . 'Base implements iModel
 
 namespace PUT_YOUR_NAMESPACE_HERE\Model;
 
-use Cougar\Model\iStoredModel;
+use Cougar\Model\iPersistentModel;
 use Cougar\Model\tPdoModel;
 
 /**
@@ -286,7 +286,7 @@ use Cougar\Model\tPdoModel;
  * @PrimaryKey ' . implode(" ", $primary_key) . '
  * @CacheTime 3600
  */
-class ' . $class . 'Pdo extends ' . $class . 'Base implements iStoredModel
+class ' . $class . 'Pdo extends ' . $class . 'Base implements iPersistentModel
 {
     use tPdoModel;
     
@@ -360,7 +360,7 @@ function toCamelCase($value)
  */
 function toPascalCase($value)
 {
-    # Conver the value to camel case
+    # Convert the value to camel case
     $value = toCamelCase($value);
     
     # Turn the first letter into uppercase

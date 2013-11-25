@@ -59,6 +59,7 @@
 				<file name="WsModel.php" role="php" />
 				<file name="ArrayExportable.php" role="php" />
 				<file name="iStoredModel.php" role="php" />
+                <file name="iPersistentModel.php" role="php" />
 				<file name="iStruct.php" role="php" />
 				<file name="iArrayExportable.php" role="php" />
 				<file name="StrictModel.php" role="php" />

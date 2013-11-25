@@ -119,8 +119,10 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.11.25:
+ *   (AT)  Implement iPersistentModel (new name for iStoredModel)
  *
- * @version 2013.09.30
+ * @version 2013.11.25
  * @package Cougar
  * @license MIT
  *
@@ -128,7 +130,7 @@ require_once("cougar.php");
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
-abstract class PdoModel implements iStoredModel
+abstract class PdoModel implements iPersistentModel
 {
     use tPdoModel;
 }
