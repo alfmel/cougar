@@ -15,8 +15,10 @@ use Cougar\Util\Config;
  * 2013.11.19:
  *   (AT)  Generate files as defined in tutorial
  *   (AT)  Misc. bug fixes
+ * 2013.11.25:
+ *   (AT)  Add missing semicolons on generated namespace declarations
  *
- * @version 2013.11.19
+ * @version 2013.11.25
  * @package Cougar
  * @license MIT
  *
@@ -234,7 +236,7 @@ abstract class ' . $class . 'Base
 	$code =
 '<?php
 
-namespace PUT_YOUR_NAMESPACE_HERE\Model
+namespace PUT_YOUR_NAMESPACE_HERE\Model;
 
 use Cougar\Model\iModel;
 use Cougar\Model\tModel;
@@ -263,7 +265,7 @@ class ' . $class . ' extends ' . $class . 'Base implements iModel
 	$code =
 '<?php
 
-namespace PUT_YOUR_NAMESPACE_HERE\Model
+namespace PUT_YOUR_NAMESPACE_HERE\Model;
 
 use Cougar\Model\iStoredModel;
 use Cougar\Model\tPdoModel;
