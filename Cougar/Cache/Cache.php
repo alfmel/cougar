@@ -190,7 +190,8 @@ class Cache implements iCache
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param int size The new cache size
+     * @param int $size
+     *   The new cache size
      */
     public function setMemoryCacheSize($size)
     {
@@ -222,9 +223,12 @@ class Cache implements iCache
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param string key The key used to identify the entry
-     * @param string value The value to store
-     * @param int expiration The entry's time-to-live
+     * @param string $key
+     *   The key used to identify the entry
+     * @param string
+     *   $value The value to store
+     * @param int
+     *   $expiration The entry's time-to-live
      * @return bool success
      */
     public function set($key, $value, $expiration = null)
@@ -364,7 +368,8 @@ class Cache implements iCache
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param string key The key used to identify the entry
+     * @param string $key
+     *   The key used to identify the entry
      * @return mixed value
      */
     public function get($key)
@@ -448,7 +453,8 @@ class Cache implements iCache
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param string key The key used to identify the entry
+     * @param string $key
+     *   The key used to identify the entry
      * @return bool Success
      */
     public function clear($key)
