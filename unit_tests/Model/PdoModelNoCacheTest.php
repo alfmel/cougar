@@ -388,7 +388,8 @@ class PdoModelNoCacheTest extends \PHPUnit_Framework_TestCase {
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
                     "phone " .
                 "FROM user  WHERE firstName LIKE :firstName AND " .
-                    "lastName LIKE :lastName"))
+                    "lastName LIKE :lastName " .
+                "LIMIT 10000 OFFSET 0"))
             ->will($this->returnValue($pdo_statement));
         
         $object = new PdoModelNoCacheUnitTest($security, $cache, $pdo);

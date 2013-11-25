@@ -14,8 +14,10 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.11.25:
+ *   (AT)  Add support for _limit, _count, _offset and _skip to toSql() method
  *
- * @version 2013.09.30
+ * @version 2013.11.25
  * @package Cougar
  * @license MIT
  *
@@ -254,8 +256,10 @@ class QueryParameter extends Struct
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.25:
+     *   (AT)  Add limit and offset parameters (by reference)
      *
-     * @version 2013.09.30
+     * @version 2013.11.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $query_parameter_list
@@ -270,12 +274,16 @@ class QueryParameter extends Struct
      *   Reference to array of property values
      * @param array $used_parameters
      *   Used internally during recursion to avoid parameter naming conflicts
+     * @param int $limit
+     *   Number of records to fetch (reference)
+     * @param int $offset
+     *   Number of records to skip (reference)
      * @return string SQL expression
      * @throws \Cougar\Exceptions\Exception
      */
     public static function toSql(array $query_parameter_list, array $column_map,
         array $aliases, $case_insensitive, array &$values,
-        array &$used_parameters = array())
+        array &$used_parameters = array(), &$limit = null, &$offset = null)
     {
         # Initialize the sql statement
         $sql = "";
@@ -301,6 +309,29 @@ class QueryParameter extends Struct
             }
             else
             {
+                # See if the parameter is one of _count, _limit, _offset, or
+                #  _skip
+                switch(strtolower($param->property))
+                {
+                    case "_limit":
+                    case "_count":
+                        if ((int) $param->value > 0)
+                        {
+                            $limit = (int) $param->value;
+                        }
+
+                        # Go to the next parameter
+                        continue;
+                        break;
+                    case "_offset":
+                    case "_skip":
+                        $offset = (int) $param->value;
+
+                        # Go to the next parameter
+                        continue;
+                        break;
+                }
+
                 # Figure out the actual value of the property name
                 if ($case_insensitive)
                 {

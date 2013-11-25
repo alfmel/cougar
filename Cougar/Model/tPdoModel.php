@@ -37,9 +37,13 @@ require_once("cougar.php");
  *   (AT)  Match all security-related exceptions
  * 2013.10.28:
  *   (AT)  Perform extra __allowRead check after loading the record
- *   (AT)  Add property aliaes to SELECT query in getRecord();
+ *   (AT)  Add property aliases to SELECT query in getRecord();
+ * 2013.11.25:
+ *   (AT)  Add support for _limit (_count) and _offset (_skip) parameters to
+ *         query() method
+ *   (AT)  Set default query() row limit to 10,000
  *
- * @version 2013.10.28
+ * @version 2013.11.25
  * @package Cougar
  * @license MIT
  *
@@ -815,8 +819,11 @@ trait tPdoModel
      *   (AT)  Initial release
      * 2013.10.25:
      *   (AT)  Improve thrown exceptions
+     * 2013.11.25:
+     *   (AT)  Add support for _limit and _offset query parameters
+     *   (AT)  Set default limit to 10,000 rows
      *
-     * @version 2013.09.30
+     * @version 2013.011.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $parameters
@@ -936,16 +943,45 @@ trait tPdoModel
             # Prepare the array that will hold the values
             $values = array();
 
+            # Set the initial limit 10,000 rows
+            $limit = 10000;
+            $offset = 0;
+            $used_parameters = array();
+
             # Prepare the query and execute the statement
             $query = "SELECT " . implode(", ", $columns) .
                 " FROM " . $this->__table . " " . implode(" ", $this->__joins);
             $where_clause = QueryParameter::toSql($parameters,
-                    $this->__columnMap, $query_aliases,
-                    $this->__caseInsensitive, $values);
+                $this->__columnMap, $query_aliases, $this->__caseInsensitive,
+                $values, $used_parameters, $limit, $offset);
             if ($where_clause)
             {
                 $query .= " WHERE " . $where_clause;
             }
+
+            # Set the limit and offset
+            $limit = (int) $limit;
+            $offset = (int) $offset;
+            if ($this->__pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == "oci")
+            {
+                if ($where_clause)
+                {
+                    $query .= " AND ";
+                }
+                else
+                {
+                    $query .= " WHERE ";
+                }
+                $query .= "ROWNUM > " . $offset .
+                    " AND ROWNUM <= " . $offset + $limit;
+            }
+            else
+            {
+                $query .= " LIMIT " . $limit .
+                    " OFFSET " . $offset;
+            }
+
+            # See if we need to display the query
             if ($this->__debug)
             {
                 error_log("PdoModel Query: " . $query);

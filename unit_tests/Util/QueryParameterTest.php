@@ -324,7 +324,112 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("value1", $values["property"]);
         $this->assertEquals("value2", $values["property_1"]);
     }
-    
+
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlCompoundWithLimitAndOffset() {
+        $query = array(
+            new QueryParameter(
+                array(
+                    new QueryParameter("property1", "value1"),
+                    new QueryParameter("property2", "value2", "<", "AND", true),
+                )),
+            new QueryParameter(
+                array(
+                    new QueryParameter("property3", "value3", "**", "OR"),
+                    new QueryParameter("property4", "value4", ">=")
+                ), null, "=", "OR"),
+            new QueryParameter("_limit", "50"),
+            new QueryParameter("_offset", "100")
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3",
+            "property4" => "Column4"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3",
+            "property4" => "property4"
+        );
+        $values = array();
+        $used_params = array();
+
+        $this->assertEquals(
+            "(Column1 = :property1 AND " .
+            "(Column2 < :property2 OR Column2 IS NULL)) OR " .
+            "(Column3 LIKE :property3 AND ".
+            "Column4 >= :property4)",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values, $used_params, $limit, $offset));
+        $this->assertCount(4, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertArrayHasKey("property4", $values);
+        $this->assertEquals("value1", $values["property1"]);
+        $this->assertEquals("value2", $values["property2"]);
+        $this->assertEquals("%value3%", $values["property3"]);
+        $this->assertEquals("value4", $values["property4"]);
+        $this->assertEquals(50, $limit);
+        $this->assertEquals(100, $offset);
+    }
+
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlCompoundWithLimitAndOffsetNoReferences() {
+        $query = array(
+            new QueryParameter(
+                array(
+                    new QueryParameter("property1", "value1"),
+                    new QueryParameter("property2", "value2", "<", "AND", true),
+                )),
+            new QueryParameter(
+                array(
+                    new QueryParameter("property3", "value3", "**", "OR"),
+                    new QueryParameter("property4", "value4", ">=")
+                ), null, "=", "OR"),
+            new QueryParameter("_limit", "50"),
+            new QueryParameter("_offset", "100")
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3",
+            "property4" => "Column4"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3",
+            "property4" => "property4"
+        );
+        $values = array();
+
+        $this->assertEquals(
+            "(Column1 = :property1 AND " .
+            "(Column2 < :property2 OR Column2 IS NULL)) OR " .
+            "(Column3 LIKE :property3 AND ".
+            "Column4 >= :property4)",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(4, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertArrayHasKey("property4", $values);
+        $this->assertEquals("value1", $values["property1"]);
+        $this->assertEquals("value2", $values["property2"]);
+        $this->assertEquals("%value3%", $values["property3"]);
+        $this->assertEquals("value4", $values["property4"]);
+    }
+
     /**
      * @covers \Cougar\Util\QueryParameter::fromUri
      */

@@ -650,7 +650,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
                     "phone, birthDate " .
                 "FROM user  WHERE firstName LIKE :firstName AND " .
-                    "lastName LIKE :lastName"))
+                    "lastName LIKE :lastName " .
+                "LIMIT 10000 OFFSET 0"))
             ->will($this->returnValue($pdo_statement));
         
         $object = new PdoModelUnitTest($security, $cache, $pdo);
@@ -659,7 +660,124 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey("userId", $query_result[0]);
         $this->assertEquals("12345", $query_result[0]["userId"]);
     }
-    
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::query
+     *
+     * @todo Until the cache supports grouped clearing, caching of queries has
+     *       been disabled. Change the cache entries as necessary once it works.
+     */
+    public function testQueryWithLimit() {
+        $parameters = array(
+            new QueryParameter("firstName", "Alberto", "**"),
+            new QueryParameter("lastName", "Trevino", "**"),
+            new QueryParameter("_limit", "100")
+        );
+
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->never())
+            ->method("set");
+
+        $pdo_statement = $this->getMock("\\PDOStatement");
+        $pdo_statement->expects($this->once())
+            ->method("execute")
+            ->with($this->equalTo(array(
+                "firstName" => "%Alberto%",
+                "lastName" => "%Trevino%")))
+            ->will($this->returnValue(true));
+        $pdo_statement->expects($this->at(1))
+            ->method("fetchAll")
+            ->will($this->returnValue(array(array(
+                "userId" => "12345",
+                "lastName" => "Trevino",
+                "firstName" => "Alberto",
+                "emailAddress" => "alberto@byu.edu",
+                "phone" => "801-555-1212"))));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->once())
+            ->method("prepare")
+            ->with($this->equalTo(
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                "phone, birthDate " .
+                "FROM user  WHERE firstName LIKE :firstName AND " .
+                "lastName LIKE :lastName " .
+                "LIMIT 100 OFFSET 0"))
+            ->will($this->returnValue($pdo_statement));
+
+        $object = new PdoModelUnitTest($security, $cache, $pdo);
+        $query_result = $object->query($parameters);
+        $this->assertCount(1, $query_result);
+        $this->assertArrayHasKey("userId", $query_result[0]);
+        $this->assertEquals("12345", $query_result[0]["userId"]);
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::query
+     *
+     * @todo Until the cache supports grouped clearing, caching of queries has
+     *       been disabled. Change the cache entries as necessary once it works.
+     */
+    public function testQueryWithLimitAndOffset() {
+        $parameters = array(
+            new QueryParameter("firstName", "Alberto", "**"),
+            new QueryParameter("lastName", "Trevino", "**"),
+            new QueryParameter("_limit", "100"),
+            new QueryParameter("_offset", 500)
+        );
+
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->never())
+            ->method("set");
+
+        $pdo_statement = $this->getMock("\\PDOStatement");
+        $pdo_statement->expects($this->once())
+            ->method("execute")
+            ->with($this->equalTo(array(
+                "firstName" => "%Alberto%",
+                "lastName" => "%Trevino%")))
+            ->will($this->returnValue(true));
+        $pdo_statement->expects($this->at(1))
+            ->method("fetchAll")
+            ->will($this->returnValue(array(array(
+                "userId" => "12345",
+                "lastName" => "Trevino",
+                "firstName" => "Alberto",
+                "emailAddress" => "alberto@byu.edu",
+                "phone" => "801-555-1212"))));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->once())
+            ->method("prepare")
+            ->with($this->equalTo(
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                "phone, birthDate " .
+                "FROM user  WHERE firstName LIKE :firstName AND " .
+                "lastName LIKE :lastName " .
+                "LIMIT 100 OFFSET 500"))
+            ->will($this->returnValue($pdo_statement));
+
+        $object = new PdoModelUnitTest($security, $cache, $pdo);
+        $query_result = $object->query($parameters);
+        $this->assertCount(1, $query_result);
+        $this->assertArrayHasKey("userId", $query_result[0]);
+        $this->assertEquals("12345", $query_result[0]["userId"]);
+    }
+
     /**
      * @covers \Cougar\Model\PdoModel::__construct
      */
@@ -681,7 +799,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             "phone" => null,
             "birthDate" => null), $object->__toArray());
     }
-    
+
     /**
      * @covers \Cougar\Model\PdoModel::__construct
      * @expectedException \Cougar\Exceptions\BadRequestException
