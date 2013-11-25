@@ -18,9 +18,9 @@
 		<email>alberto@byu.edu</email>
 		<active>yes</active>
 	</lead>
-	<date>2013-11-21</date>
+	<date>2013-11-25</date>
 	<version>
-		<release>2013.11.21</release>
+		<release>2013.11.25</release>
 		<api>2013.11.08</api>
 	</version>
 	<stability>
@@ -29,7 +29,7 @@
 	</stability>
 	<license uri="https://github.com/alfmel/cougar/blob/master/LICENSE.TXT">MIT License</license>
 	<notes>
-		2013-11-21 Snapshot
+		2013-11-25 Snapshot
 	</notes>
 	<contents>
 		<dir name="/">
@@ -159,14 +159,14 @@
 	<changelog>
 		<release>
 			<version>
-				<release>2013.11.21</release>
+				<release>2013.11.25</release>
 				<api>2013.11.08</api>
 			</version>
 			<stability>
 				<release>stable</release>
 				<api>stable</api>
 			</stability>
-			<date>2013-11-21</date>
+			<date>2013-11-25</date>
 			<notes>2013.11.08 snapshot</notes>
 		</release>
 	</changelog>
