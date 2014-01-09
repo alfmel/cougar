@@ -632,7 +632,7 @@ trait tWsModel
                     }
                     else
                     {
-                        # This is an other value
+                        # This is another value
                         $values[$key] = $value;
                     }
                 }

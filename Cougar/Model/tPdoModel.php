@@ -438,7 +438,7 @@ trait tPdoModel
                     }
                     else
                     {
-                        # This is an other value; store it separately
+                        # This is another value; store it separately
                         $values[$key] = $value;
                     }
                 }

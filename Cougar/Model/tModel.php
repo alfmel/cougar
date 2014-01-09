@@ -1052,8 +1052,10 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.01.09:
+     *   (AT)  Fixed array check when validate array value
      *
-     * @version 2013.09.30
+     * @version 2014.01.09
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     public function __performCasts()
@@ -1084,7 +1086,7 @@ trait tModel
                     $this->$property = (bool) $this->$property;
                     break;
                 case "array":
-                    if (! array($this->$property))
+                    if (! is_array($this->$property))
                     {
                         throw new BadRequestException(
                             $property . " property must be an array");
