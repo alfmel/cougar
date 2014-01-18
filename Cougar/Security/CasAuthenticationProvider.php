@@ -24,8 +24,11 @@ require_once("cougar.php");
  * 2013.11.21:
  *   (AT)  Add ability to pass setup() callable during construction so that
  *         setup can occur only when authenticate() is called
+ * 2014.01.17:
+ *   (AT)  Added previous_session parameter to constructor
+ *   (AT)  Documentation updates
  *
- * @version 2013.11.21
+ * @version 2014.01.17
  * @package Cougar
  * @license MIT
  *
@@ -40,20 +43,30 @@ class CasAuthenticationProvider implements iAuthenticationProvider
      * using a call back we don't have to set up CAS unless we absolutely have
      * to.
      *
+     * Setting the previous_session parameter to true will only authenticate if
+     * there is evidence of previous CAS setup in the PHP session.
+     *
      * @history:
      * 2013.11.21:
      *   (AT)  Initial implementation
+     * 2014.01.17:
+     *   (AT)  Added previous_session parameter
      *
-     * @param callable CAS setup function
+     * @param callable $setup_callable CAS setup function
+     * @param boolean $previous_session_only Authenticate only if previous session exists
      */
-    public function __construct(callable $setup_callable = null)
+    public function __construct(callable $setup_callable = null,
+        $previous_session_only = false)
     {
-        # Store the callable
+        // Store the callable
         if ($setup_callable)
         {
             $this->setup = $setup_callable;
             $this->callSetup = true;
         }
+
+        // Store the previous session only flag value
+        $this->previousSessionOnly = (bool) $previous_session_only;
     }
 
 
@@ -82,7 +95,7 @@ class CasAuthenticationProvider implements iAuthenticationProvider
      */
     public function authenticate()
     {
-        # See if we need to call the setup function
+        // See if we need to call the setup function
         if ($this->callSetup)
         {
             $setup = $this->setup;
@@ -90,7 +103,31 @@ class CasAuthenticationProvider implements iAuthenticationProvider
             $this->callSetup = false;
         }
 
-        # Check for CAS authentication
+        // See if a session must exist
+        if ($this->previousSessionOnly)
+        {
+            $session_exists = false;
+
+            // See if we have a session
+            if (session_status() == PHP_SESSION_ACTIVE)
+            {
+                if (array_key_exists("phpCAS", $_SESSION))
+                {
+                    if (array_key_exists("user", $_SESSION["phpCAS"]))
+                    {
+                        $session_exists = true;
+                    }
+                }
+            }
+
+            // If we don't have a session consider it as no authentication
+            if (! $session_exists)
+            {
+                return null;
+            }
+        }
+
+        // Check for CAS authentication
         phpCAS::setCacheTimesForAuthRecheck(0);
         if (phpCAS::checkAuthentication())
         {
@@ -122,5 +159,10 @@ class CasAuthenticationProvider implements iAuthenticationProvider
      * @var bool Whether to call the setup function
      */
     protected $callSetup = false;
+
+    /**
+     * @var bool Whether we authenticate onlyu if we have a previous session
+     */
+    protected $previousSessionOnly = false;
 }
 ?>
