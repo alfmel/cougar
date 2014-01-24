@@ -2,6 +2,7 @@
 
 namespace Cougar\RestClient;
 
+use Cougar\Security\iHttpCredentialProvider;
 use Cougar\Exceptions\Exception;
 
 # Initialize the framework
@@ -20,12 +21,14 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.01.24:
+ *   (AT)  Add support for credential provider
  *
- * @version 2013.09.30
+ * @version 2014.01.24
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -550,8 +553,11 @@ class CurlWrapper
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.01.24:
+     *   (AT)  Minor refactoring to support the credentials provider;
+     *   (AT)  Call the credential provider if we have one
      *
-     * @version 2013.09.30
+     * @version 2014.01.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $url
@@ -573,12 +579,11 @@ class CurlWrapper
         # Set the method
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $this->method);
         
-        # Set the URL
+        # Get the URL
         if ($url === null)
         {
             $url = $this->generateURL();
         }
-        curl_setopt($this->curl, CURLOPT_URL, $url);
 
         # Define the input and output file pointers
         $put_fp = null;
@@ -634,11 +639,49 @@ class CurlWrapper
             }
             $content_length = strlen($body);
         }
-        
-        # See if we have a body
+
+        // Merge the headers and get the cookies
+        $headers = array_merge($headers, $this->headers);
+        $cookies = $this->cookies;
+
+        // See if we have a credential provider
+        if ($this->credentialProvider)
+        {
+            // Get the credentials
+            $this->credentialProvider->addCredentials($url, $headers, $cookies,
+                $body);
+        }
+
+        // Add the URL
+        curl_setopt($this->curl, CURLOPT_URL, $url);
+
+        // Add the headers
+        if (count($headers) > 0)
+        {
+            # Build the cURL headers array
+            $curl_headers = array();
+            foreach($headers as $header_name => $header_value)
+            {
+                $curl_headers[] = $header_name . ": " . $header_value;
+            }
+            curl_setopt($this->curl, CURLOPT_HTTPHEADER, $curl_headers);
+        }
+
+        # Add the cookies
+        if (count($cookies) > 0)
+        {
+            # Build the cookie string
+            $cookie_str = "";
+            foreach($cookies as $cookie_name => $cookie_value)
+            {
+                $cookie_str .= $cookie_name . "=" . $cookie_value . "; ";
+            }
+            curl_setopt($this->curl, CURLOPT_COOKIE, $cookie_str);
+        }
+
+        # Set the body, if we have one
         if ($body)
         {
-            # Set the body content
             curl_setopt($this->curl, CURLOPT_POSTFIELDS, $body);
             if ($content_type)
             {
@@ -656,32 +699,7 @@ class CurlWrapper
             curl_setopt($this->curl, CURLOPT_INFILE, $put_fp);
             curl_setopt($this->curl, CURLOPT_INFILESIZE, filesize($filename));
         }
-        
-        # Add the headers
-        $headers = array_merge($headers, $this->headers);
-        if (count($headers) > 0)
-        {
-            # Build the cURL headers array
-            $curl_headers = array();
-            foreach($headers as $header_name => $header_value)
-            {
-                $curl_headers[] = $header_name . ": " . $header_value;
-            }
-            curl_setopt($this->curl, CURLOPT_HTTPHEADER, $curl_headers);
-        }
-        
-        # Add the cookies
-        if (count($this->cookies) > 0)
-        {
-            # Build the cookie string
-            $cookies = "";
-            foreach($this->cookies as $cookie_name => $cookie_value)
-            {
-                $cookies .= $cookie_name . "=" . $cookie_value . "; ";
-            }
-            curl_setopt($this->curl, CURLOPT_COOKIE, $cookies);
-        }
-        
+
         # See if we are saving to a file
         if ($this->outputPath !== null)
         {
@@ -690,7 +708,7 @@ class CurlWrapper
             curl_setopt($this->curl, CURLOPT_FILE, $output_fp);
         }
 
-        # Execute the resquest
+        # Execute the request
         $raw_response = curl_exec($this->curl);
         
         # Close files (if necessary)
@@ -1055,6 +1073,11 @@ class CurlWrapper
      * @var string The full HTTP response
      */
     protected $response = null;
+
+    /**
+     * @var \Cougar\Security\iHttpCredentialProvider Credential provider
+     */
+    protected $credentialProvider;
 
     /**
      * Initializes the cURL session; called in construct or wakeup event

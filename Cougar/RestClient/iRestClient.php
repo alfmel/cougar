@@ -2,6 +2,8 @@
 
 namespace Cougar\RestClient;
 
+use Cougar\Security\iHttpCredentialProvider;
+
 /**
  * The REST Client extends the CurlWrapper class to provide an easy-to-use REST
  * client. The client support GET, POST, PUT and DELETE operations.
@@ -9,12 +11,15 @@ namespace Cougar\RestClient;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.01.24:
+ *   (AT)  Renamed addClientAuthenticationProvider() to addCredentialProvider();
+ *         Method had not been implemented yet, so no real harm
  *
- * @version 2013.09.30
+ * @version 2014.01.24
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -148,14 +153,16 @@ interface iRestClient
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.01.24:
+     *   (AT)  Renamed from addClientAuthenticationProvider()
      *
-     * @version 2013.09.30
+     * @version 2014.01.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
-     * @param \Cougar\Security\iClientAuthenticationProvider $authentication_provider
+     * @param \Cougar\Security\iHttpCredentialProvider $credential_provider
      *   Authentication provider to add
      */
-    public function addClientAuthenticationProvider(
-        \Cougar\Security\iClientAuthenticationProvider $authentication_provider);
+    public function addCredentialProvider(
+        iHttpCredentialProvider $credential_provider);
 }
 ?>

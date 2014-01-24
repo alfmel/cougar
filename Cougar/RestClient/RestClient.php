@@ -2,7 +2,7 @@
 
 namespace Cougar\RestClient;
 
-use Cougar\Security\iClientAuthenticationProvider;
+use Cougar\Security\iHttpCredentialProvider;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\AccessDeniedException;
 use Cougar\Exceptions\AuthenticationRequiredException;
@@ -410,18 +410,19 @@ class RestClient extends CurlWrapper implements iRestClient
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.01.24:
+     *   (AT)  Renamed from addClientAuthenticationProvider
      *
-     * @version 2013.09.30
+     * @version 2014.01.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
-     * @param \Cougar\Security\iClientAuthenticationProvider $authentication_provider
-     *   Authentication provider to add
-     * @throws \Cougar\Exceptions\NotImplementedException
+     * @param \Cougar\Security\iHttpCredentialProvider $credential_provider
+     *   Credential provider
      */
-    public function addClientAuthenticationProvider(
-        iClientAuthenticationProvider $authentication_provider)
+    public function addCredentialProvider(
+        iHttpCredentialProvider $credential_provider)
     {
-        throw new NotImplementedException;
+        $this->credentialProvider = $credential_provider;
     }
 
 
@@ -433,6 +434,5 @@ class RestClient extends CurlWrapper implements iRestClient
      * @var string Default request parse type
      */
     protected $responseType = null;
-
 }
 ?>

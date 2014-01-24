@@ -3,6 +3,8 @@
 namespace Cougar\UnitTests\RestClient;
 
 use Cougar\RestClient\RestClient;
+use Cougar\Security\BasicHttpCredentialProvider;
+use Cougar\Security\CookieHttpCredentialProvider;
 
 require_once(__DIR__ . "/../../../cougar.php");
 
@@ -15,7 +17,16 @@ require_once(__DIR__ . "/../../../cougar.php");
  */
 class RestClientTest extends \PHPUnit_Framework_TestCase {
 
-    protected $rest = null;
+    /**
+     * @var \Cougar\RestClient\RestClient Rest client
+     */
+    protected $rest;
+
+    /**
+     * TODO: See if we can do this with an external service
+     *
+     * @var string Base URL
+     */
     protected $restUrl = "http://localhost/RestClientTest/";
 
     /**
@@ -23,7 +34,7 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     protected function setup()
     {
-        $this->rest = new RestClient();
+        $this->rest = new RestClient("json");
     }
 
     /**
@@ -32,18 +43,17 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__get()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->get($this->restUrl);
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("GET", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
     }
 
     /**
@@ -52,22 +62,21 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__getWithUrlFields()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->get($this->restUrl,
             array("abc", "def", "ghi"));
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("GET", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(3, $object["URL"]);
-        $this->assertEquals("abc", $object["URL"][0]);
-        $this->assertEquals("def", $object["URL"][1]);
-        $this->assertEquals("ghi", $object["URL"][2]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(3, $object["url"]);
+        $this->assertEquals("abc", $object["url"][0]);
+        $this->assertEquals("def", $object["url"][1]);
+        $this->assertEquals("ghi", $object["url"][2]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
     }
     
     /**
@@ -76,27 +85,26 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__getWithGetFields()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->get($this->restUrl, null,
             array("value1" => "one",
                 "value2" => "two",
                 "value3" => "three"));
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("GET", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(3, $object["GET"]);
-        $this->assertArrayHasKey("value1", $object["GET"]);
-        $this->assertEquals("one", $object["GET"]["value1"]);
-        $this->assertArrayHasKey("value2", $object["GET"]);
-        $this->assertEquals("two", $object["GET"]["value2"]);
-        $this->assertArrayHasKey("value3", $object["GET"]);
-        $this->assertEquals("three", $object["GET"]["value3"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(3, $object["get"]);
+        $this->assertArrayHasKey("value1", $object["get"]);
+        $this->assertEquals("one", $object["get"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["get"]);
+        $this->assertEquals("two", $object["get"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["get"]);
+        $this->assertEquals("three", $object["get"]["value3"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
     }
     
     /**
@@ -105,31 +113,30 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__getWithUrlFieldsAndGetFields()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->get($this->restUrl,
             array("abc", "def", "ghi"),
             array("value1" => "one",
                 "value2" => "two",
                 "value3" => "three"));
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("GET", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(3, $object["URL"]);
-        $this->assertEquals("abc", $object["URL"][0]);
-        $this->assertEquals("def", $object["URL"][1]);
-        $this->assertEquals("ghi", $object["URL"][2]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(3, $object["GET"]);
-        $this->assertArrayHasKey("value1", $object["GET"]);
-        $this->assertEquals("one", $object["GET"]["value1"]);
-        $this->assertArrayHasKey("value2", $object["GET"]);
-        $this->assertEquals("two", $object["GET"]["value2"]);
-        $this->assertArrayHasKey("value3", $object["GET"]);
-        $this->assertEquals("three", $object["GET"]["value3"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(3, $object["url"]);
+        $this->assertEquals("abc", $object["url"][0]);
+        $this->assertEquals("def", $object["url"][1]);
+        $this->assertEquals("ghi", $object["url"][2]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(3, $object["get"]);
+        $this->assertArrayHasKey("value1", $object["get"]);
+        $this->assertEquals("one", $object["get"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["get"]);
+        $this->assertEquals("two", $object["get"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["get"]);
+        $this->assertEquals("three", $object["get"]["value3"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
     }
     
     /**
@@ -138,19 +145,18 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__getWithStringBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->get($this->restUrl, null, null,
             "String body");
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("GET", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("String body", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("String body", $object["body"]);
     }
     
     /**
@@ -159,19 +165,18 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__getWithArrayBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->get($this->restUrl, null, null,
             array("abc" => "123"));
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("GET", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("abc=123", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("abc=123", $object["body"]);
     }
     
     /**
@@ -180,18 +185,17 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__post()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->post($this->restUrl);
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("POST", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("POST", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
     }
     
     /**
@@ -200,28 +204,27 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__postWithArrayBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->post($this->restUrl, null, null,
             array("value1" => "one",
                 "value2" => "two",
                 "value3" => "three"));
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("POST", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(3, $object["POST"]);
-        $this->assertArrayHasKey("value1", $object["POST"]);
-        $this->assertEquals("one", $object["POST"]["value1"]);
-        $this->assertArrayHasKey("value2", $object["POST"]);
-        $this->assertEquals("two", $object["POST"]["value2"]);
-        $this->assertArrayHasKey("value3", $object["POST"]);
-        $this->assertEquals("three", $object["POST"]["value3"]);
-        $this->assertArrayHasKey("BODY", $object);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("POST", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(3, $object["post"]);
+        $this->assertArrayHasKey("value1", $object["post"]);
+        $this->assertEquals("one", $object["post"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["post"]);
+        $this->assertEquals("two", $object["post"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["post"]);
+        $this->assertEquals("three", $object["post"]["value3"]);
+        $this->assertArrayHasKey("body", $object);
         $this->assertEquals("value1=one&value2=two&value3=three",
-            $object["BODY"]);
+            $object["body"]);
     }
     
     /**
@@ -230,28 +233,27 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__postWithArrayBodyMultipart()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->post($this->restUrl, null, null,
             array("value1" => "one",
                 "value2" => "two",
                 "value3" => "three"));
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("POST", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(3, $object["POST"]);
-        $this->assertArrayHasKey("value1", $object["POST"]);
-        $this->assertEquals("one", $object["POST"]["value1"]);
-        $this->assertArrayHasKey("value2", $object["POST"]);
-        $this->assertEquals("two", $object["POST"]["value2"]);
-        $this->assertArrayHasKey("value3", $object["POST"]);
-        $this->assertEquals("three", $object["POST"]["value3"]);
-        $this->assertArrayHasKey("BODY", $object);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("POST", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(3, $object["post"]);
+        $this->assertArrayHasKey("value1", $object["post"]);
+        $this->assertEquals("one", $object["post"]["value1"]);
+        $this->assertArrayHasKey("value2", $object["post"]);
+        $this->assertEquals("two", $object["post"]["value2"]);
+        $this->assertArrayHasKey("value3", $object["post"]);
+        $this->assertEquals("three", $object["post"]["value3"]);
+        $this->assertArrayHasKey("body", $object);
         $this->assertEquals("value1=one&value2=two&value3=three",
-            $object["BODY"]);
+            $object["body"]);
     }
     
     /**
@@ -260,19 +262,18 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__postWithTextBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->post($this->restUrl, null, null,
-            "This is the POST body");
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("POST", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("This is the POST body", $object["BODY"]);
+            "This is the post body");
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("POST", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("This is the post body", $object["body"]);
     }
     
     /**
@@ -281,18 +282,17 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__put()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->put($this->restUrl);
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("PUT", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("PUT", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
     }
     
     /**
@@ -301,22 +301,21 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__putWithArrayBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->put($this->restUrl, null, null,
             array("value1" => "one",
                 "value2" => "two",
                 "value3" => "three"));
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("PUT", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("PUT", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
         $this->assertEquals("value1=one&value2=two&value3=three",
-            $object["BODY"]);
+            $object["body"]);
     }
     
     /**
@@ -325,19 +324,18 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__putWithTextBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->put($this->restUrl, null, null,
             "This is the PUT body");
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("PUT", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("This is the PUT body", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("PUT", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("This is the PUT body", $object["body"]);
     }
 
     /**
@@ -346,18 +344,17 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__putWithFile()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->put($this->restUrl, null, null, "@" . __FILE__);
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("PUT", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals(filesize(__FILE__), strlen($object["BODY"]));
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("PUT", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals(filesize(__FILE__), strlen($object["body"]));
     }
 
     /**
@@ -366,18 +363,17 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__delete()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->delete($this->restUrl);
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("DELETE", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("DELETE", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
     }
 
     /**
@@ -386,22 +382,21 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__deleteWithArrayBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->delete($this->restUrl, null, null,
             array("value1" => "one",
                 "value2" => "two",
                 "value3" => "three"), true);
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("DELETE", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("DELETE", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
         $this->assertEquals("value1=one&value2=two&value3=three",
-            $object["BODY"]);
+            $object["body"]);
     }
     
     /**
@@ -410,19 +405,81 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
      */
     public function test__deleteWithTextBody()
     {
-        # TODO: See if we can do this with an external service
         $object = $this->rest->delete($this->restUrl, null, null,
             "This is the DELETE body");
-        $this->assertArrayHasKey("Method", $object);
-        $this->assertEquals("DELETE", $object["Method"]);
-        $this->assertArrayHasKey("URL", $object);
-        $this->assertCount(0, $object["URL"]);
-        $this->assertArrayHasKey("GET", $object);
-        $this->assertCount(0, $object["GET"]);
-        $this->assertArrayHasKey("POST", $object);
-        $this->assertCount(0, $object["POST"]);
-        $this->assertArrayHasKey("BODY", $object);
-        $this->assertEquals("This is the DELETE body", $object["BODY"]);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("DELETE", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("This is the DELETE body", $object["body"]);
+    }
+
+    /**
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::addCredentialProvider
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function testGetWithBasicHttpAuthentication()
+    {
+        // Set the username and password
+        $username = "some_user";
+        $password = "some_password";
+        $credential_provider =
+            new BasicHttpCredentialProvider($username, $password);
+
+        // Add the credential provider
+        $this->rest->addCredentialProvider($credential_provider);
+
+        $object = $this->rest->get($this->restUrl);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("Authorization", $object['headers']);
+        $this->assertEquals(
+            "Basic " . base64_encode($username . ":" . $password),
+            $object["headers"]["Authorization"]);
+    }
+
+    /**
+     * @covers \Cougar\RestClient\RestClient::get
+     * @covers \Cougar\RestClient\RestClient::addCredentialProvider
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function testGetWithCookieHttpAuthentication()
+    {
+        // Set the username and password
+        $session_cookie = array("SESSIONID" => "abc123");
+        $credential_provider =
+            new CookieHttpCredentialProvider($session_cookie);
+
+        // Add the credential provider
+        $this->rest->addCredentialProvider($credential_provider);
+
+        $object = $this->rest->get($this->restUrl);
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("GET", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("SESSIONID", $object['cookies']);
+        $this->assertEquals("abc123", $object["cookies"]["SESSIONID"]);
     }
 }
 ?>
