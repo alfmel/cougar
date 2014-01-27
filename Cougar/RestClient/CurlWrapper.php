@@ -23,8 +23,10 @@ require_once("cougar.php");
  *   (AT)  Initial release
  * 2014.01.24:
  *   (AT)  Add support for credential provider
+ * 2014.01.27:
+ *   (AT)  Send the content type to the credential provider
  *
- * @version 2014.01.24
+ * @version 2014.01.27
  * @package Cougar
  * @license MIT
  *
@@ -556,8 +558,10 @@ class CurlWrapper
      * 2014.01.24:
      *   (AT)  Minor refactoring to support the credentials provider;
      *   (AT)  Call the credential provider if we have one
+     * 2014.01.27:
+     *   (AT)  Send the content type to the credential provider
      *
-     * @version 2014.01.24
+     * @version 2014.01.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $url
@@ -649,7 +653,7 @@ class CurlWrapper
         {
             // Get the credentials
             $this->credentialProvider->addCredentials($url, $headers, $cookies,
-                $body);
+                $body, $content_type);
         }
 
         // Add the URL

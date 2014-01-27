@@ -13,8 +13,10 @@ require_once("cougar.php");
  * @history
  * 2014.01.23:
  *   (AT)  Initial release
+ * 2014.01.27:
+ *   (AT)  Added $content_type parameter to match interface
  *
- * @version 2014.01.23
+ * @version 2014.01.27
  * @package Cougar
  * @license MIT
  *
@@ -77,8 +79,10 @@ class BasicHttpCredentialProvider implements iHttpCredentialProvider
      * @history
      * 2014.01.23:
      *   (AT)  Initial release
+     * 2014.01.27:
+     *   (AT)  Added $content_type parameter to match interface
      *
-     * @version 2014.01.23
+     * @version 2014.01.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $url
@@ -89,9 +93,11 @@ class BasicHttpCredentialProvider implements iHttpCredentialProvider
      *   Request cookies as key/value pairs
      * @param mixed $body
      *   Either an assoc. array of POST parameters or raw body content
+     * @param string $content_type
+     *   The body's content type
      */
     public function addCredentials(&$url, array &$headers, array &$cookies,
-        &$body)
+        &$body, &$content_type = null)
     {
         // Add the authorization header
         $headers["Authorization"] = "Basic " . base64_encode(

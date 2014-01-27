@@ -22,6 +22,7 @@ class BasicClientHttpAuthenticationProviderTest
         $headers = array("Accepts" => "application/json");
         $cookies = array("SESSIONID", "abc123");
         $body = null;
+        $content_type = "application/json";
 
         $expected_url = $url;
         $expected_headers = $headers;
@@ -32,11 +33,13 @@ class BasicClientHttpAuthenticationProviderTest
 
         $object = new BasicHttpCredentialProvider($username, $password);
         $object->addCredentials($url, $headers, $cookies, $body);
+        $expected_content_type = $content_type;
 
         $this->assertEquals($expected_url, $url);
         $this->assertEquals($expected_headers, $headers);
         $this->assertEquals($expected_cookies, $cookies);
         $this->assertEquals($expected_body, $body);
+        $this->assertEquals($expected_content_type, $content_type);
     }
 }
 ?>
