@@ -18,7 +18,8 @@ namespace Cougar\Security;
  * 2014.01.24:
  *   (AT)  Initial release
  * 2014.01.27:
- *   (AT)  Add content type to the request being passed
+ *   (AT)  Add method and content type to the information being passed by the
+ *         request.
  *
  * @version 2014.01.27
  * @package Cougar
@@ -33,7 +34,8 @@ interface iHttpCredentialProvider
     /**
      * Adds the necessary authentication credentials to an HTTP request.
      *
-     * All variables are passed by reference and may be modified as necessary.
+     * All variables, with the exception of method and content_type  are passed
+     * by reference and may be modified as necessary.
      *
      * The url parameter contains the full URL of the request without GET fields
      * (the part after the ?).
@@ -57,11 +59,13 @@ interface iHttpCredentialProvider
      * 2014.01.24:
      *   (AT)  Initial definition
      * 2014.01.27:
-     *   (AT)  Added content_type parameter (optional)
+     *   (AT)  Added method and content_type parameters
      *
      * @version 2014.01.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
+     * @param string $method
+     *   Request's HTTP method
      * @param string $url
      *   Request URL
      * @param array $headers
@@ -73,7 +77,7 @@ interface iHttpCredentialProvider
      * @param string $content_type
      *   The body's content type
      */
-    public function addCredentials(&$url, array &$headers, array &$cookies,
-        &$body, &$content_type = null);
+    public function addCredentials($method, &$url, array &$headers,
+        array &$cookies, &$body, $content_type = null);
 }
 ?>

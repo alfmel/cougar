@@ -18,23 +18,27 @@ class BasicClientHttpAuthenticationProviderTest
         $username = "some_user";
         $password = "some_password";
 
+        $method = "GET";
         $url = "https://service.example.com/path/to/resource";
         $headers = array("Accepts" => "application/json");
         $cookies = array("SESSIONID", "abc123");
         $body = null;
         $content_type = "application/json";
 
+        $expected_method = $method;
         $expected_url = $url;
         $expected_headers = $headers;
         $expected_headers["Authorization"] =
             "Basic " . base64_encode($username . ":" . $password);
         $expected_cookies = $cookies;
         $expected_body = $body;
-
-        $object = new BasicHttpCredentialProvider($username, $password);
-        $object->addCredentials($url, $headers, $cookies, $body);
         $expected_content_type = $content_type;
 
+        $object = new BasicHttpCredentialProvider($username, $password);
+        $object->addCredentials($method, $url, $headers, $cookies, $body,
+            $content_type);
+
+        $this->assertEquals($expected_method, $method);
         $this->assertEquals($expected_url, $url);
         $this->assertEquals($expected_headers, $headers);
         $this->assertEquals($expected_cookies, $cookies);

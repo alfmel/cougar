@@ -16,7 +16,8 @@ require_once("cougar.php");
  * 2014.01.24:
  *   (AT)  Initial release
  * 2014.01.27:
- *   (AT)  Added $content_type parameter to match interface
+ *   (AT)  Added method and content_type parameter to addCredentials() method to
+ *         match interface
  *
  * @version 2014.01.27
  * @package Cougar
@@ -79,11 +80,13 @@ class CookieHttpCredentialProvider implements iHttpCredentialProvider
      * 2014.01.24:
      *   (AT)  Initial release
      * 2014.01.27:
-     *   (AT)  Added $content_type parameter to match interface
+     *   (AT)  Added method and content_type parameter to match interface
      *
      * @version 2014.01.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
+     * @param string $method
+     *   Request's HTTP method
      * @param string $url
      *   Request URL
      * @param array $headers
@@ -93,10 +96,10 @@ class CookieHttpCredentialProvider implements iHttpCredentialProvider
      * @param mixed $body
      *   Either an assoc. array of POST parameters or raw body content
      * @param string $content_type
-     *   The body's content type
+     *   The body's content type (optional)
      */
-    public function addCredentials(&$url, array &$headers, array &$cookies,
-        &$body, &$content_type = null)
+    public function addCredentials($method, &$url, array &$headers,
+        array &$cookies, &$body, $content_type = null)
     {
         // Add the session cookies
         $cookies = array_merge($cookies, $this->cookies);

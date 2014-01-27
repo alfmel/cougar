@@ -559,7 +559,7 @@ class CurlWrapper
      *   (AT)  Minor refactoring to support the credentials provider;
      *   (AT)  Call the credential provider if we have one
      * 2014.01.27:
-     *   (AT)  Send the content type to the credential provider
+     *   (AT)  Send the method and content type to the credential provider
      *
      * @version 2014.01.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
@@ -652,8 +652,8 @@ class CurlWrapper
         if ($this->credentialProvider)
         {
             // Get the credentials
-            $this->credentialProvider->addCredentials($url, $headers, $cookies,
-                $body, $content_type);
+            $this->credentialProvider->addCredentials($this->method, $url,
+                $headers, $cookies, $body, $content_type);
         }
 
         // Add the URL
