@@ -54,6 +54,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
     }
 
     /**
@@ -77,6 +79,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
     }
     
     /**
@@ -105,6 +109,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
     }
     
     /**
@@ -137,6 +143,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
     }
     
     /**
@@ -146,7 +154,7 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
     public function test__getWithStringBody()
     {
         $object = $this->rest->get($this->restUrl, null, null,
-            "String body");
+            "String body", "text/plain");
         $this->assertArrayHasKey("method", $object);
         $this->assertEquals("GET", $object["method"]);
         $this->assertArrayHasKey("url", $object);
@@ -157,6 +165,9 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("String body", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("text/plain", $object["headers"]["Content-Type"]);
     }
     
     /**
@@ -177,6 +188,10 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("abc=123", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("application/x-www-form-urlencoded",
+            $object["headers"]["Content-Type"]);
     }
     
     /**
@@ -196,6 +211,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
     }
     
     /**
@@ -225,6 +242,10 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("value1=one&value2=two&value3=three",
             $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("application/x-www-form-urlencoded",
+            $object["headers"]["Content-Type"]);
     }
     
     /**
@@ -236,7 +257,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $object = $this->rest->post($this->restUrl, null, null,
             array("value1" => "one",
                 "value2" => "two",
-                "value3" => "three"));
+                "value3" => "three"),
+            "multipart/form-data");
         $this->assertArrayHasKey("method", $object);
         $this->assertEquals("POST", $object["method"]);
         $this->assertArrayHasKey("url", $object);
@@ -252,8 +274,11 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey("value3", $object["post"]);
         $this->assertEquals("three", $object["post"]["value3"]);
         $this->assertArrayHasKey("body", $object);
-        $this->assertEquals("value1=one&value2=two&value3=three",
-            $object["body"]);
+        $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertContains("multipart/form-data",
+            $object["headers"]["Content-Type"]);
     }
     
     /**
@@ -263,7 +288,7 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
     public function test__postWithTextBody()
     {
         $object = $this->rest->post($this->restUrl, null, null,
-            "This is the post body");
+            "This is the post body", "text/plain");
         $this->assertArrayHasKey("method", $object);
         $this->assertEquals("POST", $object["method"]);
         $this->assertArrayHasKey("url", $object);
@@ -274,6 +299,9 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("This is the post body", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("text/plain", $object["headers"]["Content-Type"]);
     }
     
     /**
@@ -293,6 +321,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
     }
     
     /**
@@ -316,6 +346,10 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("value1=one&value2=two&value3=three",
             $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("application/x-www-form-urlencoded",
+            $object["headers"]["Content-Type"]);
     }
     
     /**
@@ -325,7 +359,7 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
     public function test__putWithTextBody()
     {
         $object = $this->rest->put($this->restUrl, null, null,
-            "This is the PUT body");
+            "This is the PUT body", "text/plain");
         $this->assertArrayHasKey("method", $object);
         $this->assertEquals("PUT", $object["method"]);
         $this->assertArrayHasKey("url", $object);
@@ -336,6 +370,9 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("This is the PUT body", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("text/plain", $object["headers"]["Content-Type"]);
     }
 
     /**
@@ -355,6 +392,31 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals(filesize(__FILE__), strlen($object["body"]));
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
+    }
+
+    /**
+     * @covers \Cougar\RestClient\RestClient::put
+     * @covers \Cougar\RestClient\RestClient::makeRequest
+     */
+    public function test__putWithFileAndMimeType()
+    {
+        $object = $this->rest->put($this->restUrl, null, null, "@" . __FILE__,
+            "text/plain");
+        $this->assertArrayHasKey("method", $object);
+        $this->assertEquals("PUT", $object["method"]);
+        $this->assertArrayHasKey("url", $object);
+        $this->assertCount(0, $object["url"]);
+        $this->assertArrayHasKey("get", $object);
+        $this->assertCount(0, $object["get"]);
+        $this->assertArrayHasKey("post", $object);
+        $this->assertCount(0, $object["post"]);
+        $this->assertArrayHasKey("body", $object);
+        $this->assertEquals(filesize(__FILE__), strlen($object["body"]));
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("text/plain", $object["headers"]["Content-Type"]);
     }
 
     /**
@@ -374,6 +436,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
     }
 
     /**
@@ -385,7 +449,7 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $object = $this->rest->delete($this->restUrl, null, null,
             array("value1" => "one",
                 "value2" => "two",
-                "value3" => "three"), true);
+                "value3" => "three"));
         $this->assertArrayHasKey("method", $object);
         $this->assertEquals("DELETE", $object["method"]);
         $this->assertArrayHasKey("url", $object);
@@ -397,6 +461,10 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("value1=one&value2=two&value3=three",
             $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("application/x-www-form-urlencoded",
+            $object["headers"]["Content-Type"]);
     }
     
     /**
@@ -406,7 +474,7 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
     public function test__deleteWithTextBody()
     {
         $object = $this->rest->delete($this->restUrl, null, null,
-            "This is the DELETE body");
+            "This is the DELETE body", "text/plain");
         $this->assertArrayHasKey("method", $object);
         $this->assertEquals("DELETE", $object["method"]);
         $this->assertArrayHasKey("url", $object);
@@ -417,6 +485,9 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("This is the DELETE body", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayHasKey("Content-Type", $object["headers"]);
+        $this->assertEquals("text/plain", $object["headers"]["Content-Type"]);
     }
 
     /**
@@ -446,6 +517,8 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
         $this->assertArrayHasKey("Authorization", $object['headers']);
         $this->assertEquals(
             "Basic " . base64_encode($username . ":" . $password),
@@ -478,6 +551,9 @@ class RestClientTest extends \PHPUnit_Framework_TestCase {
         $this->assertCount(0, $object["post"]);
         $this->assertArrayHasKey("body", $object);
         $this->assertEquals("", $object["body"]);
+        $this->assertArrayHasKey("headers", $object);
+        $this->assertArrayNotHasKey("Content-Type", $object["headers"]);
+        $this->assertArrayHasKey("cookies", $object);
         $this->assertArrayHasKey("SESSIONID", $object['cookies']);
         $this->assertEquals("abc123", $object["cookies"]["SESSIONID"]);
     }

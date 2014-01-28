@@ -135,17 +135,26 @@ class RestClient extends CurlWrapper implements iRestClient
         {
             $this->setGetFields($get_fields);
         }
-        if ($body !== null)
+        if ($body)
         {
             $this->setBody($body);
             if ($content_type)
             {
                 $this->contentType = $content_type;
+                if ($content_type == "multipart/form-data")
+                {
+                    $this->multiPart = true;
+                }
+            }
+            else
+            {
+                if (is_array($body) || is_object($body))
+                {
+                    $this->contentType =
+                        "application/x-www-form-urlencoded";
+                }
             }
         }
-
-        # See if we are using Authentication
-        # TODO: Handle authentication
 
         # Request the appropriate data type
         $reset_accept_header = false;
@@ -166,8 +175,19 @@ class RestClient extends CurlWrapper implements iRestClient
             }
         }
 
+        # Get the full URL
+        $url = $this->generateURL();
+
+        # See if we need to add credentials
+        if ($this->credentialProvider)
+        {
+            # Add the credentials
+            $this->credentialProvider->addCredentials($method, $url,
+                $this->headers, $this->cookies, $body, $this->contentType);
+        }
+
         # Make the request
-        $http_code = $this->Exec();
+        $http_code = $this->Exec($url);
 
         # Get the response
         $response = $this->getResponse();
@@ -434,5 +454,10 @@ class RestClient extends CurlWrapper implements iRestClient
      * @var string Default request parse type
      */
     protected $responseType = null;
+
+    /**
+     * @var \Cougar\Security\iHttpCredentialProvider Credential provider
+     */
+    protected $credentialProvider;
 }
 ?>
