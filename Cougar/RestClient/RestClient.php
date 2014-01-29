@@ -2,6 +2,21 @@
 
 namespace Cougar\RestClient;
 
+use Cougar\Exceptions\BadGatewayException;
+use Cougar\Exceptions\ConflictException;
+use Cougar\Exceptions\ExpectationFailed;
+use Cougar\Exceptions\GatewayTimeoutException;
+use Cougar\Exceptions\GoneException;
+use Cougar\Exceptions\HttpVersionNotSupportedException;
+use Cougar\Exceptions\LengthRequiredException;
+use Cougar\Exceptions\PreconditionFailedException;
+use Cougar\Exceptions\ProxyAuthenticationRequiredException;
+use Cougar\Exceptions\RequestedRangeNotSatisfiableException;
+use Cougar\Exceptions\RequestEntityTooLargeException;
+use Cougar\Exceptions\RequestUriTooLargeException;
+use Cougar\Exceptions\RequestUriTooLongException;
+use Cougar\Exceptions\TimeoutException;
+use Cougar\Exceptions\UnsupportedMediaTypeException;
 use Cougar\Security\iHttpCredentialProvider;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\AccessDeniedException;
@@ -27,8 +42,13 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.01.28:
+ *   (AT)  Add HTTP credential provider support
+ * 2014.01.29:
+ *   (AT)  Improve exception handling by adding all 4xx and 5xx HTTP errors
+ *         specified in RFC 2616.
  *
- * @version 2013.09.30
+ * @version 2014.01.29
  * @package Cougar
  * @license MIT
  *
@@ -93,16 +113,20 @@ class RestClient extends CurlWrapper implements iRestClient
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.01.28:
+     *   (AT)  Add HTTP credential provider support
+     * 2014.01.29:
+     *   (AT)  Improve exception handling by adding all 4xx and 5xx HTTP errors
+     *         specified in RFC 2616.
      *
-     * @version 2013.09.30
+     * @version 2014.01.29
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $method
      *   Method to use [GET|POST|PUT|DELETE]
      * @param string $url
      *   The base URL to call
-     * @param $array $url_fields
-     *   URL fields to append to the base URL
+     * @param array $url_fields
      * @param array $get_fields
      *   Array with name/value pairs to pass as GET params
      * @param mixed $body
@@ -110,16 +134,30 @@ class RestClient extends CurlWrapper implements iRestClient
      * @param string $content_type
      *   Content type of the body being sent
      * @return mixed response
-     * @throws \Cougar\Exceptions\AccessDeniedException
      * @throws \Cougar\Exceptions\NotImplementedException
-     * @throws \Cougar\Exceptions\MethodNotAllowedException
+     * @throws \Cougar\Exceptions\ProxyAuthenticationRequiredException
      * @throws \Cougar\Exceptions\BadRequestException
-     * @throws \Cougar\Exceptions\NotAcceptableException
-     * @throws \Cougar\Exceptions\Exception
-     * @throws \Cougar\Exceptions\ServiceUnavailableException
+     * @throws \Cougar\Exceptions\UnsupportedMediaTypeException
+     * @throws \Cougar\Exceptions\ExpectationFailed
      * @throws \Cougar\Exceptions\AuthenticationRequiredException
-     * @throws \Cougar\Exceptions\HttpRequestParseException
+     * @throws \Cougar\Exceptions\PreconditionFailedException
+     * @throws \Cougar\Exceptions\RequestUriTooLongException
+     * @throws \Cougar\Exceptions\BadGatewayException
      * @throws \Cougar\Exceptions\NotFoundException
+     * @throws \Cougar\Exceptions\RequestedRangeNotSatisfiableException
+     * @throws \Cougar\Exceptions\LengthRequiredException
+     * @throws \Cougar\Exceptions\TimeoutException
+     * @throws \Cougar\Exceptions\ServiceUnavailableException
+     * @throws \Cougar\Exceptions\Exception
+     * @throws \Cougar\Exceptions\HttpRequestParseException
+     * @throws \Cougar\Exceptions\ConflictException
+     * @throws \Cougar\Exceptions\GoneException
+     * @throws \Cougar\Exceptions\GatewayTimeoutException
+     * @throws \Cougar\Exceptions\RequestEntityTooLargeException
+     * @throws \Cougar\Exceptions\NotAcceptableException
+     * @throws \Cougar\Exceptions\AccessDeniedException
+     * @throws \Cougar\Exceptions\MethodNotAllowedException
+     * @throws \Cougar\Exceptions\HttpVersionNotSupportedException
      */
     public function makeRequest($method, $url, array $url_fields = null,
         array $get_fields = null, $body = null, $content_type = null)
@@ -259,21 +297,79 @@ class RestClient extends CurlWrapper implements iRestClient
                 throw new NotAcceptableException(
                     "HTTP Status 406: Request Not Acceptable");
                 break;
+            case 407:
+                throw new ProxyAuthenticationRequiredException(
+                    "HTTP Status 407: Proxy Authentication Required");
+                break;
+            case 408:
+                throw new TimeoutException(
+                    "HTTP Status 408: Request Timeout");
+                break;
+            case 409:
+                throw new ConflictException("HTTP Status 409: Conflict");
+                break;
+            case 410:
+                throw new GoneException("HTTP Status 410: Gone");
+                break;
+            case 411:
+                throw new LengthRequiredException(
+                    "HTTP Status 411: Length Required");
+                break;
+            case 412:
+                throw new PreconditionFailedException(
+                    "HTTP Status 412: Precondition Failed");
+                break;
+            case 413:
+                throw new RequestEntityTooLargeException(
+                    "HTTP Status 413: Request Entity Too Large");
+                break;
+            case 414:
+                throw new RequestUriTooLongException(
+                    "HTTP Status 414: Request URI Too Long");
+                break;
+            case 415:
+                throw new UnsupportedMediaTypeException(
+                    "HTTP Status 415: Unsupported Media Type");
+                break;
+            case 416:
+                throw new RequestedRangeNotSatisfiableException(
+                    "HTTP Status 416: Request Range Not Satisfiable");
+                break;
+            case 417:
+                throw new ExpectationFailed(
+                    "HTTP Status 417: Expectation Failed");
+                break;
             case 500:
-                throw new Exception("HTTP Status 500: Internal Server Error");
+                throw new ServerErrorException(
+                    "HTTP Status 500: Internal Server Error");
                 break;
             case 501:
                 throw new NotImplementedException(
                     "HTTP Status 501: Not Implemented");
                 break;
+            case 502:
+                throw new BadGatewayException("HTTP Status 502: Bad Gateway");
+                break;
             case 503:
                 throw new ServiceUnavailableException(
                     "HTTP Status 503: Service Unavailable");
                 break;
+            case 504:
+                throw new GatewayTimeoutException(
+                    "HTTP Status 504: Gateway Timeout");
+                break;
+            case 505:
+                throw new HttpVersionNotSupportedException(
+                    "HTTP Status 505: HTTP Version Not Supported");
+                break;
             default:
-                if ($http_code >= 400)
+                if ($http_code >= 400 && $http_code < 500)
                 {
-                    throw new Exception("HTTP Status " . $http_code);
+                    throw new BadRequestException("HTTP Status " . $http_code);
+                }
+                else if ($http_code >= 500)
+                {
+                    throw new ServerErrorException("HTTP Status " . $http_code);
                 }
                 break;
         }
