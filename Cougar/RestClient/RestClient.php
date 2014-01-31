@@ -27,6 +27,7 @@ use Cougar\Exceptions\NotAcceptableException;
 use Cougar\Exceptions\NotFoundException;
 use Cougar\Exceptions\NotImplementedException;
 use Cougar\Exceptions\MethodNotAllowedException;
+use Cougar\Exceptions\ServerErrorException;
 use Cougar\Exceptions\ServiceUnavailableException;
 
 # Initialize the framework
@@ -47,8 +48,10 @@ require_once("cougar.php");
  * 2014.01.29:
  *   (AT)  Improve exception handling by adding all 4xx and 5xx HTTP errors
  *         specified in RFC 2616.
+ * 2014.01.31:
+ *   (AT)  Add mising use directive for ServerErrorException
  *
- * @version 2014.01.29
+ * @version 2014.01.31
  * @package Cougar
  * @license MIT
  *
