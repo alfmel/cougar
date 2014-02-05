@@ -24,6 +24,7 @@ class RestServiceTest extends \PHPUnit_Framework_TestCase {
     protected function setUp() {
         # Set the parameters we want to test
         $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["SERVER_PORT"] = "80";
         $_SERVER["REQUEST_METHOD"] = "GET";
         $_SERVER["REQUEST_URI"] =
             "/path/to/resource/true?name1=value1&name2=value2&true=true";
@@ -62,6 +63,38 @@ class RestServiceTest extends \PHPUnit_Framework_TestCase {
      */
     public function testMethod() {
         $this->assertEquals("GET", $this->object->Method());
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::url
+     */
+    public function testUrl()
+    {
+        $this->assertEquals(
+            "http://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"],
+            $this->object->url());
+
+        // Add SSL
+        $_SERVER["HTTPS"] = "on";
+        $this->assertEquals(
+            "https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"],
+            $this->object->url());
+        unset($_SERVER["HTTPS"]);
+
+        // Set a different port
+        $_SERVER["SERVER_PORT"] = "8080";
+        $this->assertEquals("http://" . $_SERVER["HTTP_HOST"] . ":8080" .
+            $_SERVER["REQUEST_URI"], $this->object->url());
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::uri
+     */
+    public function testUri()
+    {
+        $this->assertEquals($_SERVER["REQUEST_URI"], $this->object->uri());
+        $this->assertEquals(substr($_SERVER["REQUEST_URI"], 0,
+            strpos($_SERVER["REQUEST_URI"], "?")), $this->object->uri(false));
     }
 
     /**

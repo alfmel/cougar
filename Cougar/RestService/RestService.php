@@ -17,8 +17,10 @@ require_once("cougar.php");
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.02.05:
+ *   (AT)  Added uri() and url() methods
  *
- * @version 2013.09.30
+ * @version 2014.02.05
  * @package Cougar
  * @license MIT
  *
@@ -169,7 +171,81 @@ class RestService implements iRestService
     {
         return $this->method;
     }
-    
+
+    /**
+     * Returns the entire request URL.
+     *
+     * @history
+     * 2014.02.05:
+     *   (AT)  Initial release
+     *
+     * @version 2014.02.05
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @return string Request URL
+     */
+    public function url()
+    {
+        // See if SSL is turned on
+        if (array_key_exists("HTTPS", $_SERVER))
+        {
+            $url = "https://";
+        }
+        else
+        {
+            $url = "http://";
+        }
+
+        // Add the host
+        $url .= $_SERVER["HTTP_HOST"];
+
+        // See if we have a port other than 80 or 443
+        if (! ($_SERVER["SERVER_PORT"] == "80" ||
+            $_SERVER["SERVER_PORT"] == "443"))
+        {
+            $url .= ":" . $_SERVER["SERVER_PORT"];
+        }
+
+        // Add the URI and return
+        return $url . $_SERVER["REQUEST_URI"];
+    }
+
+    /**
+     * Returns the entire request URI, including the GET query. You may remove
+     * the query parameters by setting the first argument to false.
+     *
+     * @history
+     * 2014.02.05:
+     *   (AT)  Initial release
+     *
+     * @version 2014.02.05
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param bool $include_query Whether to include the query in the URI
+     * @return string Request URL
+     */
+    public function uri($include_query = true)
+    {
+        // See if we are including the query
+        if ($include_query)
+        {
+            return $_SERVER["REQUEST_URI"];
+        }
+        else
+        {
+            // Strip the query out, if it exists
+            $query_location = strpos($_SERVER["REQUEST_URI"], "?");
+            if ($query_location === false)
+            {
+                return $_SERVER["REQUEST_URI"];
+            }
+            else
+            {
+                return substr($_SERVER["REQUEST_URI"], 0, $query_location);
+            }
+        }
+    }
+
     /**
      * Returns an associative array with all headers.
      *
@@ -979,26 +1055,22 @@ class RestService implements iRestService
      **************************************************************************/
     
     /**
-     * Associative array with the request headers
-     * @var array
+     * @var array Associative array with the request headers
      */
     protected $headers = null;
     
     /**
-     * The request method, here for easy access
-     * @var string
+     * @var string The request method, here for easy access
      */
     protected $method = null;
     
     /**
-     * The URI parameters, here for easy access
-     * @var array
+     * @var array The URI parameters, here for easy access
      */
     protected $uri = array();
     
     /**
-     * The body of the request
-     * @var string
+     * @var string The body of the request
      */
     protected $body = null;
     
@@ -1008,8 +1080,7 @@ class RestService implements iRestService
     protected $queryParameters = null;
     
     /**
-     * HTTP messages
-     * @var array
+     * @var array HTTP messages
      */
     protected $httpMessages = array(
         200 => "200 OK",
@@ -1029,7 +1100,10 @@ class RestService implements iRestService
         501 => "501 Not Implemented",
         503 => "503 Service Unavailable"
     );
-    
+
+    /**
+     * @var array Transaction coordinators
+     */
     protected $transactionCoordinators = array();
     
     /**

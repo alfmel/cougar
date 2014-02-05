@@ -10,12 +10,14 @@ namespace Cougar\RestService;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.02.05:
+ *   (AT)  Added uri() and url() methods
  *
- * @version 2013.09.30
+ * @version 2014.02.05
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -35,7 +37,37 @@ interface iRestService
      * @return string HTTP Method
      */
     public function method();
-    
+
+    /**
+     * Returns the entire request URL.
+     *
+     * @history
+     * 2014.02.05:
+     *   (AT)  Initial release
+     *
+     * @version 2014.02.05
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @return string Request URL
+     */
+    public function url();
+
+    /**
+     * Returns the entire request URI, including the GET query. You may remove
+     * the query parameters by setting the first argument to false.
+     *
+     * @history
+     * 2014.02.05:
+     *   (AT)  Initial release
+     *
+     * @version 2014.02.05
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param bool $include_query Whether to include the query in the URI
+     * @return string Request URL
+     */
+    public function uri($include_query = true);
+
     /**
      * Returns an associative array with all headers.
      *
