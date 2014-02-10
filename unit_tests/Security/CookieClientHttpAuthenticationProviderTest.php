@@ -6,7 +6,7 @@ use Cougar\Security\CookieHttpCredentialProvider;
 
 require_once(__DIR__ . "/../../../cougar.php");
 
-class BasicClientHttpAuthenticationProviderTest
+class CookieClientHttpAuthenticationProviderTest
     extends \PHPUnit_Framework_TestCase
 {
     /**
