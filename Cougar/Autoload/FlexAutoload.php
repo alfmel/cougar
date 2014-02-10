@@ -74,8 +74,13 @@ class FlexAutoload
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.02.10:
+     *   (AT)  Add the application path to the beginning of the array, or after
+     *         the . entry. That way config files will be loaded from the
+     *         current directory, or the application directory before other
+     *         global files are loaded.
      *
-     * @version 2013.09.30
+     * @version 2014.02.10
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $path
@@ -122,9 +127,22 @@ class FlexAutoload
                 # Check if the path is already part of the include path
                 if (! in_array($path, $include_path_array))
                 {
-                    # Add this path to the include path
-                    set_include_path($include_path . PATH_SEPARATOR .
-                        $path);
+                    # See where the . entry is
+                    $dot_index = array_search(".", $include_path_array);
+
+                    if ($dot_index === false)
+                    {
+                        # Add this path to the start of the include path
+                        set_include_path($path . PATH_SEPARATOR .
+                            $include_path);
+                    }
+                    else
+                    {
+                        array_splice($include_path_array, $dot_index + 1, 0,
+                            array($path));
+                        set_include_path(implode(PATH_SEPARATOR,
+                            $include_path_array));
+                    }
                 }
             }
         }
