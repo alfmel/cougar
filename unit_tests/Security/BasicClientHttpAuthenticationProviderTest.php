@@ -4,11 +4,14 @@ namespace Cougar\UnitTests\Security;
 
 use Cougar\Security\BasicHttpCredentialProvider;
 
-require_once(__DIR__ . "/../../../cougar.php");
-
 class BasicClientHttpAuthenticationProviderTest
     extends \PHPUnit_Framework_TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        require_once(__DIR__ . "/../../cougar.php");
+    }
+
     /**
      * @covers \Cougar\Security\BasicHttpCredentialProvider::__construct
      * @covers \Cougar\Security\BasicHttpCredentialProvider::addCredentials

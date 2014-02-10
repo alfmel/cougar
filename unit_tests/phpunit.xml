@@ -1,0 +1,19 @@
+<phpunit>
+    <testsuites>
+        <testsuite name="Cougar_Framework_Basic">
+            <file>Exception/ErrorsTest.php</file>
+            <file>Autoload/AutoloadTest.php</file>
+            <file>Autoload/FlexAutoloadTest.php</file>
+            <file>LoadFrameworkTest.php</file>
+        </testsuite>
+        <testsuite name="Cougar_Framework">
+            <directory>Cache</directory>
+            <directory>Model</directory>
+            <directory>PDO</directory>
+            <directory>RestClient</directory>
+            <directory>RestService</directory>
+            <directory>Security</directory>
+            <directory>Util</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

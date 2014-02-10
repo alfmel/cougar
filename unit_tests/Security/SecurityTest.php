@@ -2,8 +2,6 @@
 
 namespace Cougar\UnitTests\Security;
 
-require_once(__DIR__ . "/../../../cougar.php");
-
 use Cougar\Security\iAuthenticationProvider;
 use Cougar\Security\iAuthorizationProvider;
 use Cougar\Security\Identity;
@@ -16,6 +14,11 @@ use Cougar\Exceptions\Exception;
  */
 class SecurityTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        require_once(__DIR__ . "/../../cougar.php");
+    }
+
     /**
      * @covers Cougar\Security\Security::getIdentity
      */
@@ -235,6 +238,9 @@ class SecurityTest extends \PHPUnit_Framework_TestCase
         }
     }
 }
+
+require_once(__DIR__ . "/../../Cougar/Security/iAuthenticationProvider.php");
+require_once(__DIR__ . "/../../Cougar/Security/iAuthorizationProvider.php");
 
 class UnitTestAuthenticationProvider implements iAuthenticationProvider
 {

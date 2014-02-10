@@ -26,7 +26,7 @@ class AnnotatedClassTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testAnnotationExtractionViaTrait() {
-        $object = new AnnotatedClassUnitTestViaTrait();
+        $object = new UnitTestAnnotatedClassViaTrait();
         $annotations = $object->getAnnotations();
         $this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
         $this->assertCount(1, $annotations->class);
@@ -35,6 +35,9 @@ class AnnotatedClassTest extends \PHPUnit_Framework_TestCase {
     }
 }
 
+require_once(__DIR__ . "/../../Cougar/Model/iAnnotatedClass.php");
+require_once(__DIR__ . "/../../Cougar/Model/tAnnotatedClass.php");
+require_once(__DIR__ . "/../../Cougar/Model/AnnotatedClass.php");
 
 /**
  * @ClassAnnotation
@@ -58,7 +61,7 @@ class UnitTestAnnotatedClass extends AnnotatedClass
 /**
  * @ClassAnnotation
  */
-class AnnotatedClassUnitTestViaTrait implements iAnnotatedClass
+class UnitTestAnnotatedClassViaTrait implements iAnnotatedClass
 {
     use tAnnotatedClass;
     
