@@ -7,8 +7,8 @@ use Cougar\Util\QueryParameter;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\NotAcceptableException;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Implements the base RestService class with WsAuth and CAS authentication

@@ -5,8 +5,8 @@ namespace Cougar\Util;
 use SimpleXMLElement;
 use Cougar\Exceptions\NotImplementedException;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Converts data to and from XML

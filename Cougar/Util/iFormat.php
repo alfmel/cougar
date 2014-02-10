@@ -2,9 +2,6 @@
 
 namespace Cougar\Util;
 
-# Initialize the framework
-require_once("cougar.php");
-
 /**
  * Provides several static methods for formatting (and in some cases fixing)
  * data.

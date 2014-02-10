@@ -4,8 +4,8 @@ namespace Cougar\PDO;
 
 use Cougar\Exceptions\Exception;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Extends the PHP PDO class so that all commands are wrapped in a transaction.

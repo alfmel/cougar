@@ -5,8 +5,8 @@ namespace Cougar\Util;
 use Cougar\Model\Struct;
 use Cougar\Exceptions\Exception;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The Query Parameter struct stores the attributes of a query parameter.

@@ -2,6 +2,8 @@
 
 namespace Cougar\Util;
 
+use SimpleXMLElement;
+
 /**
  * Converts data to and from XML
  *
@@ -49,15 +51,17 @@ interface iXml
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.25:
+     *   (AT)  Force incoming data to be instance of SimpleXMLElement
      *
-     * @version 2013.09.30
+     * @version 2013.11.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param SimpleXMLElement $xml_data
+     * @param \SimpleXMLElement $xml_data
      *   XML object to convert
      * @return array Array representation of XML data
      */
-    public static function toArray($xml_data);
+    public static function toArray(SimpleXMLElement $xml_data);
     
     /**
      * Converts the given XML data into an object of the given type

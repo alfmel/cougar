@@ -55,8 +55,8 @@ All Model files will be written to the current directory
     exit(1);
 }
 
-# Initialize the Cougar framework
-require_once("/opt/php/cougar/cougar.php");
+# Initialize the framework
+require_once(__DIR__ . "/../../cougar.php");
 
 # Try to find the file
 $pdo_file = $argv[1];

@@ -2,8 +2,8 @@
 
 namespace Cougar\Model;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The ArrayExportable abstract class provides an implementation of the

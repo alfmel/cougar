@@ -4,8 +4,8 @@ namespace Cougar\RestClient;
 
 use Cougar\Exceptions\Exception;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The CurlWrapper provides an object-oriented way of accessing and using the

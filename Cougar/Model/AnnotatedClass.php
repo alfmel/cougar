@@ -2,8 +2,8 @@
 
 namespace Cougar\Model;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The Annotated Class, when extended, will extract, cache and store any

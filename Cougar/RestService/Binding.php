@@ -4,8 +4,8 @@ namespace Cougar\RestService;
 
 use Cougar\Model\Struct;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 class Binding extends Struct
 {

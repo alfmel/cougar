@@ -2,8 +2,8 @@
 
 namespace Cougar\Util;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Provides several static methods for formatting (and in some cases fixing)

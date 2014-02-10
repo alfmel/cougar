@@ -5,8 +5,8 @@ namespace Cougar\Util;
 use Cougar\Cache\iCache;
 use Cougar\Exceptions\Exception;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Extracts annotations from source files via reflection. The class also

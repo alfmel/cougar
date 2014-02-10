@@ -14,8 +14,8 @@ use Cougar\Exceptions\AccessDeniedException;
 use Cougar\Exceptions\BadRequestException;
 use Cougar\Exceptions\RecordNotFoundException;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The PDO Model trait allows programmers to easily extend Model objects to map

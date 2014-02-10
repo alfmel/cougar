@@ -29,7 +29,7 @@ if (PHP_SAPI !== "cli")
 }
 
 # Initialize the framework
-require_once("cougar.php");
+require_once(__DIR__ . "/../../cougar.php");
 
 
 echo("\n");

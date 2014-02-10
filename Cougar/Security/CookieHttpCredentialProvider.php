@@ -5,7 +5,7 @@ namespace Cougar\Security;
 use Cougar\Util\StringObfuscator;
 
 // Initialize the framework
-require_once("cougar.php");
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Provides HTTP Authentication via a session cookie. Note that this class only

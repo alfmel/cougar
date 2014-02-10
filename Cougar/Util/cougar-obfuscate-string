@@ -25,7 +25,7 @@ namespace Cougar\Util;
  */
 
 # Initialize the framework
-require_once("cougar.php");
+require_once(__DIR__ . "/../../cougar.php");
 
 # Ask the user for the string:
 echo("\nEnter the string: ");

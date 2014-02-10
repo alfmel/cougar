@@ -4,8 +4,8 @@ namespace Cougar\Util;
 
 use Cougar\Exceptions\Exception;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Encrypts passwords, keys and other sensitive strings using the ARC4 algorithm

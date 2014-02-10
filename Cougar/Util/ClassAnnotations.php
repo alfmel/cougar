@@ -4,8 +4,8 @@ namespace Cougar\Util;
 
 use Cougar\Model\Struct;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The ClassAnnotation strcut stores the annotations for a class and its

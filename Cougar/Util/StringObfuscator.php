@@ -2,8 +2,8 @@
 
 namespace Cougar\Util;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Obfuscates and decodes passwords, keys and other sensitive strings so that

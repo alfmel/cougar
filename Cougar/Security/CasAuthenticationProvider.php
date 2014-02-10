@@ -4,8 +4,8 @@ namespace Cougar\Security;
 
 use phpCAS;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Attempts to authenticate the current user using CAS if a CAS session exists.

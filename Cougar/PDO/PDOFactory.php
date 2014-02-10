@@ -8,8 +8,8 @@ use Cougar\Util\StringObfuscator;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\ConfigurationFileNotFoundException;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The abstract method getConnection will return a Cougar\PDO\PDO object for the

@@ -4,8 +4,8 @@ namespace Cougar\Model;
 
 use Cougar\Exceptions\Exception;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * The Struct trait implements the __get() and __set() magic methods to ensure

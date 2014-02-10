@@ -3,8 +3,8 @@ namespace Cougar\Util;
 
 use Cougar\Exceptions\Exception;
 
-# Initialize the framework
-require_once("cougar.php");
+# Initialize the framework (disabled; should have been done by application)
+#require_once(__DIR__ . "/../../cougar.php");
 
 /**
  * Provides several static methods for array manipulation.
