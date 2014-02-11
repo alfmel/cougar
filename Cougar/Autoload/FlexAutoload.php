@@ -32,12 +32,15 @@ use Cougar\Exceptions\Exception;
  *   (AT)  Improve the autoload rescan heuristics to find moved files
  *   (AT)  Fix bug where new files did not trigger a rescan and were therefore
  *         not found
+ * 2014.02.10:
+ *   (AT)  When adding the application path to the include path, add it towards
+ *         the beginning
  *
- * @version 2013.09.30
+ * @version 2014.02.10
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
