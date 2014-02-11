@@ -19,12 +19,17 @@ use Cougar\Exceptions\NotAcceptableException;
  *   (AT)  Initial release
  * 2014.02.05:
  *   (AT)  Added uri() and url() methods
+ * 2014.02.10:
+ *   (AT)  Remove CORS directives; they were too open and are considered a
+ *         security risk
+ *   (AT)  Add response headers to avoid caching of responses by clients and
+ *         intermediaries
  *
- * @version 2014.02.05
+ * @version 2014.02.10
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -42,8 +47,13 @@ class RestService implements iRestService
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.02.10:
+     *   (AT)  Remove CORS directives; they were too open and are considered a
+     *         security risk
+     *   (AT)  Add response headers to avoid caching of responses by clients and
+     *         intermediaries
      *
-     * @version 2013.09.30
+     * @version 2014.02.10
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @todo Make sure the code works in CGI and Windows environments
@@ -61,15 +71,15 @@ class RestService implements iRestService
         
         # Enable output buffering
         ob_start();
-        
-        # Handle CORS headers (do early so all responses have it)
-        $origin = $this->header("Origin");
-        if ($origin)
+
+        # Make sure responses are not cached
+        if (! $this->__testMode)
         {
-            header("Access-Control-Allow-Origin: " . $origin);
-            header("Access-Control-Allow-Credentials: true");
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
         }
-        
+
         # Get the request method and store it in the global $_METHOD variable
         $this->method = $_SERVER["REQUEST_METHOD"];
         global $_METHOD;
