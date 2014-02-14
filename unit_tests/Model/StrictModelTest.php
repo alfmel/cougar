@@ -599,12 +599,15 @@ class StrictModelTest extends \PHPUnit_Framework_TestCase {
     }
 }
 
+require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
+require_once(__DIR__ . "/../../Cougar/Model/tArrayExportable.php");
 require_once(__DIR__ . "/../../Cougar/Model/iAnnotatedClass.php");
 require_once(__DIR__ . "/../../Cougar/Model/tAnnotatedClass.php");
 require_once(__DIR__ . "/../../Cougar/Model/iStruct.php");
 require_once(__DIR__ . "/../../Cougar/Model/tStruct.php");
 require_once(__DIR__ . "/../../Cougar/Model/Struct.php");
 require_once(__DIR__ . "/../../Cougar/Model/iModel.php");
+require_once(__DIR__ . "/../../Cougar/Model/tModel.php");
 require_once(__DIR__ . "/../../Cougar/Model/tStrictModel.php");
 require_once(__DIR__ . "/../../Cougar/Model/StrictModel.php");
 

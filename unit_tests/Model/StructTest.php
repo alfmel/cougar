@@ -89,6 +89,13 @@ class StructTest extends \PHPUnit_Framework_TestCase {
     }
 }
 
+require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
+require_once(__DIR__ . "/../../Cougar/Model/tArrayExportable.php");
+require_once(__DIR__ . "/../../Cougar/Model/iAnnotatedClass.php");
+require_once(__DIR__ . "/../../Cougar/Model/tAnnotatedClass.php");
+require_once(__DIR__ . "/../../Cougar/Model/iStruct.php");
+require_once(__DIR__ . "/../../Cougar/Model/tStruct.php");
+require_once(__DIR__ . "/../../Cougar/Model/Struct.php");
 
 /* Implementations of class and struct to be tested */
 

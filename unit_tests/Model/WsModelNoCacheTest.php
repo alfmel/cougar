@@ -395,6 +395,8 @@ class WsModelNoCacheTest extends \PHPUnit_Framework_TestCase {
     }
 }
 
+require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
+require_once(__DIR__ . "/../../Cougar/Model/tArrayExportable.php");
 require_once(__DIR__ . "/../../Cougar/Model/iAnnotatedClass.php");
 require_once(__DIR__ . "/../../Cougar/Model/tAnnotatedClass.php");
 require_once(__DIR__ . "/../../Cougar/Model/iStruct.php");

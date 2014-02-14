@@ -154,6 +154,8 @@ class RealStructTest extends \PHPUnit_Framework_TestCase {
 
 /* Implementations of class and struct to be tested */
 
+require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
+require_once(__DIR__ . "/../../Cougar/Model/tArrayExportable.php");
 require_once(__DIR__ . "/../../Cougar/Model/iStruct.php");
 require_once(__DIR__ . "/../../Cougar/Model/tRealStruct.php");
 require_once(__DIR__ . "/../../Cougar/Model/RealStruct.php");

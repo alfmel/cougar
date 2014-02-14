@@ -987,6 +987,16 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
     }
 }
 
+require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
+require_once(__DIR__ . "/../../Cougar/Model/iStruct.php");
+require_once(__DIR__ . "/../../Cougar/Model/iAnnotatedClass.php");
+require_once(__DIR__ . "/../../Cougar/Model/tAnnotatedClass.php");
+require_once(__DIR__ . "/../../Cougar/Model/iModel.php");
+require_once(__DIR__ . "/../../Cougar/Model/tModel.php");
+require_once(__DIR__ . "/../../Cougar/Model/iPersistentModel.php");
+require_once(__DIR__ . "/../../Cougar/Model/tPdoModel.php");
+require_once(__DIR__ . "/../../Cougar/Model/PdoModel.php");
+
 /**
  * Example PdoModel extension
  * 
@@ -999,7 +1009,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
  * @CachePrefix unittest.model
  * @CacheTime    60
  */
-class PdoModelUnitTest extends \Cougar\Model\PdoModel
+class PdoModelUnitTest extends PdoModel
 {
     /**
      * @ReadOnly
