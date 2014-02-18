@@ -42,12 +42,14 @@ use Cougar\Exceptions\RecordNotFoundException;
  *   (AT)  Add support for _limit (_count) and _offset (_skip) parameters to
  *         query() method
  *   (AT)  Set default query() row limit to 10,000
+ * 2014.02.13:
+ *   (AT)  Export array properties to JSON when saving
  *
- * @version 2013.11.25
+ * @version 2014.02.13
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -575,26 +577,39 @@ trait tPdoModel
             $values = array();
             foreach($this->__properties as $property)
             {
-                if ($this->__type[$property] == "DateTime" && $this->$property)
+                // See what the type is
+                switch($this->__type[$property])
                 {
-                    switch($this->__dateTimeFormat[$property])
-                    {
-                        case "DateTime":
-                        default:
-                            $date_format = "Y-m-d H:i:s";
-                            break;
-                        case "Date":
-                            $date_format = "Y-m-d";
-                            break;
-                        case "Time":
-                            $date_format = "H:i:s";
-                            break;
-                    }
-                    $values[$property] = $this->$property->format($date_format);
-                }
-                else
-                {
-                    $values[$property] = $this->$property;
+                    case "DateTime":
+                        // See if we have a value
+                        if ($this->$property)
+                        {
+                            // Set the proper date/time
+                            switch($this->__dateTimeFormat[$property])
+                            {
+                                case "Date":
+                                    $date_format = "Y-m-d";
+                                    break;
+                                case "Time":
+                                    $date_format = "H:i:s";
+                                    break;
+                                case "DateTime":
+                                default:
+                                    $date_format = "Y-m-d H:i:s";
+                                    break;
+                            }
+                        }
+                        $values[$property] =
+                            $this->$property->format($date_format);
+                        break;
+                    case "array":
+                        // Convert to JSON
+                        $values[$property] = json_encode($this->$property);
+                        break;
+                    default:
+                        // Pass the value
+                        $values[$property] = $this->$property;
+                        break;
                 }
             }
             
@@ -643,50 +658,63 @@ trait tPdoModel
             }
 
             # See which columns have changed
-            $parameters = array();
-            $sets = array();
+            $new_values = array();
+            $set_declarations = array();
             foreach($this->__properties as $property)
             {
                 $value = $this->$property;
                 
                 if ($value !== $this->__defaultValues[$property])
                 {
-                    # Add the entry to the parameters
-                    if ($this->__type[$property] == "DateTime" && $value)
+                    // See what type this property is
+                    switch($this->__type[$property])
                     {
-                        switch($this->__dateTimeFormat[$property])
-                        {
-                            case "DateTime":
-                            default:
-                                $date_format = "Y-m-d H:i:s";
-                                break;
-                            case "Date":
-                                $date_format = "Y-m-d";
-                                break;
-                            case "Time":
-                                $date_format = "H:i:s";
-                                break;
-                        }
-                        $parameters[$property] =
-                            $value->format($date_format);
+                        case "DateTime":
+                            // See if we have a value
+                            if ($this->$property)
+                            {
+                                // Set the proper date/time
+                                switch($this->__dateTimeFormat[$property])
+                                {
+                                    case "Date":
+                                        $date_format = "Y-m-d";
+                                        break;
+                                    case "Time":
+                                        $date_format = "H:i:s";
+                                        break;
+                                    case "DateTime":
+                                    default:
+                                        $date_format = "Y-m-d H:i:s";
+                                        break;
+                                }
+                            }
+                            $new_values[$property] =
+                                $this->$property->format($date_format);
+                            break;
+                        case "array":
+                            // Convert to JSON
+                            $new_values[$property] =
+                                json_encode($this->$property);
+                            break;
+                        default:
+                            // Pass the value
+                            $new_values[$property] = $this->$property;
+                            break;
                     }
-                    else
-                    {
-                        $parameters[$property] = $value;
-                    }
-                    
-                    # Add the set statement
-                    $sets[] = $this->__columnMap[$property] . " = :" .
-                        $property;
+
+                    # Add the set declaration
+                    $set_declarations[] = $this->__columnMap[$property] .
+                        " = :" . $property;
                 }
             }
             
             # See if we had any changes
-            if (count($sets) > 0)
+            if (count($set_declarations) > 0)
             {
                 # Create the statement
                 $statement = "UPDATE " . $this->__table . " SET " .
-                    implode(", ", $sets) . " " . $this->buildWhereClause();
+                    implode(", ", $set_declarations) . " " .
+                    $this->buildWhereClause();
                 
                 # Prepare the statement
                 if ($this->__debug)
@@ -697,7 +725,7 @@ trait tPdoModel
                 
                 # Execute the statement
                 $pdo_statement->execute(
-                    array_merge($parameters, $this->getWhereParameters()));
+                    array_merge($new_values, $this->getWhereParameters()));
                 
                 if ($pdo_statement->rowCount() > 1)
                 {

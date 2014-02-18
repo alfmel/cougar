@@ -26,11 +26,14 @@ use Cougar\Exceptions\BadRequestException;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
- * 2013.10.28:
- *   (AT)  Fix bug when reading a property through an alias where the original
- *         value was lost
+ * 2014.01.09:
+ *   (AT)  Fixed array check when validating array value when performing casts
+ * 2014.02.13:
+ *   (AT)  Check if an array value first arrives as JSON; this allows the PDO
+ *         Model to convert arrays into JSON for storage and for the incoming
+ *         data to be converted back to an array.
  *
- * @version 2013.10.28
+ * @version 2014.02.13
  * @package Cougar
  * @license MIT
  *
@@ -598,8 +601,7 @@ trait tModel
                     }
                     
                     # Add the value of the array
-                    $output_array[$this->__exportAlias[$property]][$property] =
-                        $tmp_array;
+                    $output_array[$this->__exportAlias[$property]] = $tmp_array;
                     break;
                 default:
                     $object = $this->$property;
@@ -1053,9 +1055,13 @@ trait tModel
      * 2013.09.30:
      *   (AT)  Initial release
      * 2014.01.09:
-     *   (AT)  Fixed array check when validate array value
+     *   (AT)  Fixed array check when validating array value
+     * 2014.02.13:
+     *   (AT)  Check if an array value is in JSON; this allows the PDO Model to
+     *         convert arrays into JSON for storage and for the incoming data to
+     *         be converted back to an array.
      *
-     * @version 2014.01.09
+     * @version 2014.02.13
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     public function __performCasts()
@@ -1086,6 +1092,21 @@ trait tModel
                     $this->$property = (bool) $this->$property;
                     break;
                 case "array":
+                    // If the string is JSON, convert to an array
+                    if (is_string($this->$property))
+                    {
+                        try
+                        {
+                            $this->$property = json_decode($this->$property,
+                                true);
+                        }
+                        catch (\Exception $e)
+                        {
+                            // Ignore the error
+                        }
+                    }
+
+                    // See if we have an array
                     if (! is_array($this->$property))
                     {
                         throw new BadRequestException(

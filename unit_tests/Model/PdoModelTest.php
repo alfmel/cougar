@@ -18,11 +18,36 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Set the properties on the object; mimics the behavior of PDOStatement
+     * when fetching directly into the object
+     */
+    public static function setProperties()
+    {
+        $object = self::$pdoFetchIntoObject;
+
+        $object->userId = "12345";
+        $object->lastName = "Doe";
+        $object->firstName = "John";
+        $object->emailAddress = "john.doe@example.com";
+        $object->phone = "800-555-1212";
+        $object->birthDate = "01 JUN 1960";
+        $object->active = "1";
+        $object->attributes = json_encode(array("a" => 1, "b" => 2));
+    }
+
+    /**
+     * @var \Cougar\UniTests\Model\PdoModelUnitTest
+     */
+    public static $pdoFetchIntoObject;
+
+    /**
      * @covers \Cougar\Model\PdoModel::__construct
      * @covers \Cougar\Model\PdoModel::getRecord
      * @covers \Cougar\Model\PdoModel::getCacheKey
      */
     public function testLoad() {
+        $object = null;
+
         $security = new Security();
         
         $cache = $this->getMock("\\Cougar\\Cache\\Cache");
@@ -34,20 +59,21 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
         
-        $pdo_statement = $this->getMock("\\PDOStatement");
-        $pdo_statement->expects($this->once())
+        $pdo_statement = $this->getMockBuilder("\\PDOStatement")
+            ->disableArgumentCloning()
+            ->getMock();
+        $pdo_statement->expects($this->at(0))
+            ->method("setFetchMode")
+            ->will($this->returnCallback(function($type, $object)
+                { PdoModelTest::$pdoFetchIntoObject = $object; }));
+        $pdo_statement->expects($this->at(1))
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
             ->will($this->returnValue(true));
         $pdo_statement->expects($this->at(2))
             ->method("fetch")
-            ->will($this->returnValue(array(
-                "userId" => "12345",
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "emailAddress" => "alberto@byu.edu",
-                "phone" => "801-555-1212",
-                "birthDate" => "01 JUN 1960")));
+            ->will($this->returnCallback(function()
+                { PdoModelTest::setProperties(); }));
         $pdo_statement->expects($this->at(3))
             ->method("fetch")
             ->will($this->returnValue(false));
@@ -59,13 +85,21 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                    "phone, birthDate " .
+                    "phone, birthDate, active, attributes " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement));
         
         $object = new PdoModelUnitTest($security, $cache, $pdo,
             array("userId" => 12345));
         $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Doe", $object->lastName);
+        $this->assertEquals("John", $object->firstName);
+        $this->assertEquals("john.doe@example.com", $object->email);
+        $this->assertEquals("800-555-1212", $object->phone);
+        $this->assertInstanceOf("\\Cougar\\Util\\DateTime", $object->birthDate);
+        $this->assertEquals("1960-06-01", (string) $object->birthDate);
+        $this->assertTrue($object->active);
+        $this->assertEquals(array("a" => 1, "b" => 2), $object->attributes);
     }
 
     /**
@@ -99,7 +133,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                    "phone, birthDate " .
+                    "phone, birthDate, active, attributes " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement));
         
@@ -129,11 +163,13 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("execute")
             ->with($this->equalTo(array(
                 "userId" => null,
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "email" => "alberto@byu.edu",
-                "phone" => "801-555-1212",
-                "birthDate" => "1960-06-01")))
+                "lastName" => "Doe",
+                "firstName" => "John",
+                "email" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "birthDate" => "1960-06-01",
+                "active" => true,
+                "attributes" => json_encode(array("a" => 1, "b" => 2)))))
             ->will($this->returnValue(true));
         $pdo_statement->expects($this->once())
             ->method("rowCount")
@@ -146,29 +182,33 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "INSERT INTO user " .
-                "(userId, lastName, firstName, emailAddress, phone, birthDate) " .
+                "(userId, lastName, firstName, emailAddress, phone, " .
+                    "birthDate, active, attributes) " .
                 "VALUES(:userId, :lastName, :firstName, :email, :phone, " .
-                    ":birthDate)"))
+                    ":birthDate, :active, :attributes)"))
             ->will($this->returnValue($pdo_statement));
         
         # Test set
         $object = new PdoModelUnitTest($security, $cache, $pdo);
-        $object->firstName = "Alberto";
-        $object->lastName = "Trevino";
-        $object->email = "alberto@byu.edu";
-        $object->phone = "801-555-1212";
+        $object->firstName = "John";
+        $object->lastName = "Doe";
+        $object->email = "john.doe@example.com";
+        $object->phone = "800-555-1212";
         $object->birthDate = "01 JUN 1960";
+        $object->attributes = array("a" => 1, "b" => 2);
     
         # Test save with insert
         $object->save();
         
-        # Test get
-        $this->assertEquals("Alberto", $object->firstName);
-        $this->assertEquals("Trevino", $object->lastName);
-        $this->assertEquals("alberto@byu.edu", $object->email);
-        $this->assertEquals("801-555-1212", $object->phone);
+        # Test the properties after save
+        $this->assertEquals("John", $object->firstName);
+        $this->assertEquals("Doe", $object->lastName);
+        $this->assertEquals("john.doe@example.com", $object->email);
+        $this->assertEquals("800-555-1212", $object->phone);
         $this->assertInstanceOf("\\Cougar\\Util\\DateTime", $object->birthDate);
         $this->assertEquals("1960-06-01", (string) $object->birthDate);
+        $this->assertTrue($object->active);
+        $this->assertEquals(array("a" => 1, "b" => 2), $object->attributes);
         
         # Test getting the changed values
         $changes = $object->lastChanges();
@@ -177,12 +217,14 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey("email", $changes);
         $this->assertArrayHasKey("phone", $changes);
         $this->assertArrayHasKey("birthDate", $changes);
+        $this->assertArrayHasKey("attributes", $changes);
         
         $this->assertNull($changes["firstName"]);
         $this->assertNull($changes["lastName"]);
         $this->assertNull($changes["email"]);
         $this->assertNull($changes["phone"]);
         $this->assertNull($changes["birthDate"]);
+        $this->assertNull($changes["attributes"]);
     }
 
     /**
@@ -207,11 +249,13 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("execute")
             ->with($this->equalTo(array(
                 "userId" => null,
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "email" => "alberto@byu.edu",
-                "phone" => "801-555-1212",
-                "birthDate" => "1960-06-01")))
+                "lastName" => "Doe",
+                "firstName" => "John",
+                "email" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "birthDate" => "1960-06-01",
+                "active" => true,
+                "attributes" => json_encode(array("a" => 1, "b" => 2)))))
             ->will($this->returnValue(true));
         $pdo_statement->expects($this->once())
             ->method("rowCount")
@@ -224,28 +268,31 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "INSERT INTO user " .
-                "(userId, lastName, firstName, emailAddress, phone, birthDate) " .
+                "(userId, lastName, firstName, emailAddress, phone, " .
+                    "birthDate, active, attributes) " .
                 "VALUES(:userId, :lastName, :firstName, :email, :phone, " .
-                    ":birthDate)"))
+                    ":birthDate, :active, :attributes)"))
             ->will($this->returnValue($pdo_statement));
         
         # Test set
         $object = new PdoModelUnitTest($security, $cache, $pdo,
             array("userId" => "",
-                "firstName" => "Alberto",
-                "lastName" => "Trevino",
-                "email" => "alberto@byu.edu",
-                "phone" => "801-555-1212",
-                "birthDate" => "01 JUN 1960"));
+                "firstName" => "John",
+                "lastName" => "Doe",
+                "email" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "birthDate" => "01 JUN 1960",
+                // We don't set active to make sure default value is set
+                "attributes" => array("a" => 1, "b" => 2)));
     
         # Test save with insert
         $object->save();
         
         # Test get
-        $this->assertEquals("Alberto", $object->firstName);
-        $this->assertEquals("Trevino", $object->lastName);
-        $this->assertEquals("alberto@byu.edu", $object->email);
-        $this->assertEquals("801-555-1212", $object->phone);
+        $this->assertEquals("John", $object->firstName);
+        $this->assertEquals("Doe", $object->lastName);
+        $this->assertEquals("john.doe@example.com", $object->email);
+        $this->assertEquals("800-555-1212", $object->phone);
         $this->assertInstanceOf("\\Cougar\\Util\\DateTime", $object->birthDate);
         $this->assertEquals("1960-06-01", (string) $object->birthDate);
         
@@ -284,19 +331,21 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
         
-        $pdo_statement_select = $this->getMock("\\PDOStatement");
-        $pdo_statement_select->expects($this->once())
+        $pdo_statement_select = $this->getMockBuilder("\\PDOStatement")
+            ->disableArgumentCloning()
+            ->getMock();
+        $pdo_statement_select->expects($this->at(0))
+            ->method("setFetchMode")
+            ->will($this->returnCallback(function($type, $object)
+                { PdoModelTest::$pdoFetchIntoObject = $object; }));
+        $pdo_statement_select->expects($this->at(1))
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
             ->will($this->returnValue(true));
         $pdo_statement_select->expects($this->at(2))
             ->method("fetch")
-            ->will($this->returnValue(array(
-                "userId" => "12345",
-                "lastName" => "",
-                "firstName" => "",
-                "emailAddress" => "",
-                "phone" => "")));
+            ->will($this->returnCallback(function()
+                { PdoModelTest::setProperties(); }));
         $pdo_statement_select->expects($this->at(3))
             ->method("fetch")
             ->will($this->returnValue(false));
@@ -305,11 +354,12 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo_statement_update->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "email" => "alberto@byu.edu",
-                "phone" => "801-555-1212",
-                "userId" => 12345)))
+                "lastName" => "Jones",
+                "firstName" => "Mary",
+                "email" => "mary.jones@example.com",
+                "phone" => "800-555-2121",
+                "userId" => 12345,
+                "attributes" => json_encode(array("a" => 3, "b" => 4)))))
             ->will($this->returnValue(true));
         $pdo_statement_update->expects($this->once())
             ->method("rowCount")
@@ -322,7 +372,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                    "phone, birthDate " .
+                    "phone, birthDate, active, attributes " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))
@@ -332,30 +382,33 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
                 "SET lastName = :lastName, " .
                     "firstName = :firstName, " .
                     "emailAddress = :email, " .
-                    "phone = :phone " .
+                    "phone = :phone, " .
+                    "attributes = :attributes " .
                 "WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_update));
         
         $object = new PdoModelUnitTest($security, $cache, $pdo,
             array("userId" => "12345"));
-        $object->firstName = "Alberto";
-        $object->lastName = "Trevino";
-        $object->email = "alberto@byu.edu";
-        $object->phone = "801-555-1212";
+        $object->firstName = "Mary";
+        $object->lastName = "Jones";
+        $object->email = "mary.jones@example.com";
+        $object->phone = "800-555-2121";
+        $object->attributes = array("a" => 3, "b" => 4);
         $object->save();
         
         # Test getting the changed values
         $changes = $object->lastChanges();
-        $this->assertCount(4, $changes);
+        $this->assertCount(5, $changes);
         $this->assertArrayHasKey("firstName", $changes);
         $this->assertArrayHasKey("lastName", $changes);
         $this->assertArrayHasKey("email", $changes);
         $this->assertArrayHasKey("phone", $changes);
         
-        $this->assertEquals("", $changes["firstName"]);
-        $this->assertEquals("", $changes["lastName"]);
-        $this->assertEquals("", $changes["email"]);
-        $this->assertEquals("", $changes["phone"]);
+        $this->assertEquals("John", $changes["firstName"]);
+        $this->assertEquals("Doe", $changes["lastName"]);
+        $this->assertEquals("john.doe@example.com", $changes["email"]);
+        $this->assertEquals("800-555-1212", $changes["phone"]);
+        $this->assertEquals(array("a" => 1, "b" => 2), $changes["attributes"]);
     }
 
     /**
@@ -377,20 +430,22 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $cache->expects($this->exactly(2))
             ->method("set")
             ->will($this->returnValue(false));
-        
-        $pdo_statement_select = $this->getMock("\\PDOStatement");
-        $pdo_statement_select->expects($this->once())
+
+        $pdo_statement_select = $this->getMockBuilder("\\PDOStatement")
+            ->disableArgumentCloning()
+            ->getMock();
+        $pdo_statement_select->expects($this->at(0))
+            ->method("setFetchMode")
+            ->will($this->returnCallback(function($type, $object)
+            { PdoModelTest::$pdoFetchIntoObject = $object; }));
+        $pdo_statement_select->expects($this->at(1))
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
             ->will($this->returnValue(true));
         $pdo_statement_select->expects($this->at(2))
             ->method("fetch")
-            ->will($this->returnValue(array(
-                "userId" => "12345",
-                "lastName" => "",
-                "firstName" => "",
-                "emailAddress" => "",
-                "phone" => "")));
+            ->will($this->returnCallback(function()
+            { PdoModelTest::setProperties(); }));
         $pdo_statement_select->expects($this->at(3))
             ->method("fetch")
             ->will($this->returnValue(false));
@@ -399,9 +454,10 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo_statement_update->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "email" => "alberto@byu.edu",
+                "lastName" => "Jones",
+                "firstName" => "Mary",
+                "email" => "mary.jones@example.com",
+                "attributes" => json_encode(array("a" => 3, "b" => 4)),
                 "userId" => 12345)))
             ->will($this->returnValue(true));
         $pdo_statement_update->expects($this->once())
@@ -415,7 +471,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                    "phone, birthDate " .
+                    "phone, birthDate, active, attributes " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))
@@ -424,27 +480,31 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
                 "UPDATE user " .
                 "SET lastName = :lastName, " .
                     "firstName = :firstName, " .
-                    "emailAddress = :email " .
+                    "emailAddress = :email, " .
+                    "attributes = :attributes " .
                 "WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_update));
         
         $object = new PdoModelUnitTest($security, $cache, $pdo,
             array("userId" => "12345",
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "email" => "alberto@byu.edu"));
+                "lastName" => "Jones",
+                "firstName" => "Mary",
+                "email" => "mary.jones@example.com",
+                "attributes" => array("a" => 3, "b" => 4)));
         $object->save();
         
         # Test getting the changed values
         $changes = $object->lastChanges();
-        $this->assertCount(3, $changes);
+        $this->assertCount(4, $changes);
         $this->assertArrayHasKey("firstName", $changes);
         $this->assertArrayHasKey("lastName", $changes);
         $this->assertArrayHasKey("email", $changes);
+        $this->assertArrayHasKey("attributes", $changes);
         
-        $this->assertEquals("", $changes["firstName"]);
-        $this->assertEquals("", $changes["lastName"]);
-        $this->assertEquals("", $changes["email"]);
+        $this->assertEquals("John", $changes["firstName"]);
+        $this->assertEquals("Doe", $changes["lastName"]);
+        $this->assertEquals("john.doe@example.com", $changes["email"]);
+        $this->assertEquals(array("a" => 1, "b" => 2), $changes["attributes"]);
     }
 
     /**
@@ -464,21 +524,23 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("get")
             ->with("unittest.model.12345")
             ->will($this->returnValue(false));
-        
-        $pdo_statement_select = $this->getMock("\\PDOStatement");
-        $pdo_statement_select->expects($this->once())
+
+        $pdo_statement_select = $this->getMockBuilder("\\PDOStatement")
+            ->disableArgumentCloning()
+            ->getMock();
+        $pdo_statement_select->expects($this->at(0))
+            ->method("setFetchMode")
+            ->will($this->returnCallback(function($type, $object)
+            { PdoModelTest::$pdoFetchIntoObject = $object; }));
+        $pdo_statement_select->expects($this->at(1))
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
             ->will($this->returnValue(true));
-        $pdo_statement_select->expects($this->at(1))
-            ->method("fetch")
-            ->will($this->returnValue(array(
-                "userId" => "12345",
-                "lastName" => "",
-                "firstName" => "",
-                "emailAddress" => "",
-                "phone" => "")));
         $pdo_statement_select->expects($this->at(2))
+            ->method("fetch")
+            ->will($this->returnCallback(function()
+            { PdoModelTest::setProperties(); }));
+        $pdo_statement_select->expects($this->at(3))
             ->method("fetch")
             ->will($this->returnValue(false));
         
@@ -489,13 +551,14 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                    "phone, birthDate " .
+                    "phone, birthDate, active, attributes " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         
         $object = new PdoModelUnitTest($security, $cache, $pdo,
             array("userId" => "12345"));
         $object->userId = "54321";
+        $object->save();
     }
 
     /**
@@ -517,20 +580,22 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $cache->expects($this->once())
             ->method("clear")
             ->will($this->returnValue(false));
-        
-        $pdo_statement_select = $this->getMock("\\PDOStatement");
-        $pdo_statement_select->expects($this->once())
+
+        $pdo_statement_select = $this->getMockBuilder("\\PDOStatement")
+            ->disableArgumentCloning()
+            ->getMock();
+        $pdo_statement_select->expects($this->at(0))
+            ->method("setFetchMode")
+            ->will($this->returnCallback(function($type, $object)
+            { PdoModelTest::$pdoFetchIntoObject = $object; }));
+        $pdo_statement_select->expects($this->at(1))
             ->method("execute")
             ->with($this->equalTo(array("userId" => 12345)))
             ->will($this->returnValue(true));
         $pdo_statement_select->expects($this->at(2))
             ->method("fetch")
-            ->will($this->returnValue(array(
-                "userId" => "12345",
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "emailAddress" => "alberto@byu.edu",
-                "phone" => "801-555-1212")));
+            ->will($this->returnCallback(function()
+            { PdoModelTest::setProperties(); }));
         $pdo_statement_select->expects($this->at(3))
             ->method("fetch")
             ->will($this->returnValue(false));
@@ -551,7 +616,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                    "phone, birthDate " .
+                    "phone, birthDate, active, attributes " .
                 "FROM user WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_select));
         $pdo->expects($this->at(1))
@@ -588,6 +653,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $object->firstName = "firstName value";
         $object->email = "email@somewhere.com";
         $object->phone = "phone value";
+        $object->active = true;
+        $object->attributes = array("a" => 1, "b" => 2);
         
         $array = array();
         foreach($object as $key => $value)
@@ -606,8 +673,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
      */
     public function testQuery() {
         $parameters = array(
-            new QueryParameter("firstName", "Alberto", "**"),
-            new QueryParameter("lastName", "Trevino", "**")
+            new QueryParameter("firstName", "John", "**"),
+            new QueryParameter("lastName", "Doe", "**")
         );
         
         $security = new Security();
@@ -632,17 +699,19 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
-                "firstName" => "%Alberto%",
-                "lastName" => "%Trevino%")))
+                "firstName" => "%John%",
+                "lastName" => "%Doe%")))
             ->will($this->returnValue(true));
         $pdo_statement->expects($this->at(1))
             ->method("fetchAll")
             ->will($this->returnValue(array(array(
                 "userId" => "12345",
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "emailAddress" => "alberto@byu.edu",
-                "phone" => "801-555-1212"))));
+                "lastName" => "Doe",
+                "firstName" => "John",
+                "emailAddress" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "active" => "1",
+                "attributes" => json_encode(array("a" =>1, "b" => 2))))));
         
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
@@ -651,7 +720,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                    "phone, birthDate " .
+                    "phone, birthDate, active, attributes " .
                 "FROM user  WHERE firstName LIKE :firstName AND " .
                     "lastName LIKE :lastName " .
                 "LIMIT 10000 OFFSET 0"))
@@ -673,8 +742,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
      */
     public function testQueryWithLimit() {
         $parameters = array(
-            new QueryParameter("firstName", "Alberto", "**"),
-            new QueryParameter("lastName", "Trevino", "**"),
+            new QueryParameter("firstName", "John", "**"),
+            new QueryParameter("lastName", "Doe", "**"),
             new QueryParameter("_limit", "100")
         );
 
@@ -690,17 +759,19 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
-                "firstName" => "%Alberto%",
-                "lastName" => "%Trevino%")))
+                "firstName" => "%John%",
+                "lastName" => "%Doe%")))
             ->will($this->returnValue(true));
         $pdo_statement->expects($this->at(1))
             ->method("fetchAll")
             ->will($this->returnValue(array(array(
                 "userId" => "12345",
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "emailAddress" => "alberto@byu.edu",
-                "phone" => "801-555-1212"))));
+                "lastName" => "Doe",
+                "firstName" => "John",
+                "emailAddress" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "active" => "1",
+                "attributes" => json_encode(array("a" =>1, "b" => 2))))));
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
@@ -709,7 +780,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                "phone, birthDate " .
+                "phone, birthDate, active, attributes " .
                 "FROM user  WHERE firstName LIKE :firstName AND " .
                 "lastName LIKE :lastName " .
                 "LIMIT 100 OFFSET 0"))
@@ -731,8 +802,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
      */
     public function testQueryWithLimitAndOffset() {
         $parameters = array(
-            new QueryParameter("firstName", "Alberto", "**"),
-            new QueryParameter("lastName", "Trevino", "**"),
+            new QueryParameter("firstName", "John", "**"),
+            new QueryParameter("lastName", "Doe", "**"),
             new QueryParameter("_limit", "100"),
             new QueryParameter("_offset", 500)
         );
@@ -749,17 +820,19 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $pdo_statement->expects($this->once())
             ->method("execute")
             ->with($this->equalTo(array(
-                "firstName" => "%Alberto%",
-                "lastName" => "%Trevino%")))
+                "firstName" => "%John%",
+                "lastName" => "%Doe%")))
             ->will($this->returnValue(true));
         $pdo_statement->expects($this->at(1))
             ->method("fetchAll")
             ->will($this->returnValue(array(array(
                 "userId" => "12345",
-                "lastName" => "Trevino",
-                "firstName" => "Alberto",
-                "emailAddress" => "alberto@byu.edu",
-                "phone" => "801-555-1212"))));
+                "lastName" => "Doe",
+                "firstName" => "John",
+                "emailAddress" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "active" => "1",
+                "attributes" => json_encode(array("a" =>1, "b" => 2))))));
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
@@ -768,7 +841,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             ->method("prepare")
             ->with($this->equalTo(
                 "SELECT userId, lastName, firstName, emailAddress AS email, " .
-                "phone, birthDate " .
+                "phone, birthDate, active, attributes " .
                 "FROM user  WHERE firstName LIKE :firstName AND " .
                 "lastName LIKE :lastName " .
                 "LIMIT 100 OFFSET 500"))
@@ -800,7 +873,9 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             "firstName" => null,
             "email" => null,
             "phone" => null,
-            "birthDate" => null), $object->__toArray());
+            "birthDate" => null,
+            "active" => true,
+            "attributes" => array()), $object->__toArray());
     }
 
     /**
@@ -1047,6 +1122,16 @@ class PdoModelUnitTest extends PdoModel
      * @var DateTime User's birth date
      */
     public $birthDate;
+
+    /**
+     * @var bool Whether user is active
+     */
+    public $active = true;
+
+    /**
+     * @var array User attributes
+     */
+    public $attributes;
 }
 
 /**

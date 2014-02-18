@@ -30,6 +30,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertNull($object->phone);
         $this->assertNull($object->birthDate);
         $this->assertTrue($object->active);
+        $this->assertCount(0, $object->attributes);
     }
     
     /**
@@ -61,6 +62,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $object->email = "cosmo@byu.edu";
         $object->phone = "801-555-1212";
         $object->birthDate = "01 JUN 1960";
+        $object->attributes = array("a" => 1, "b" => 2);
         $object->__validate();
         
         $this->assertEquals(12345, $object->userId);
@@ -71,8 +73,47 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf("Cougar\Util\DateTime", $object->birthDate);
         $this->assertEquals("1960-06-01", (string) $object->birthDate);
         $this->assertTrue($object->active);
+        $this->assertCount(2, $object->attributes);
+        $this->assertArrayHasKey("a", $object->attributes);
+        $this->assertEquals(1, $object->attributes["a"]);
+        $this->assertArrayHasKey("b", $object->attributes);
+        $this->assertEquals(2, $object->attributes["b"]);
     }
-    
+
+    /**
+     * @covers \Cougar\Model\Model::__construct
+     * @covers \Cougar\Model\Model::__isset
+     * @covers \Cougar\Model\Model::__set
+     * @covers \Cougar\Model\Model::__get
+     * @covers \Cougar\Model\Model::validate();
+     */
+    public function testNewObjectSetPropertiesJsonEncoedArray()
+    {
+        $object = new ModelUnitTest();
+        $object->userId = "12345";
+        $object->lastName = "Cougar";
+        $object->firstName = "Cosmo";
+        $object->email = "cosmo@byu.edu";
+        $object->phone = "801-555-1212";
+        $object->birthDate = "01 JUN 1960";
+        $object->attributes = json_encode(array("a" => 1, "b" => 2));
+        $object->__validate();
+
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Cougar", $object->lastName);
+        $this->assertEquals("Cosmo", $object->firstName);
+        $this->assertEquals("cosmo@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+        $this->assertInstanceOf("Cougar\Util\DateTime", $object->birthDate);
+        $this->assertEquals("1960-06-01", (string) $object->birthDate);
+        $this->assertTrue($object->active);
+        $this->assertCount(2, $object->attributes);
+        $this->assertArrayHasKey("a", $object->attributes);
+        $this->assertEquals(1, $object->attributes["a"]);
+        $this->assertArrayHasKey("b", $object->attributes);
+        $this->assertEquals(2, $object->attributes["b"]);
+    }
+
     /**
      * @covers \Cougar\Model\Model::__construct
      * @covers \Cougar\Model\Model::__isset
@@ -163,7 +204,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "firstName" => "Cosmo",
             "email" => "cosmo@byu.edu",
             "birthDate" => null,
-            "active" => true),
+            "active" => true,
+            "attributes" => array()),
             json_decode(json_encode($object), true));
     }
     
@@ -191,7 +233,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "email" => "cosmo@byu.edu",
             "phone" => "555-1212",
             "birthDate" => "1960-06-01",
-            "active" => true),
+            "active" => true,
+            "attributes" => array()),
             json_decode(json_encode($object), true));
     }
     
@@ -219,7 +262,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "emailAddress" => "cosmo@byu.edu",
             "phoneNumber" => "555-1212",
             "birthDate" => null,
-            "active" => true),
+            "active" => true,
+            "attributes" => array()),
             json_decode(json_encode($object), true));
     }
     
@@ -244,7 +288,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "firstName" => "Cosmo",
             "emailAddress" => "cosmo@byu.edu",
             "birthDate" => "1960-06-01",
-            "active" => true),
+            "active" => true,
+            "attributes" => array()),
             json_decode(json_encode($object), true));
     }
     
@@ -264,7 +309,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "firstName" => null,
             "email" => null,
             "birthDate" => null,
-            "active" => true), $object->__toArray());
+            "active" => true,
+            "attributes" => array()), $object->__toArray());
     }
     
     /**
@@ -291,7 +337,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "email" => "cosmo@byu.edu",
             "phone" => "555-1212",
             "birthDate" => "1960-06-01",
-            "active" => true), $object->__toArray());
+            "active" => true,
+            "attributes" => array()), $object->__toArray());
     }
     
     /**
@@ -313,7 +360,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "firstName" => "Cosmo",
             "email" => "cosmo@byu.edu",
             "birthDate" => null,
-            "active" => true), $object->__toArray());
+            "active" => true,
+            "attributes" => array()), $object->__toArray());
     }
     
     /**
@@ -340,7 +388,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "emailAddress" => "cosmo@byu.edu",
             "phoneNumber" => "555-1212",
             "birthDate" => null,
-            "active" => true), $object->__toArray());
+            "active" => true,
+            "attributes" => array()), $object->__toArray());
     }
     
     /**
@@ -372,7 +421,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "email" => "cosmo@byu.edu",
             "phone" => "555-1212",
             "birthDate" => null,
-            "active" => true), $iteratable);
+            "active" => true,
+            "attributes" => array()), $iteratable);
     }
     
     /**
@@ -406,7 +456,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "emailAddress" => "cosmo@byu.edu",
             "phoneNumber" => "555-1212",
             "birthDate" => "1960-06-01",
-            "active" => true), $iteratable);
+            "active" => true,
+            "attributes" => array()), $iteratable);
     }
     
     /**
@@ -434,7 +485,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "firstName" => "Cosmo",
             "email" => "cosmo@byu.edu",
             "birthDate" => null,
-            "active" => true), $iteratable);
+            "active" => true,
+            "attributes" => array()), $iteratable);
     }
     
     /**
@@ -451,7 +503,9 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
             "firstName" => "Cosmo",
             "email" => "cosmo@byu.edu",
             "phone" => "555-1212",
-            "birthDate" => "01 JUN 1960"
+            "birthDate" => "01 JUN 1960",
+            "active" => false,
+            "attributes" => array("a" => 1, "b" => 2)
         );
         $object = new ModelUnitTest($array);
         
@@ -461,7 +515,12 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("cosmo@byu.edu", $object->email);
         $this->assertEquals("555-1212", $object->phone);
         $this->assertEquals("1960-06-01", $object->birthDate);
-        $this->assertTrue($object->active);
+        $this->assertFalse($object->active);
+        $this->assertCount(2, $object->attributes);
+        $this->assertArrayHasKey("a", $object->attributes);
+        $this->assertEquals(1, $object->attributes["a"]);
+        $this->assertArrayHasKey("b", $object->attributes);
+        $this->assertEquals(2, $object->attributes["b"]);
     }
     
     /**
@@ -486,6 +545,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertNull($object->phone);
         $this->assertNull($object->birthDate);
         $this->assertTrue($object->active);
+        $this->assertCount(0, $object->attributes);
     }
     
     /**
@@ -503,6 +563,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $source_object->email = "cosmo@byu.edu";
         $source_object->phone = "555-1212";
         $source_object->birthDate = "01 JUN 1960";
+        $source_object->attributes = array("a" => 1, "b" => 2);
         $object = new ModelUnitTest($source_object);
         
         $this->assertEquals(12345, $object->userId);
@@ -510,9 +571,14 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("Cosmo", $object->firstName);
         $this->assertEquals("cosmo@byu.edu", $object->email);
         $this->assertEquals("555-1212", $object->phone);
-        $this->assertInstanceOf("Cougar\Util\DateTime", $object->birthDate);
+        $this->assertInstanceOf("Cougar\\Util\\DateTime", $object->birthDate);
         $this->assertEquals("1960-06-01", (string) $object->birthDate);
         $this->assertTrue($object->active);
+        $this->assertCount(2, $object->attributes);
+        $this->assertArrayHasKey("a", $object->attributes);
+        $this->assertEquals(1, $object->attributes["a"]);
+        $this->assertArrayHasKey("b", $object->attributes);
+        $this->assertEquals(2, $object->attributes["b"]);
     }
     
     /**
@@ -710,6 +776,11 @@ class ModelUnitTest extends \Cougar\Model\Model
      * @var bool Whether record is active
      */
     public $active = true;
+
+    /**
+     * @var array User's attributes
+     */
+    public $attributes = array();
 }
 
 /**
