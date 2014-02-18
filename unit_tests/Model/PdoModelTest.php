@@ -875,7 +875,8 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
             "phone" => null,
             "birthDate" => null,
             "active" => true,
-            "attributes" => array()), $object->__toArray());
+            "attributes" => array(),
+            "unboundProperty" => null), $object->__toArray());
     }
 
     /**
@@ -1132,6 +1133,12 @@ class PdoModelUnitTest extends PdoModel
      * @var array User attributes
      */
     public $attributes;
+
+    /**
+     * @Unbound
+     * @var string Some unbound value
+     */
+    public $unboundProperty;
 }
 
 /**

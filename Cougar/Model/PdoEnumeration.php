@@ -10,6 +10,9 @@ use Cougar\Exceptions\Exception;
 #require_once(__DIR__ . "/../../cougar.php");
 
 /**
+ * Retrieves tables and column information from a SQL schema via the provided
+ * PDO connection.
+ * 
  * @history
  * 2013.09.30:
  *   (JPK) Initial release

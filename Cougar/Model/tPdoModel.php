@@ -44,8 +44,11 @@ use Cougar\Exceptions\RecordNotFoundException;
  *   (AT)  Set default query() row limit to 10,000
  * 2014.02.13:
  *   (AT)  Export array properties to JSON when saving
+ * 2014.02.18:
+ *   (AT)  Allow unbound properties; they are still part of the model but they
+ *         are not part of the queries. Useful for calculated values and such.
  *
- * @version 2014.02.13
+ * @version 2014.02.18
  * @package Cougar
  * @license MIT
  *
@@ -70,8 +73,10 @@ trait tPdoModel
      *   (AT)  Initial release
      * 2013.10.24:
      *   (AT)  Change authorization() call parameter order
+     * 2014.02.18:
+     *   (AT)  Add support for the unbound annotation
      *
-     * @version 2013.10.24
+     * @version 2014.02.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param \Cougar\Security\iSecurity $security
@@ -341,6 +346,9 @@ trait tPdoModel
                             $this->__columnMap[$property_name] =
                                 $annotation->value;
                             break;
+                        case "Unbound":
+                            unset($this->__columnMap[$property_name]);
+                            break;
                         case "ReadOnly":
                             $this->__readOnly[$property_name] = true;
                     }
@@ -350,7 +358,7 @@ trait tPdoModel
             # See if we had query properties
             if (! $this->__queryProperties)
             {
-                $this->__queryProperties = $this->__properties;
+                $this->__queryProperties = array_keys($this->__columnMap);
             }
             
             # Store the record properties in the caches
@@ -473,7 +481,7 @@ trait tPdoModel
                 }
                 
                 # Save the default values
-                foreach($this->__properties as $property)
+                foreach(array_keys($this->__columnMap) as $property)
                 {
                     $this->__defaultValues[$property] = $this->$property;
                 }
@@ -485,7 +493,7 @@ trait tPdoModel
                 $this->__enforceReadOnly = false;
                 
                 # Save the default values
-                foreach($this->__properties as $property)
+                foreach(array_keys($this->__columnMap) as $property)
                 {
                     $this->__defaultValues[$property] = $this->$property;
                 }
@@ -535,8 +543,11 @@ trait tPdoModel
      *   (AT)  Initial release
      * 2013.10.25:
      *   (AT)  Add missing security checks :-D
+     * 2014.02.18:
+     *   (AT)  Make sure we use the bound properties rather than all properties
+     *         When creating queries
      *
-     * @version 2013.10.25
+     * @version 2014.02.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
@@ -556,12 +567,14 @@ trait tPdoModel
                     "You are not allowed to create this record");
             }
 
-            # Create the INSERT statement
-            $vars = $this->__properties;
-            foreach($vars  as &$var)
+            // Create the list of variable parameters
+            $vars = array();
+            foreach(array_keys($this->__columnMap) as $property)
             {
-                $var = ":" . $var;
+                $vars[] = ":" . $property;
             }
+
+            # Create the INSERT statement
             $statement = "INSERT INTO " . $this->__table . " (" .
                 implode(", ", $this->__columnMap) . ") VALUES(" .
                 implode(", ", $vars) . ")";
@@ -575,7 +588,7 @@ trait tPdoModel
             
             # Get the values
             $values = array();
-            foreach($this->__properties as $property)
+            foreach(array_keys($this->__columnMap) as $property)
             {
                 // See what the type is
                 switch($this->__type[$property])
@@ -660,7 +673,7 @@ trait tPdoModel
             # See which columns have changed
             $new_values = array();
             $set_declarations = array();
-            foreach($this->__properties as $property)
+            foreach(array_keys($this->__columnMap) as $property)
             {
                 $value = $this->$property;
                 
@@ -736,7 +749,7 @@ trait tPdoModel
                 if (! $this->__noCache)
                 {
                     $cache_entry = array();
-                    foreach($this->__properties as $property)
+                    foreach(array_keys($this->__columnMap) as $property)
                     {
                         $cache_entry[$property] = $this->$property;
                     }
@@ -748,7 +761,7 @@ trait tPdoModel
             
         # Sync the initial values and save the values that changed
         $this->__lastChanges = array();
-        foreach($this->__properties as $property)
+        foreach(array_keys($this->__columnMap) as $property)
         {
             if ($this->__defaultValues[$property] !== $this->$property)
             {
@@ -1336,7 +1349,7 @@ trait tPdoModel
             if (! $this->__noCache)
             {
                 $cache_entry = array();
-                foreach($this->__properties as $property)
+                foreach(array_keys($this->__columnMap) as $property)
                 {
                     $cache_entry[$property] = $this->$property;
                 }

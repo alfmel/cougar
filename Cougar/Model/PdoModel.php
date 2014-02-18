@@ -112,21 +112,29 @@ namespace Cougar\Model;
  *   If your property name does not correspond to the column name in the
  *   database, you may specify the actual column name here. The column name
  *   will also create an alias for the property.
+ *
+ *   @Unbound
+ *   If this annotation is set, the property will not be considered part of the
+ *   database table. Therefore, it will not be queried or updated. This is
+ *   useful when you have properties whose values are calculated in
+ *   __postValidate() from the values in the bound columns.
  * 
- *   The PdoRecord class extends the Record class, so all other options and
- *   features of the Record class are automatically inherited.
+ *   The PdoModel class extends the Model class, so all options and features
+ *   in the Model class are automatically inherited.
  *
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
  * 2013.11.25:
  *   (AT)  Implement iPersistentModel (new name for iStoredModel)
+ * 2014.02.18:
+ *   (AT)  Add support for unbound properties
  *
- * @version 2013.11.25
+ * @version 2014.02.18
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
