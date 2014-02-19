@@ -47,6 +47,8 @@ use Cougar\Exceptions\RecordNotFoundException;
  * 2014.02.18:
  *   (AT)  Allow unbound properties; they are still part of the model but they
  *         are not part of the queries. Useful for calculated values and such.
+ *   (AT)  Fix unexpected exception when saving a DateTime property with a null
+ *         value
  *
  * @version 2014.02.18
  * @package Cougar
@@ -546,6 +548,8 @@ trait tPdoModel
      * 2014.02.18:
      *   (AT)  Make sure we use the bound properties rather than all properties
      *         When creating queries
+     *   (AT)  Make sure we only call format() method on DateTime object, not on
+     *         a null value
      *
      * @version 2014.02.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
@@ -611,9 +615,13 @@ trait tPdoModel
                                     $date_format = "Y-m-d H:i:s";
                                     break;
                             }
+                            $values[$property] =
+                                $this->$property->format($date_format);
                         }
-                        $values[$property] =
-                            $this->$property->format($date_format);
+                        else
+                        {
+                            $values[$property] = null;
+                        }
                         break;
                     case "array":
                         // Convert to JSON
@@ -700,9 +708,13 @@ trait tPdoModel
                                         $date_format = "Y-m-d H:i:s";
                                         break;
                                 }
+                                $new_values[$property] =
+                                    $this->$property->format($date_format);
                             }
-                            $new_values[$property] =
-                                $this->$property->format($date_format);
+                            else
+                            {
+                                $new_values[$property] = null;
+                            }
                             break;
                         case "array":
                             // Convert to JSON

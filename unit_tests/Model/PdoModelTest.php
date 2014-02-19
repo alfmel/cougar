@@ -234,6 +234,89 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
      * @covers \Cougar\Model\PdoModel::save
      * @covers \Cougar\Model\PdoModel::getCacheKey
      */
+    public function testSaveInsertNullDate() {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+
+        $pdo_statement = $this->getMock("\\PDOStatement");
+        $pdo_statement->expects($this->once())
+            ->method("execute")
+            ->with($this->equalTo(array(
+                "userId" => null,
+                "lastName" => "Doe",
+                "firstName" => "John",
+                "email" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "birthDate" => null,
+                "active" => true,
+                "attributes" => json_encode(array("a" => 1, "b" => 2)))))
+            ->will($this->returnValue(true));
+        $pdo_statement->expects($this->once())
+            ->method("rowCount")
+            ->will($this->returnValue(1));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->once())
+            ->method("prepare")
+            ->with($this->equalTo(
+                "INSERT INTO user " .
+                "(userId, lastName, firstName, emailAddress, phone, " .
+                "birthDate, active, attributes) " .
+                "VALUES(:userId, :lastName, :firstName, :email, :phone, " .
+                ":birthDate, :active, :attributes)"))
+            ->will($this->returnValue($pdo_statement));
+
+        # Test set
+        $object = new PdoModelUnitTest($security, $cache, $pdo);
+        $object->firstName = "John";
+        $object->lastName = "Doe";
+        $object->email = "john.doe@example.com";
+        $object->phone = "800-555-1212";
+        $object->birthDate = null;
+        $object->attributes = array("a" => 1, "b" => 2);
+
+        # Test save with insert
+        $object->save();
+
+        # Test the properties after save
+        $this->assertEquals("John", $object->firstName);
+        $this->assertEquals("Doe", $object->lastName);
+        $this->assertEquals("john.doe@example.com", $object->email);
+        $this->assertEquals("800-555-1212", $object->phone);
+        $this->assertNull($object->birthDate);
+        $this->assertTrue($object->active);
+        $this->assertEquals(array("a" => 1, "b" => 2), $object->attributes);
+
+        # Test getting the changed values
+        $changes = $object->lastChanges();
+        $this->assertArrayHasKey("firstName", $changes);
+        $this->assertArrayHasKey("lastName", $changes);
+        $this->assertArrayHasKey("email", $changes);
+        $this->assertArrayHasKey("phone", $changes);
+        $this->assertArrayHasKey("attributes", $changes);
+
+        $this->assertNull($changes["firstName"]);
+        $this->assertNull($changes["lastName"]);
+        $this->assertNull($changes["email"]);
+        $this->assertNull($changes["phone"]);
+        $this->assertNull($changes["attributes"]);
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::__get
+     * @covers \Cougar\Model\PdoModel::__set
+     * @covers \Cougar\Model\PdoModel::save
+     * @covers \Cougar\Model\PdoModel::getCacheKey
+     */
     public function testSaveInsertFromLoad() {        
         $security = new Security();
         
@@ -357,9 +440,9 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
                 "lastName" => "Jones",
                 "firstName" => "Mary",
                 "email" => "mary.jones@example.com",
-                "phone" => "800-555-2121",
-                "userId" => 12345,
-                "attributes" => json_encode(array("a" => 3, "b" => 4)))))
+                "birthDate" => "1961-08-01",
+                "attributes" => json_encode(array("a" => 3, "b" => 4)),
+                "userId" => 12345)))
             ->will($this->returnValue(true));
         $pdo_statement_update->expects($this->once())
             ->method("rowCount")
@@ -382,7 +465,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
                 "SET lastName = :lastName, " .
                     "firstName = :firstName, " .
                     "emailAddress = :email, " .
-                    "phone = :phone, " .
+                    "birthDate = :birthDate, " .
                     "attributes = :attributes " .
                 "WHERE userId = :userId"))
             ->will($this->returnValue($pdo_statement_update));
@@ -392,7 +475,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $object->firstName = "Mary";
         $object->lastName = "Jones";
         $object->email = "mary.jones@example.com";
-        $object->phone = "800-555-2121";
+        $object->birthDate = "01 AUG 1961";
         $object->attributes = array("a" => 3, "b" => 4);
         $object->save();
         
@@ -402,12 +485,112 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey("firstName", $changes);
         $this->assertArrayHasKey("lastName", $changes);
         $this->assertArrayHasKey("email", $changes);
-        $this->assertArrayHasKey("phone", $changes);
+        $this->assertArrayHasKey("birthDate", $changes);
         
         $this->assertEquals("John", $changes["firstName"]);
         $this->assertEquals("Doe", $changes["lastName"]);
         $this->assertEquals("john.doe@example.com", $changes["email"]);
-        $this->assertEquals("800-555-1212", $changes["phone"]);
+        $this->assertEquals("1960-06-01", (string) $changes["birthDate"]);
+        $this->assertEquals(array("a" => 1, "b" => 2), $changes["attributes"]);
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::getRecord
+     * @covers \Cougar\Model\PdoModel::buildWhereClause
+     * @covers \Cougar\Model\PdoModel::getWhereParameters
+     * @covers \Cougar\Model\PdoModel::getCacheKey
+     * @covers \Cougar\Model\PdoModel::save
+     */
+    public function testSaveUpdateNullDate() {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->with("unittest.model.12345")
+            ->will($this->returnValue(false));
+        $cache->expects($this->exactly(2))
+            ->method("set")
+            ->will($this->returnValue(false));
+
+        $pdo_statement_select = $this->getMockBuilder("\\PDOStatement")
+            ->disableArgumentCloning()
+            ->getMock();
+        $pdo_statement_select->expects($this->at(0))
+            ->method("setFetchMode")
+            ->will($this->returnCallback(function($type, $object)
+            { PdoModelTest::$pdoFetchIntoObject = $object; }));
+        $pdo_statement_select->expects($this->at(1))
+            ->method("execute")
+            ->with($this->equalTo(array("userId" => 12345)))
+            ->will($this->returnValue(true));
+        $pdo_statement_select->expects($this->at(2))
+            ->method("fetch")
+            ->will($this->returnCallback(function()
+            { PdoModelTest::setProperties(); }));
+        $pdo_statement_select->expects($this->at(3))
+            ->method("fetch")
+            ->will($this->returnValue(false));
+
+        $pdo_statement_update = $this->getMock("\\PDOStatement");
+        $pdo_statement_update->expects($this->once())
+            ->method("execute")
+            ->with($this->equalTo(array(
+                "lastName" => "Jones",
+                "firstName" => "Mary",
+                "email" => "mary.jones@example.com",
+                "birthDate" => null,
+                "attributes" => json_encode(array("a" => 3, "b" => 4)),
+                "userId" => 12345)))
+            ->will($this->returnValue(true));
+        $pdo_statement_update->expects($this->once())
+            ->method("rowCount")
+            ->will($this->returnValue(1));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("mysql:"));
+        $pdo->expects($this->at(0))
+            ->method("prepare")
+            ->with($this->equalTo(
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                "phone, birthDate, active, attributes " .
+                "FROM user WHERE userId = :userId"))
+            ->will($this->returnValue($pdo_statement_select));
+        $pdo->expects($this->at(1))
+            ->method("prepare")
+            ->with($this->equalTo(
+                "UPDATE user " .
+                "SET lastName = :lastName, " .
+                "firstName = :firstName, " .
+                "emailAddress = :email, " .
+                "birthDate = :birthDate, " .
+                "attributes = :attributes " .
+                "WHERE userId = :userId"))
+            ->will($this->returnValue($pdo_statement_update));
+
+        $object = new PdoModelUnitTest($security, $cache, $pdo,
+            array("userId" => "12345"));
+        $object->firstName = "Mary";
+        $object->lastName = "Jones";
+        $object->email = "mary.jones@example.com";
+        $object->birthDate = null;
+        $object->attributes = array("a" => 3, "b" => 4);
+        $object->save();
+
+        # Test getting the changed values
+        $changes = $object->lastChanges();
+        $this->assertCount(5, $changes);
+        $this->assertArrayHasKey("firstName", $changes);
+        $this->assertArrayHasKey("lastName", $changes);
+        $this->assertArrayHasKey("email", $changes);
+        $this->assertArrayHasKey("birthDate", $changes);
+
+        $this->assertEquals("John", $changes["firstName"]);
+        $this->assertEquals("Doe", $changes["lastName"]);
+        $this->assertEquals("john.doe@example.com", $changes["email"]);
+        $this->assertEquals("1960-06-01", (string) $changes["birthDate"]);
         $this->assertEquals(array("a" => 1, "b" => 2), $changes["attributes"]);
     }
 
