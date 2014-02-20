@@ -10,8 +10,10 @@ use SimpleXMLElement;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2013.11.25:
+ *   (AT)  Convert XML to instance of stdClass (not any object)
  *
- * @version 2013.09.30
+ * @version 2013.11.25
  * @package Cougar
  * @license MIT
  *
@@ -64,21 +66,25 @@ interface iXml
     public static function toArray(SimpleXMLElement $xml_data);
     
     /**
-     * Converts the given XML data into an object of the given type
+     * Converts the given XML data into an instance of stdClass. If the XML does
+     * not have any child elements, the method will return a string with the
+     * string value of the root element.
      *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.25:
+     *   (AT)  Force incoming data to be instance of SimpleXMLElement
+     *   (AT)  Remove object type parameter; will always return instance of
+     *         stdClass, similar to json_decode
      *
-     * @version 2013.09.30
+     * @version 2013.11.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param SimpleXMLElement $xml_data
+     * @param \SimpleXMLElement $xml_data
      *   XML object to convert
-     * @param string $object_type
-     *   The object type to create (stdClass if not specified)
-     * @return object Object representation of XML data
+     * @return mixed Object representation of XML data
      */
-    public static function toObject($xml_data, $object_type = "\\stdClass");
+    public static function toObject(SimpleXMLElement $xml_data);
 }
 ?>

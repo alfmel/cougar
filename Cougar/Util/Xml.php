@@ -3,6 +3,7 @@
 namespace Cougar\Util;
 
 use SimpleXMLElement;
+use stdClass;
 use Cougar\Exceptions\NotImplementedException;
 
 # Initialize the framework (disabled; should have been done by application)
@@ -14,12 +15,14 @@ use Cougar\Exceptions\NotImplementedException;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.02.20:
+ *   (AT)  Modify toArray and toObject signatures
  *
- * @version 2013.09.30
+ * @version 2014.02.20
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -139,21 +142,25 @@ class Xml implements iXml
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2013.11.25:
+     *   (AT)  Implement the method
      *
-     * @version 2013.09.30
+     * @version 2013.11.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param SimpleXMLElement $xml_data
+     * @param \SimpleXMLElement $xml_data
      *   XML object to convert
      * @return array Array representation of XML data
      */
-    public static function toArray($xml_data)
+    public static function toArray(SimpleXMLElement $xml_data)
     {
-        throw new NotImplementedException("Not implemented");
+        return (array) self::toObject($xml_data);
     }
     
     /**
-     * Converts the given XML data into an object of the given type
+     * Converts the given XML data into an instance of stdClass. If the XML does
+     * not have any child elements, the method will return a string with the
+     * string value of the root element.
      *
      * @history
      * 2013.09.30:
@@ -162,13 +169,11 @@ class Xml implements iXml
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param SimpleXMLElement $xml_data
+     * @param \SimpleXMLElement $xml_data
      *   XML object to convert
-     * @param string $object_type
-     *   The object type to create (stdClass if not specified)
-     * @return object Object representation of XML data
+     * @return mixed Object representation of XML data
      */
-    public static function toObject($xml_data, $object_type = "\\stdClass")
+    public static function toObject(SimpleXMLElement $xml_data)
     {
         throw new NotImplementedException("Not implemented");
     }
