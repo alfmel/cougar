@@ -32,9 +32,12 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
         $object = new BasicAnnotationTest();
         $annotations = Annotations::extract($local_cache, $object);
         
-        $this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
         
         $this->assertFalse($annotations->cached);
+
+        $this->assertEquals("BasicAnnotationTest class description.",
+            $annotations->classDescription);
         
         $this->assertCount(6, $annotations->class);
         foreach($annotations->class as $class_annotation)
@@ -47,14 +50,25 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("Annotation2", $annotations->class[1]->name);
         $this->assertEquals("Value 2", $annotations->class[1]->value);
         $this->assertEquals("Annotation3", $annotations->class[2]->name);
-        $this->assertEquals("Value 3", $annotations->class[2]->value);
+        $this->assertEquals("Value 3\n  Multiple lines",
+            $annotations->class[2]->value);
         $this->assertEquals("RepeatedAnnotation", $annotations->class[3]->name);
         $this->assertEquals("Repeated value 1", $annotations->class[3]->value);
         $this->assertEquals("RepeatedAnnotation", $annotations->class[4]->name);
         $this->assertEquals("Repeated value 2", $annotations->class[4]->value);
         $this->assertEquals("RepeatedAnnotation", $annotations->class[5]->name);
         $this->assertEquals("Repeated value 3", $annotations->class[5]->value);
-        
+
+        $this->assertCount(2, $annotations->propertyDescriptions);
+        $this->assertArrayHasKey("propertyA",
+            $annotations->propertyDescriptions);
+        $this->assertArrayHasKey("propertyB",
+            $annotations->propertyDescriptions);
+        $this->assertEquals("",
+            $annotations->propertyDescriptions["propertyA"]);
+        $this->assertEquals("Some other and longer property description",
+            $annotations->propertyDescriptions["propertyB"]);
+
         $this->assertCount(2, $annotations->properties);
         $this->assertArrayHasKey("propertyA", $annotations->properties);
         $this->assertArrayHasKey("propertyB", $annotations->properties);
@@ -86,25 +100,45 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
             $annotations->properties["propertyB"][1]->name);
         $this->assertEquals("string Some value",
             $annotations->properties["propertyB"][1]->value);
-        
+
+        $this->assertCount(2, $annotations->methodDescriptions);
+        $this->assertArrayHasKey("methodY", $annotations->methodDescriptions);
+        $this->assertArrayHasKey("methodZ", $annotations->methodDescriptions);
+        $this->assertEquals("", $annotations->methodDescriptions["methodY"]);
+        $this->assertEquals("MethodZ rocks!",
+            $annotations->methodDescriptions["methodZ"]);
+
         $this->assertCount(2, $annotations->methods);
         $this->assertArrayHasKey("methodY", $annotations->methods);
         $this->assertArrayHasKey("methodZ", $annotations->methods);
-        $this->assertCount(1, $annotations->methods["methodY"]);
+
+        $this->assertCount(2, $annotations->methods["methodY"]);
         $this->assertInstanceOf("Cougar\\Util\\Annotation",
             $annotations->methods["methodY"][0]);
         $this->assertEquals("MethodY",
             $annotations->methods["methodY"][0]->name);
         $this->assertEquals("Annotation for Method Y",
             $annotations->methods["methodY"][0]->value);
-        $this->assertCount(1, $annotations->methods["methodZ"]);
+        $this->assertEquals("return",
+            $annotations->methods["methodY"][1]->name);
+        $this->assertEquals("object Something",
+            $annotations->methods["methodY"][1]->value);
+
+        $this->assertCount(2, $annotations->methods["methodZ"]);
         $this->assertInstanceOf("Cougar\\Util\\Annotation",
             $annotations->methods["methodZ"][0]);
         $this->assertEquals("MethodZ",
             $annotations->methods["methodZ"][0]->name);
         $this->assertEquals("Annotation for Method Z",
             $annotations->methods["methodZ"][0]->value);
-        
+        $this->assertEquals("param",
+            $annotations->methods["methodZ"][1]->name);
+        $this->assertEquals("string \$zulu\n" .
+            "      Some meaningless variable with an even more meaningless " .
+                "comment that\n" .
+            "      extends several lines",
+            $annotations->methods["methodZ"][1]->value);
+
         # Save the result to test the cache
         $annotations->cached = true;
         return $annotations;
@@ -165,7 +199,8 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("Annotation2", $annotations->class[1]->name);
         $this->assertEquals("Value 2", $annotations->class[1]->value);
         $this->assertEquals("Annotation3", $annotations->class[2]->name);
-        $this->assertEquals("Value 3", $annotations->class[2]->value);
+        $this->assertEquals("Value 3\n  Multiple lines",
+            $annotations->class[2]->value);
         $this->assertEquals("RepeatedAnnotation",
             $annotations->class[3]->name);
         $this->assertEquals("Repeated value 1",
@@ -248,7 +283,7 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
             $annotations->methods["methodY"][0]->name);
         $this->assertEquals("Annotation for Method Y override",
             $annotations->methods["methodY"][0]->value);
-        $this->assertCount(1, $annotations->methods["methodZ"]);
+        $this->assertCount(2, $annotations->methods["methodZ"]);
         $this->assertInstanceOf("Cougar\\Util\\Annotation",
             $annotations->methods["methodZ"][0]);
         $this->assertEquals("MethodZ",
@@ -289,7 +324,7 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers Cougar\\Util\\Annotations::extract
      */
-    public function testFitleredAnnotations() {
+    public function testFilteredAnnotations() {
         # Mock the cache
         $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
         $local_cache->expects($this->any())
@@ -326,7 +361,7 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
         
         $this->assertCount(1, $annotations->methods);
         $this->assertArrayHasKey("doStuff", $annotations->methods);
-        $this->assertCount(0, $annotations->methods["doStuff"]);
+        $this->assertCount(3, $annotations->methods["doStuff"]);
     }
     
     /**
@@ -380,9 +415,12 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
 }
 
 /**
+ * BasicAnnotationTest class description.
+ *
  * @Annotation1 Value 1
  * @Annotation2 Value 2
  * @Annotation3 Value 3
+ *   Multiple lines
  * @RepeatedAnnotation Repeated value 1
  * @RepeatedAnnotation Repeated value 2
  * @RepeatedAnnotation Repeated value 3
@@ -396,6 +434,8 @@ class BasicAnnotationTest
     public $propertyA;
     
     /**
+     * Some other and longer property description
+     *
      * @PropertyB Annotation for Property B
      * @var string Some value
      */
@@ -404,6 +444,7 @@ class BasicAnnotationTest
     
     /**
      * @MethodY Annotation for Method Y
+     * @return object Something
      */
     public function methodY()
     {
@@ -411,9 +452,14 @@ class BasicAnnotationTest
     }
     
     /**
+     * MethodZ rocks!
+     *
      * @MethodZ Annotation for Method Z
+     * @param string $zulu
+     *   Some meaningless variable with an even more meaningless comment that
+     *   extends several lines
      */
-    public function methodZ()
+    public function methodZ($zulu)
     {
         
     }
@@ -466,6 +512,8 @@ class BasicFilteredAnnotationTest
     public $stuff;
     
     /**
+     * @author Some dude
+     * @todo Make it better!
      * @version 1.2.3
      * @param string stuff
      * @return mixed More stuff
