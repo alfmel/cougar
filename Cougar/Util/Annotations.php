@@ -22,8 +22,10 @@ use Cougar\Exceptions\Exception;
  *         producing web service documentation
  *   (AT)  Capture class, property and method descriptions
  *   (AT)  Capture annotations that span more than one line
+ * 2014.02.21:
+ *   (AT)  Added extractFromDocumentBlock() method
  *
- * @version 2014.02.20
+ * @version 2014.02.21
  * @package Cougar
  * @licence MIT
  *
@@ -65,17 +67,95 @@ class Annotations implements iAnnotations
     public static $cacheTime = 86400;
 
     /**
+     * Extracts multi-line annotations from the given document block. Any
+     * comments before the first annotation will be returned in the special
+     * _comment annotation. If there are no comments, the _comment annotation
+     * will not exist.
+     *
+     * These annotations will not be cached.
+     *
+     * We used to do this in the extract() method using a regular expression,
+     * but I could never figure out how to make multi-line annotations work
+     * together with @ characters in the annotation value, like in email
+     * addresses. This method solves this problem.
+     *
+     * @history
+     * 2014.02.21:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.02.20
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param string $document_block Full document block
+     * @return \Cougar\Util\Annotation[] Array of annotation objects
+     */
+    public static function extractFromDocumentBlock($document_block)
+    {
+        # Remove the asterisk comment markers; we also add a \n at the start to
+        # match later on the \n@ combination to split annotations
+        $block = "\n" . preg_replace(
+                array(':/\*\*:', ':\*/:', '/[ \t]*\*[ \t]*/'),
+                array("", "", ""),
+                trim($document_block));
+
+        # Split on the \n@ combination
+        $parts = explode("\n@", $block);
+
+        # Initialize the annotation list
+        $annotations = array();
+
+        # Go through the annotations
+        foreach($parts as $index => $part)
+        {
+            # See if this is the first entry (comment area)
+            if ($index === 0)
+            {
+                $comment = trim($part);
+                if ($comment)
+                {
+                    $annotations[] = new Annotation("_comment", trim($part));
+                }
+            }
+            else
+            {
+                # Split the annotation on white space
+                $values = preg_split("/\s/", trim($part), 2);
+
+                # See how many parts we have
+                if (count($values) == 1)
+                {
+                    # Add the annotation with an empty value
+                    $annotations[] = new Annotation($values[0], "");
+                }
+                else
+                {
+                    # Add the annotation with the proper value
+                    $annotations[] = new Annotation($values[0],
+                        trim($values[1]));
+                }
+            }
+        }
+
+        # Return the annotations
+        return $annotations;
+    }
+
+    /**
      * Returns the annotations for the class and its public methods and
      * properties from the given object. Annotations in the interfaces the
      * object may implement are ignored.
      *
      * @history
+     * 2013.09.30:
+     *   (AT)  Initial release
      * 2014.02.20:
      *   (AT)  Reduced number of annotations that are ignored
      *   (AT)  Capture class, property and method descriptions
      *   (AT)  Capture annotations that span more than one line
+     * 2014.02.21:
+     *   (AT)  Use the new extractFromDocumentBlock() method
      *
-     * @version 2014.02.20
+     * @version 2014.02.21
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param \Cougar\Cache\iCache $local_cache
@@ -227,49 +307,28 @@ class Annotations implements iAnnotations
         # See if the cache was valid
         if (! $cache_valid || $annotations === false)
         {
-            # Define the annotations array
+            # Initialize the annotations array
             $annotations = new ClassAnnotations();
             
-            # Define the regular expression for extracting annotations
-            $annotation_regex = "/@(\w+)\s+([^@.]*)/s";
-
             # Go through the parent classes in reverse order
             foreach(array_reverse($parents) as $parent)
             {
-                # Get the comment block
-                $comment = $parent->getDocComment();
+                # Extract the annotations from the document block
+                $all_annotations =
+                    self::extractFromDocumentBlock($parent->getDocComment());
 
-                # Remove the comment markers
-                $comment = preg_replace(
-                    array('/\s\*\s/', ':/\*\*:', ':\*/:'),
-                    array("", "", ""),
-                    trim($comment));
-
-                # Extract the description
-                $description = trim(explode("@", $comment, 2)[0]);
-
-                # Store the description if we have one
-                if ($description)
-                {
-                    $annotations->classDescription = $description;
-                }
-
-                # Extract the annotations
-                $matches = array();
-                preg_match_all($annotation_regex, $comment, $matches,
-                    PREG_SET_ORDER);
-                foreach($matches as $match)
+                # Remove the skipped annotations
+                foreach($all_annotations as $annotation)
                 {
                     # See if this is a skipped annotation
-                    if (in_array($match[1], self::$ignoreList))
+                    if (in_array($annotation->name, self::$ignoreList))
                     {
                         # Skip the annotation
                         continue;
                     }
                     
                     # Store the annotation
-                    $annotations->class[] =
-                        new Annotation($match[1], trim($match[2]));
+                    $annotations->class[] = $annotation;
                 }
             }
                 
@@ -277,38 +336,25 @@ class Annotations implements iAnnotations
             foreach($r_object->getProperties(\ReflectionProperty::IS_PUBLIC)
                 as $property)
             {
-                # Create an entry in the properties
+                # Create an entry in the properties array
                 $annotations->properties[$property->name] = array();
 
-                # Get the comment block
-                $comment = $property->getDocComment();
+                # Extract the annotations from the document block
+                $all_annotations =
+                    self::extractFromDocumentBlock($property->getDocComment());
 
-                # Remove the comment markers
-                $comment = preg_replace(
-                    array('/\s\*\s/', ':/\*\*:', ':\*/:'),
-                    array("", "", ""),
-                    trim($comment));
-
-                # Extract the description
-                $annotations->propertyDescriptions[$property->name] =
-                    trim(explode("@", $comment, 2)[0]);
-
-                # Extract the annotations
-                $matches = array();
-                preg_match_all($annotation_regex, $comment, $matches,
-                    PREG_SET_ORDER);
-                foreach($matches as $match)
+                # Remove the skipped annotations
+                foreach($all_annotations as $annotation)
                 {
                     # See if this is a skipped annotation
-                    if (in_array($match[1], self::$ignoreList))
+                    if (in_array($annotation->name, self::$ignoreList))
                     {
                         # Skip the annotation
                         continue;
                     }
-                    
+
                     # Store the annotation
-                    $annotations->properties[$property->name][] =
-                        new Annotation($match[1], trim($match[2]));
+                    $annotations->properties[$property->name][] = $annotation;
                 }
             }
             
@@ -325,35 +371,22 @@ class Annotations implements iAnnotations
                 # Create an entry in the method array
                 $annotations->methods[$method->name] = array();
 
-                # Get the comment block
-                $comment = $method->getDocComment();
+                # Extract the annotations from the document block
+                $all_annotations =
+                    self::extractFromDocumentBlock($method->getDocComment());
 
-                # Remove the comment markers
-                $comment = preg_replace(
-                    array('/\s\*\s/', ':/\*\*:', ':\*/:'),
-                    array("", "", ""),
-                    trim($comment));
-
-                # Extract the description
-                $annotations->methodDescriptions[$method->name] =
-                    trim(explode("@", $comment, 2)[0]);
-
-                # Extract the method annotations
-                $matches = array();
-                preg_match_all($annotation_regex, $comment, $matches,
-                    PREG_SET_ORDER);
-                foreach($matches as $match)
+                # Remove the skipped annotations
+                foreach($all_annotations as $annotation)
                 {
                     # See if this is a skipped annotation
-                    if (in_array($match[1], self::$ignoreList))
+                    if (in_array($annotation->name, self::$ignoreList))
                     {
                         # Skip the annotation
                         continue;
                     }
-                    
+
                     # Store the annotation
-                    $annotations->methods[$method->name][] =
-                        new Annotation($match[1], trim($match[2]));
+                    $annotations->methods[$method->name][] = $annotation;
                 }
             }
             
@@ -372,8 +405,8 @@ class Annotations implements iAnnotations
         
         return $annotations;
     }
-    
-    
+
+
     /***************************************************************************
      * PROTECTED STATIC PROPERTIES AND METHODS
      **************************************************************************/

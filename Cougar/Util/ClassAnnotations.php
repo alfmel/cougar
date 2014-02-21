@@ -16,8 +16,10 @@ use Cougar\Model\Struct;
  *   (AT)  Initial release
  * 2014.02.20:
  *   (AT)  Add properties to store descriptions
+ * 2014.02.21:
+ *   (AT)  Remove newly and unused properties that stored descriptions
  *
- * @version 2014.02.20
+ * @version 2014.02.21
  * @package Cougar
  * @licence MIT
  *
@@ -28,29 +30,14 @@ use Cougar\Model\Struct;
 class ClassAnnotations extends Struct
 {
     /**
-     * @var string classDescription
-     */
-    public $classDescription;
-
-    /**
      * @var array List of annotations for the class
      */
     public $class = array();
 
     /**
-     * @var array Associative array of property descriptions
-     */
-    public $propertyDescriptions = array();
-
-    /**
      * @var array Associative array of properties and their annotations
      */
     public $properties = array();
-
-    /**
-     * @var array Associative array of method descriptions
-     */
-    public $methodDescriptions = array();
 
     /**
      * @var array Associative array of properties and their annotations
