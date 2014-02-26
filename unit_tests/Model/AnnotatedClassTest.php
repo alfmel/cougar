@@ -19,7 +19,7 @@ class AnnotatedClassTest extends \PHPUnit_Framework_TestCase {
     public function testAnnotationExtraction() {
         $object = new UnitTestAnnotatedClass();
         $annotations = $object->getAnnotations();
-        $this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
         $this->assertCount(1, $annotations->class);
         $this->assertCount(1, $annotations->properties);
         $this->assertCount(1, $annotations->methods);
@@ -28,10 +28,10 @@ class AnnotatedClassTest extends \PHPUnit_Framework_TestCase {
     public function testAnnotationExtractionViaTrait() {
         $object = new UnitTestAnnotatedClassViaTrait();
         $annotations = $object->getAnnotations();
-        $this->assertInstanceOf("Cougar\Util\ClassAnnotations", $annotations);
+        $this->assertInstanceOf("Cougar\\Util\\ClassAnnotations", $annotations);
         $this->assertCount(1, $annotations->class);
         $this->assertCount(1, $annotations->properties);
-        $this->assertCount(1, $annotations->methods);
+        $this->assertCount(2, $annotations->methods);
     }
 }
 
