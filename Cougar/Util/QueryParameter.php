@@ -16,12 +16,14 @@ use Cougar\Exceptions\Exception;
  *   (AT)  Initial release
  * 2013.11.25:
  *   (AT)  Add support for _limit, _count, _offset and _skip to toSql() method
+ * 2014.02.27:
+ *   (AT)  Make sure we break out of switch statement
  *
- * @version 2013.11.25
+ * @version 2014.02.27
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -258,8 +260,10 @@ class QueryParameter extends Struct
      *   (AT)  Initial release
      * 2013.11.25:
      *   (AT)  Add limit and offset parameters (by reference)
+     * 2014.02.27:
+     *   (AT)  Make sure we break out of switch statement
      *
-     * @version 2013.11.25
+     * @version 2014.02.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $query_parameter_list
@@ -321,14 +325,14 @@ class QueryParameter extends Struct
                         }
 
                         # Go to the next parameter
-                        continue;
+                        continue 2;
                         break;
                     case "_offset":
                     case "_skip":
                         $offset = (int) $param->value;
 
                         # Go to the next parameter
-                        continue;
+                        continue 2;
                         break;
                 }
 

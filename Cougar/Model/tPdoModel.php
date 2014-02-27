@@ -49,8 +49,10 @@ use Cougar\Exceptions\RecordNotFoundException;
  *         are not part of the queries. Useful for calculated values and such.
  *   (AT)  Fix unexpected exception when saving a DateTime property with a null
  *         value
+ * 2014.02.27:
+ *   (AT)  Fix bad logic when setting limit and offset on OCI
  *
- * @version 2014.02.18
+ * @version 2014.02.27
  * @package Cougar
  * @license MIT
  *
@@ -875,8 +877,10 @@ trait tPdoModel
      * 2013.11.25:
      *   (AT)  Add support for _limit and _offset query parameters
      *   (AT)  Set default limit to 10,000 rows
+     * 2014.02.27:
+     *   (AT)  Fix bad logic when setting limit and offset on OCI
      *
-     * @version 2013.011.25
+     * @version 2014.02.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $parameters
@@ -1026,7 +1030,7 @@ trait tPdoModel
                     $query .= " WHERE ";
                 }
                 $query .= "ROWNUM > " . $offset .
-                    " AND ROWNUM <= " . $offset + $limit;
+                    " AND ROWNUM <= " . ($offset + $limit);
             }
             else
             {
