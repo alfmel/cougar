@@ -395,7 +395,7 @@ class AnnotatedRestServiceTestPut extends \PHPUnit_Framework_TestCase {
         $_SERVER["HTTP_ACCEPT"] = "application/xml";
         
         $object = new AnnotatedRestServicePutTests();
-        $this->expectOutputString(Xml::toXml($object->simpleCase()));
+        $this->expectOutputString(Xml::toXml($object->simpleCase())->asXML());
         
         $service = new AnnotatedRestService(new Security());
         $service->bindFromObject($object);
@@ -415,7 +415,7 @@ class AnnotatedRestServiceTestPut extends \PHPUnit_Framework_TestCase {
         $_SERVER["HTTP_ACCEPT"] = "text/html";
         
         $object = new AnnotatedRestServicePutTests();
-        $this->expectOutputString(Xml::toXml($object->simpleCase()));
+        $this->expectOutputString(Xml::toXml($object->simpleCase())->asXML());
         
         $service = new AnnotatedRestService(new Security());
         $service->bindFromObject($object);
@@ -470,13 +470,14 @@ class AnnotatedRestServiceTestPut extends \PHPUnit_Framework_TestCase {
         $_SERVER["HTTP_CONTENT_TYPE"] = "application/xml";
         
         $xml = new \SimpleXMLElement("<foo><bar id=\"1\"/></foo>");
-        $xml_text = $xml->asXML();
+        $xml_text = trim($xml->asXML());
         
         global $_BODY;
         $_BODY = $xml_text;
         
         $object = new AnnotatedRestServicePutTests();
-        $this->expectOutputString($object->PostBodyXml($xml_text));
+        $this->expectOutputString(
+            XML::toXml($object->PostBodyXml($xml_text))->asXML());
         
         $service = new AnnotatedRestService(new Security());
         $service->bindFromObject($object);

@@ -34,8 +34,13 @@ use Cougar\Exceptions\NotAcceptableException;
  * 2013.11.21:
  *   (AT)  Add __toHtml() and __toXml() support when converting method response
  *         to HTML or XML
+ * 2014.02.26:
+ *   (AT)  Fix bug where wrong method was called if two methods handled the same
+ *         URI but accepted different content types
+ *   (AT)  Extract annotations using extractFromObjectWithInheritance() method
+ *         and enable inheritance from interfaces
  *
- * @version 2013.11.21
+ * @version 2014.02.26
  * @package Cougar
  * @license MIT
  *
@@ -101,8 +106,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * 2013.10.16:
      *   (AT)  Fix clobbering issue where calling the method a second time
      *         deletes previous bindings
+     * 2014.02.26:
+     *   (AT)  Extract annotations using extractFromObjectWithInheritance()
+     *         method and enable inheritance from interfaces
      *
-     * @version 2013.10.16
+     * @version 2014.02.26
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param object $object_reference
@@ -133,8 +141,8 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
             ".annotatedrestservice.bindings";
 
         # Get the annotations
-        $annotations = Annotations::Extract($this->localCache,
-            $object_reference);
+        $annotations = Annotations::extractFromObjectWithInheritance(
+            $object_reference, array(), true, true);
         
         # See if we have pre-parsed bindings
         $bindings = false;
@@ -483,8 +491,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * 2013.11.21:
      *   (AT)  Add __toHtml() and __toXml() support when converting method
      *         response to HTML or XML
+     * 2014.02.26:
+     *   (AT)  Fix bug where continue would only exit case statement rather than
+     *         going to the next binding when evaluating content-type
      *
-     * @version 2013.11.21
+     * @version 2014.02.26
      *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * @throws \Cougar\Exceptions\Exception
@@ -542,7 +553,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                 }
                 else
                 {
-                    # Go through each binding and get potential candiates
+                    # Go through each binding and get potential candidates
                     foreach($method_bindings as $binding)
                     {
                         # See if this binding can handle this method
@@ -562,7 +573,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                                 {
                                     # This binding doesn't accept this type;
                                     # go to the next binding
-                                    continue;
+                                    continue 2;
                                 }
                                 break;
                             case "xml":
@@ -572,7 +583,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                                 {
                                     # This binding doesn't accept this type;
                                     # go to the next binding
-                                    continue;
+                                    continue 2;
                                 }
                                 break;
                             case "php":
@@ -581,7 +592,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                                 {
                                     # This binding doesn't accept this type;
                                     # go to the next one
-                                    continue;
+                                    continue 2;
                                 }
                                 break;
                             case "":
@@ -594,7 +605,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                                 {
                                     # This binding doesn't accept this type;
                                     # go to the next binding
-                                    continue;
+                                    continue 2;
                                 }
                                 break;
                         }
