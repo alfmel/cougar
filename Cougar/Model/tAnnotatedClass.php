@@ -16,8 +16,10 @@ use Cougar\Cache\CacheFactory;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.02.26:
+ *   (AT)  Extract annotations with extractFromObjectWithInheritance()
  *
- * @version 2013.09.30
+ * @version 2014.02.26
  * @package Cougar
  * @license MIT
  *
@@ -34,14 +36,16 @@ trait tAnnotatedClass
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.02.26:
+     *   (AT)  Extract annotations with extractFromObjectWithInheritance()
      *
-     * @version 2013.09.30
+     * @version 2014.02.26
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     public function __construct()
     {
-        $this->__annotations = Annotations::Extract(
-            CacheFactory::getLocalCache(), $this);
+        $this->__annotations = Annotations::extractFromObjectWithInheritance(
+            $this, array(), true, false);
     }
 
 

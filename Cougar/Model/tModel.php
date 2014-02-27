@@ -32,12 +32,14 @@ use Cougar\Exceptions\BadRequestException;
  *   (AT)  Check if an array value first arrives as JSON; this allows the PDO
  *         Model to convert arrays into JSON for storage and for the incoming
  *         data to be converted back to an array.
+ * 2014.02.26:
+ *   (AT)  Extract annotations with extractFromObjectWithInheritance()
  *
- * @version 2014.02.13
+ * @version 2014.02.26
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -52,8 +54,10 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.02.26:
+     *   (AT)  Extract annotations with extractFromObjectWithInheritance()
      *
-     * @version 2013.09.30
+     * @version 2014.02.26
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -88,7 +92,9 @@ trait tModel
         else
         {
             # Get the annotations
-            $this->__annotations = Annotations::extract($local_cache, $this);
+            $this->__annotations =
+                Annotations::extractFromObjectWithInheritance($this, array(),
+                    true, false);
 
             # See if the annotations came from the cache
             $parsed_annotations = false;
