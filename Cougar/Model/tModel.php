@@ -373,8 +373,10 @@ trait tModel
      *   (AT)  Initial release
      * 2013.10.28:
      *   (AT)  Don't set a value for the alias; just set the reference
+     * 2014.03.03:
+     *   (AT)  Cleaned up commented code
      *
-     * @version 2013.10.28
+     * @version 2014.03.03
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $name Property name
@@ -399,9 +401,6 @@ trait tModel
             # Create a new public property for the alias linked to the real one
             $this->$name = &$this->{$this->__alias[$property]};
             return $this->$name;
-            
-            # Return the value
-            #return $this->__values[$name];
         }
         else
         {
@@ -417,13 +416,14 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.03:
+     *   (AT)  Don't return anything since __set() shouldn't return anything
      *
-     * @version 2013.09.30
+     * @version 2014.03.03
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param string $name Property name
      * @param mixed $value Property value
-     * @return bool True if successful, throws exception on error
      * @throws Exception
      */
     public function __set($name, $value)
@@ -443,18 +443,21 @@ trait tModel
             # Create a new public property and link it to the real property
             $this->$name = null;
             $this->$name = &$this->{$this->__alias[$property]};
-            
+
             # Save the value
-            return $this->$name = $value;
+            $this->$name = $value;
+
+            # Declare we have changes
+            $this->__hasChanges = true;
         }
         else
         {
-            throw new Exception(get_class($this) . " object does not have a " .
-                "property named " . $name);
+            if ($this->__strictPropertyChecks)
+            {
+                throw new Exception(get_class($this) . " object does not have a " .
+                    "property named " . $name);
+            }
         }
-        
-        # Declare we have changes
-        $this->__hasChanges = true;
     }
     
     /**
@@ -683,7 +686,7 @@ trait tModel
                 $this->$key = $value;
             }
             
-            # Reset the strcit value (strict from now on)
+            # Reset the strict value (strict from now on)
             $this->__strictPropertyChecks = true;
             
             # Declare we have changes
