@@ -879,15 +879,18 @@ trait tPdoModel
      *   (AT)  Set default limit to 10,000 rows
      * 2014.02.27:
      *   (AT)  Fix bad logic when setting limit and offset on OCI
+     * 2014.03.04:
+     *   (AT)  Split function into a query-generating function and a query
+     *         execution part to make it easier to extend query functionality
      *
-     * @version 2014.02.27
+     * @version 2014.03.04
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $parameters
      *   List of query parameters
      * @param string $class_name
      *   Use array to return list as an array, or class name to return objects
-     * @param array $ctoargs
+     * @param array $ctorargs
      *   Constructor arguments if returning objects
      * @return array Record list
      * @throws \Cougar\Exceptions\AccessDeniedException;
@@ -909,163 +912,122 @@ trait tPdoModel
             $this->__setView($this->__queryView);
         }
 
-        # Hash the array and see if we have an entry in the cache
-        if ($this->__noQueryCache)
+        # Extract the columns and aliases for the columns we can query
+        $query_aliases =
+            array_intersect($this->__alias, $this->__queryProperties);
+        $columns = array();
+        foreach($this->__queryProperties as $property)
         {
-            $results = false;
+            if ($this->__visible[$property])
+            {
+                if ($this->__exportAlias[$property] ==
+                    $this->__columnMap[$property])
+                {
+                    $columns[$property] = $this->__columnMap[$property];
+                }
+                else
+                {
+                    $columns[$property] = $this->__columnMap[$property] .
+                        " AS " . $this->__exportAlias[$property];
+                }
+            }
+        }
+
+        # Go through the query properties
+        foreach($parameters as $parameter)
+        {
+            if ($this->__caseInsensitive)
+            {
+                $alias = strtolower($parameter->property);
+            }
+            else
+            {
+                $alias = $parameter->property;
+            }
+
+            if (array_key_exists($alias, $query_aliases))
+            {
+                $property = $query_aliases[$alias];
+
+                # Make sure this column is visible
+                if ($this->__exportAlias[$property] ==
+                    $this->__columnMap[$property])
+                {
+                    $columns[$property] = $this->__columnMap[$property];
+                }
+                else
+                {
+                    $columns[$property] = $this->__columnMap[$property] .
+                        " AS " . $this->__exportAlias[$property];
+                }
+
+                # See if the property has a date/time value
+                if ($this->__type[$property] == "DateTime")
+                {
+                    switch($this->__dateTimeFormat[$property])
+                    {
+                        case "DateTime":
+                        default:
+                            $date_format = "Y-m-d H:i:s";
+                            break;
+                        case "Date":
+                            $date_format = "Y-m-d";
+                            break;
+                        case "Time":
+                            $date_format = "H:i:s";
+                            break;
+                    }
+
+                    # Convert the value
+                    $parameter->value = date($date_format,
+                        strtotime($parameter->value));
+                }
+            }
+        }
+
+        # Prepare the array that will hold the parameter values
+        $values = array();
+
+        # Set the default limit to 10,000 rows
+        $limit = 10000;
+        $offset = 0;
+        $used_parameters = array();
+
+        # Prepare the query and execute the statement
+        $query = "SELECT " . implode(", ", $columns) .
+            " FROM " . $this->__table . " " . implode(" ", $this->__joins);
+        $where_clause = QueryParameter::toSql($parameters,
+            $this->__columnMap, $query_aliases, $this->__caseInsensitive,
+            $values, $used_parameters, $limit, $offset);
+        if ($where_clause)
+        {
+            $query .= " WHERE " . $where_clause;
+        }
+
+        # Set the limit and offset
+        $limit = (int) $limit;
+        $offset = (int) $offset;
+        if ($this->__pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == "oci")
+        {
+            if ($where_clause)
+            {
+                $query .= " AND ";
+            }
+            else
+            {
+                $query .= " WHERE ";
+            }
+            $query .= "ROWNUM > " . $offset .
+                " AND ROWNUM <= " . ($offset + $limit);
         }
         else
         {
-            $cache_key = $this->__cachePrefix . ".query." .
-                md5(serialize($parameters) . $class_name . "." .
-                $this->__currentView);
-            $results = $this->__cache->get($cache_key);
+            $query .= " LIMIT " . $limit .
+                " OFFSET " . $offset;
         }
-        
-        if ($results === false)
-        {
-            # Extract the columns and aliases for the columns we can query
-            $query_aliases =
-                    array_intersect($this->__alias, $this->__queryProperties);
-            $columns = array();
-            foreach($this->__queryProperties as $property)
-            {
-                if ($this->__visible[$property])
-                {
-                    if ($this->__exportAlias[$property] ==
-                        $this->__columnMap[$property])
-                    {
-                        $columns[$property] = $this->__columnMap[$property];
-                    }
-                    else
-                    {
-                        $columns[$property] = $this->__columnMap[$property] .
-                            " AS " . $this->__exportAlias[$property];
-                    }
-                }
-            }
-            
-            # Go through the query properties
-            foreach($parameters as $parameter)
-            {
-                if ($this->__caseInsensitive)
-                {
-                    $alias = strtolower($parameter->property);
-                }
-                else
-                {
-                    $alias = $parameter->property;
-                }
 
-                if (array_key_exists($alias, $query_aliases))
-                {
-                    $property = $query_aliases[$alias];
-                    
-                    # Make sure this column is visible
-                    if ($this->__exportAlias[$property] ==
-                        $this->__columnMap[$property])
-                    {
-                        $columns[$property] = $this->__columnMap[$property];
-                    }
-                    else
-                    {
-                        $columns[$property] = $this->__columnMap[$property] .
-                            " AS " . $this->__exportAlias[$property];
-                    }
-                    
-                    # See if the property has a date/time value
-                    if ($this->__type[$property] == "DateTime")
-                    {
-                        switch($this->__dateTimeFormat[$property])
-                        {
-                            case "DateTime":
-                            default:
-                                $date_format = "Y-m-d H:i:s";
-                                break;
-                            case "Date":
-                                $date_format = "Y-m-d";
-                                break;
-                            case "Time":
-                                $date_format = "H:i:s";
-                                break;
-                        }
-                        
-                        # Convert the value
-                        $parameter->value = date($date_format,
-                            strtotime($parameter->value));
-                    }
-                }
-            }
-
-            # Prepare the array that will hold the values
-            $values = array();
-
-            # Set the initial limit 10,000 rows
-            $limit = 10000;
-            $offset = 0;
-            $used_parameters = array();
-
-            # Prepare the query and execute the statement
-            $query = "SELECT " . implode(", ", $columns) .
-                " FROM " . $this->__table . " " . implode(" ", $this->__joins);
-            $where_clause = QueryParameter::toSql($parameters,
-                $this->__columnMap, $query_aliases, $this->__caseInsensitive,
-                $values, $used_parameters, $limit, $offset);
-            if ($where_clause)
-            {
-                $query .= " WHERE " . $where_clause;
-            }
-
-            # Set the limit and offset
-            $limit = (int) $limit;
-            $offset = (int) $offset;
-            if ($this->__pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == "oci")
-            {
-                if ($where_clause)
-                {
-                    $query .= " AND ";
-                }
-                else
-                {
-                    $query .= " WHERE ";
-                }
-                $query .= "ROWNUM > " . $offset .
-                    " AND ROWNUM <= " . ($offset + $limit);
-            }
-            else
-            {
-                $query .= " LIMIT " . $limit .
-                    " OFFSET " . $offset;
-            }
-
-            # See if we need to display the query
-            if ($this->__debug)
-            {
-                error_log("PdoModel Query: " . $query);
-            }
-            $statement = $this->__pdo->prepare($query);
-            $statement->execute($values);
-
-            # See what we will be returning
-            if ($class_name == "array")
-            {
-                $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            }
-            else
-            {
-                $results = $statement->fetchAll(
-                    \PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $class_name,
-                    $ctorargs);
-            }
-            
-            # Store the results in the cache
-            if (! $this->__noQueryCache)
-            {
-                $this->__cache->set($cache_key, $results, $this->__cacheTime);
-            }
-        }
-        
-        return $results;
+        # Execute the query and return the results
+        return $this->executeQuery($query, $values, $class_name, $ctorargs);
     }
     
     /**
@@ -1385,7 +1347,79 @@ trait tPdoModel
         # Perform casts
         $this->__performCasts();
     }
-    
+
+    /**
+     * Executes the given query with the given statement parameters and returns
+     * the results as an associative array or or an array of objects if the
+     * class name is given.
+     *
+     * @history
+     * 2014.03.04:
+     *   (AT)  Initial implementation from the code in the query() method
+     *
+     * @version 2014.03.04
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param string $query_statement
+     * @param array $query_parameters
+     *   List of query parameters
+     * @param string $class_name
+     *   Use array to return list as an array, or class name to return objects
+     * @param array $ctorargs
+     *   Constructor arguments if returning objects
+     * @return array Record list
+     * @throws \Cougar\Exceptions\AccessDeniedException;
+     */
+    protected function executeQuery($query_statement,
+        array $query_parameters = array(), $class_name = "array",
+        array $ctorargs = array())
+    {
+        # Hash the query and array to determine the cache key; then check if we
+        # have a result in the query cache
+        if ($this->__noQueryCache)
+        {
+            $result = false;
+        }
+        else
+        {
+            $cache_key = $this->__cachePrefix . ".query." .
+                md5($query_statement. ":" . serialize($query_parameters) .
+                    $class_name . "." . $this->__currentView);
+            $result = $this->__cache->get($cache_key);
+        }
+
+        if ($result === false)
+        {
+            # See if we need to display the query
+            if ($this->__debug)
+            {
+                error_log("PdoModel Query: " . $query_statement);
+            }
+            $statement = $this->__pdo->prepare($query_statement);
+            $statement->execute($query_parameters);
+
+            # See what we will be returning
+            if ($class_name == "array")
+            {
+                $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            }
+            else
+            {
+                $result = $statement->fetchAll(
+                    \PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $class_name,
+                    $ctorargs);
+            }
+
+            # Store the results in the cache
+            if (! $this->__noQueryCache)
+            {
+                $this->__cache->set($cache_key, $result, $this->__cacheTime);
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * Returns the WHERE clause based on the values of the primary key
      *
