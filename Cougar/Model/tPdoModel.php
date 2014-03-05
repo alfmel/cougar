@@ -287,6 +287,9 @@ trait tPdoModel
                             }
                         }
                         break;
+                    case "QueryUnique":
+                        $this->__queryUnique = true;
+                        break;
                     case "NoQuery":
                         # Here for backward compatibility
                         $this->__allowQuery = false;
@@ -323,7 +326,7 @@ trait tPdoModel
             if (! $this->__table)
             {
                 throw new Exception("You must specify a table name using the " .
-                    "@Table annoation in the class document block");
+                    "@Table annotation in the class document block");
             }
 
             # Make sure we have a primary key
@@ -379,6 +382,7 @@ trait tPdoModel
                 "queryProperties" => $this->__queryProperties,
                 "allowQuery" => $this->__allowQuery,
                 "queryView" => $this->__queryView,
+                "queryUnique" => $this->__queryUnique,
                 "cachePrefix" => $this->__cachePrefix,
                 "cacheTime" => $this->__cacheTime,
                 "voidCacheEntries" => $this->__voidCacheEntries,
@@ -407,6 +411,7 @@ trait tPdoModel
             $this->__queryProperties = $parsed_annotations["queryProperties"];
             $this->__allowQuery = $parsed_annotations["allowQuery"];
             $this->__queryView = $parsed_annotations["queryView"];
+            $this->__queryUnique = $parsed_annotations["queryUnique"];
             $this->__cachePrefix = $parsed_annotations["cachePrefix"];
             $this->__cacheTime = $parsed_annotations["cacheTime"];
             $this->__voidCacheEntries = $parsed_annotations["voidCacheEntries"];
@@ -994,7 +999,15 @@ trait tPdoModel
         $used_parameters = array();
 
         # Prepare the query and execute the statement
-        $query = "SELECT " . implode(", ", $columns) .
+        if ($this->__queryUnique)
+        {
+            $query = "SELECT DISTINCT ";
+        }
+        else
+        {
+            $query = "SELECT ";
+        }
+        $query .= implode(", ", $columns) .
             " FROM " . $this->__table . " " . implode(" ", $this->__joins);
         $where_clause = QueryParameter::toSql($parameters,
             $this->__columnMap, $query_aliases, $this->__caseInsensitive,
@@ -1158,7 +1171,12 @@ trait tPdoModel
      * @var array List of properties that can be queried
      */
     protected $__queryProperties = array();
-    
+
+    /**
+     * @var bool Whether to return unique records on query
+     */
+    protected $__queryUnique = false;
+
     /**
      * @var bool The view to use during query
      */

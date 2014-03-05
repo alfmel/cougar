@@ -73,11 +73,14 @@ namespace Cougar\Model;
  *   @QueryList property [property ...]
  *   Allow only the given properties to be queried when using the query() static
  *   method. If not specified, all properties can be queried, which may not be
- *   efficient on the databse side.
+ *   efficient on the database side.
  * 
  *   @QueryView view
  *   Use the given view to determine which properties to include in the list
  *   view.
+ *
+ *   @QueryUnique
+ *   When performing a query, only return unique values.
  * 
  *   @CachePrefix prefix
  *   The cache prefix value. The prefix will be appended with the values of the
