@@ -17,12 +17,16 @@ use Cougar\Util\Config;
  *   (AT)  Misc. bug fixes
  * 2013.11.25:
  *   (AT)  Add missing semicolons on generated namespace declarations
+ * 2014.03.05:
+ *   (AT)  Fix a few details in the generated code
  *
- * @version 2013.11.25
+ * @version 2014.03.05
  * @package Cougar
  * @license MIT
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+ *
+ * @copyright 2013-2014 Brigham Young University
  */
 
 # Make sure we have the right number of arguments
@@ -129,7 +133,7 @@ foreach($tables as $table)
     $code =
 '<?php
 
-namespace PUT_YOUR_NAMESPACE_HERE\Model;
+namespace PUT_YOUR_NAMESPACE_HERE\Models;
 
 /**
  * Defines the properties and data constraints of the ' . $table . ' table in
@@ -236,7 +240,7 @@ abstract class ' . $class . 'Base
 	$code =
 '<?php
 
-namespace PUT_YOUR_NAMESPACE_HERE\Model;
+namespace PUT_YOUR_NAMESPACE_HERE\Models;
 
 use Cougar\Model\iModel;
 use Cougar\Model\tModel;
@@ -254,7 +258,7 @@ use Cougar\Model\tModel;
  */
 class ' . $class . ' extends ' . $class . 'Base implements iModel
 {
-    use \Cougar\Model\tModel;
+    use tModel;
 }
 ?>
 ';
@@ -265,7 +269,7 @@ class ' . $class . ' extends ' . $class . 'Base implements iModel
 	$code =
 '<?php
 
-namespace PUT_YOUR_NAMESPACE_HERE\Model;
+namespace PUT_YOUR_NAMESPACE_HERE\Models;
 
 use Cougar\Model\iPersistentModel;
 use Cougar\Model\tPdoModel;
