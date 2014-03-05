@@ -2,6 +2,8 @@
 
 namespace Cougar\Autoload;
 
+use Exception;
+
 /**
  * This class implements a PSR-0 compliant autoloader. It is used by the
  * Cougar framework to load its classes, interfaces and traits.
@@ -14,12 +16,14 @@ namespace Cougar\Autoload;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.03.05:
+ *   (AT)  Slight speed increase on loading files
  *
- * @version 2013.09.30
+ * @version 2014.03.05
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -42,8 +46,11 @@ class Autoload
      * @history:
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.05:
+     *   (AT)  Remove second argument from spl_autoload_register; it is the same
+     *         as the default value and makes code easier to read
      *
-     * @version 2013.09.30
+     * @version 2014.03.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $cougar_root_dir
@@ -56,8 +63,7 @@ class Autoload
         self::$frameworkRoot = $cougar_root_dir;
 
         # Register the autoload function
-        spl_autoload_register(__NAMESPACE__ . "\\Autoload::splAutoload",
-            true);
+        spl_autoload_register(__NAMESPACE__ . "\\Autoload::splAutoload");
 
         # Declare the autoload function registered externally
         self::$registered = true;
@@ -76,8 +82,12 @@ class Autoload
      * @history:
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.05:
+     *   (AT)  Optimized by checking the class name begins with Cougar;
+     *         otherwise class is entirely ignored and no file checks are
+     *         performed
      *
-     * @version 2013.09.30
+     * @version 2014.03.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $class_name
@@ -91,12 +101,20 @@ class Autoload
                 array(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), $class_name) .
             ".php";
 
-        # See if the file exists in the Cougar directory
-        if (file_exists(self::$frameworkRoot . DIRECTORY_SEPARATOR .
-            $class_path))
+        # See if this is a class in the Cougar namespace
+        if (substr($class_name, 0, 7) == "Cougar\\")
         {
-            # Load the file
-            include(self::$frameworkRoot . DIRECTORY_SEPARATOR . $class_path);
+            try
+            {
+                # Load the file
+                include(self::$frameworkRoot . DIRECTORY_SEPARATOR .
+                    $class_path);
+            }
+            catch (Exception $e)
+            {
+                # Ignore the error; this is faster than verifying the file
+                # exists every time
+            }
         }
         else
         {
