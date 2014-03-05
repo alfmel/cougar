@@ -56,8 +56,11 @@ trait tModel
      *   (AT)  Initial release
      * 2014.02.26:
      *   (AT)  Extract annotations with extractFromObjectWithInheritance()
+     * 2014.03.05:
+     *   (AT)  Don't clobber cached annotations when loading parsed annotations
+     *         from cache
      *
-     * @version 2014.02.26
+     * @version 2014.03.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -314,8 +317,13 @@ trait tModel
         }
         else
         {
-            # Restore the properties
-            $this->__annotations = $parsed_annotations["annotations"];
+            # Make sure we don't clobber any previous annotations
+            if (! $this->__annotations)
+            {
+                $this->__annotations = $parsed_annotations["annotations"];
+            }
+
+            # Restore the property values
             $this->__properties = $parsed_annotations["properties"];
             $this->__type = $parsed_annotations["type"];
             $this->__readOnly = $parsed_annotations["readOnly"];
@@ -724,7 +732,8 @@ trait tModel
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-     * 
+     *
+     * @param string $view View to set
      * @return array Associative array of the object in its current view
      * @throws \Cougar\Exceptions\Exception
      */

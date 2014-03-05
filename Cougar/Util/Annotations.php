@@ -32,8 +32,11 @@ use Cougar\Exceptions\Exception;
  *   (AT)  Capture annotations that span more than one line
  * 2014.02.26:
  *   (AT)  Added extractFromDocumentBlock() method
+ * 2014.03.05:
+ *   (AT)  Make sure cached flag is properly preserved when extracting with
+ *         inheritance
  *
- * @version 2014.02.26
+ * @version 2014.03.05
  * @package Cougar
  * @licence MIT
  *
@@ -275,8 +278,11 @@ class Annotations implements iAnnotations
      * @history
      * 2014.02.26:
      *   (AT)  Initial implementation from deprecated extract() method
+     * 2014.03.05:
+     *   (AT)  Make sure to set the cached flag on the empty annotations object
+     *         so that the child annotation object cached flags may be preserved
      *
-     * @version 2014.02.26
+     * @version 2014.03.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -375,8 +381,9 @@ class Annotations implements iAnnotations
         }
         while ($parent !== false);
 
-        // Define an empty set of annotations
+        // Define an empty set of annotations as consider them cached
         $annotations = new ClassAnnotations();
+        $annotations->cached = true;
 
         // Go through each class, trait and interface
         foreach($class_hierarchy as $class)
