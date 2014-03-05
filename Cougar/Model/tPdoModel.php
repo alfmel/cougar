@@ -1293,13 +1293,6 @@ trait tPdoModel
             $columns = array();
             foreach($this->__columnMap as $property => $column)
             {
-                // See if the column is hidden
-                if (! $this->__visible[$property])
-                {
-                    // Skip this property
-                    continue;
-                }
-
                 if ($property == $column)
                 {
                     $columns[] = $column;
