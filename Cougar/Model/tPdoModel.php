@@ -954,16 +954,20 @@ trait tPdoModel
             {
                 $property = $query_aliases[$alias];
 
-                # Make sure this column is visible
-                if ($this->__exportAlias[$property] ==
-                    $this->__columnMap[$property])
+                # Make sure this column is visible if we are not querying unique
+                # values
+                if (! $this->__queryUnique)
                 {
-                    $columns[$property] = $this->__columnMap[$property];
-                }
-                else
-                {
-                    $columns[$property] = $this->__columnMap[$property] .
-                        " AS " . $this->__exportAlias[$property];
+                    if ($this->__exportAlias[$property] ==
+                        $this->__columnMap[$property])
+                    {
+                        $columns[$property] = $this->__columnMap[$property];
+                    }
+                    else
+                    {
+                        $columns[$property] = $this->__columnMap[$property] .
+                            " AS " . $this->__exportAlias[$property];
+                    }
                 }
 
                 # See if the property has a date/time value
