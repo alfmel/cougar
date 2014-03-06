@@ -90,6 +90,135 @@ class ArraysTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers \Cougar\Util\Arrays::renameKeys
+     */
+    public function testRenameKeys()
+    {
+        // Define an array to test
+        $array = array(
+            array(
+                "record_id" => 1,
+                "first_name" => "Peter",
+                "LAST_NAME" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "record_id" => 2,
+                "first_name" => "John",
+                "LAST_NAME" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "record_id" => 3,
+                "first_name" => "John",
+                "LAST_NAME" => "Smith",
+                "age" => 45
+            ),
+            array(
+                "record_id" => 4,
+                "first_name" => "Mark",
+                "LAST_NAME" => "Johnson",
+                "age" => 58
+            ),
+            array(
+                "record_id" => 5,
+                "first_name" => "Michael",
+                "LAST_NAME" => "Zimmerman",
+                "age" => 19
+            )
+        );
+
+        // Define the key map
+        $key_map = array(
+            "record_id" => "id",
+            "first_name" => "firstName",
+            "LAST_NAME" => "lastName",
+            "age" => "age"
+        );
+
+        // Define the array we expect to receive
+        $expected_array = array(
+            array(
+                "id" => 1,
+                "firstName" => "Peter",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 2,
+                "firstName" => "John",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 3,
+                "firstName" => "John",
+                "lastName" => "Smith",
+                "age" => 45
+            ),
+            array(
+                "id" => 4,
+                "firstName" => "Mark",
+                "lastName" => "Johnson",
+                "age" => 58
+            ),
+            array(
+                "id" => 5,
+                "firstName" => "Michael",
+                "lastName" => "Zimmerman",
+                "age" => 19
+            )
+        );
+
+        // Rename the keys
+        $modified_array = Arrays::renameKeys($array, $key_map);
+
+        // Make sure the arrays match
+        $this->assertEquals($expected_array, $modified_array);
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::renameKeys
+     * @depends testRenameKeys
+     */
+    public function testRenameKeysPerformance()
+    {
+        // Create an array with 50,000 elements
+        $n = 50000;
+
+        $array = array();
+        for ($i = 0; $i < $n; $i++)
+        {
+            $array[] = array(
+                "record_id" => 1,
+                "first_name" => "Peter",
+                "LAST_NAME" => "Stevens",
+                "age" => 45
+            );
+        }
+
+        // Define the key map
+        $key_map = array(
+            "record_id" => "id",
+            "first_name" => "firstName",
+            "LAST_NAME" => "lastName",
+            "age" => "age"
+        );
+
+        // Start the timer
+        $start_time = microtime(true);
+
+        // Rename the keys
+        $new_data = Arrays::renameKeys($array, $key_map);
+
+        // Stop the timer
+        $stop_time = microtime(true);
+
+        // Make sure the rename took less than a quarter of a second
+        $this->assertLessThan(0.25, $stop_time - $start_time);
+    }
+
+    /**
      * @covers \Cougar\Util\Arrays::dataSort
      */
     public function testDataSort() {
@@ -136,5 +265,5 @@ class ArraysTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $sorted_array[3]["id"]);
         $this->assertEquals(4, $sorted_array[4]["id"]);
     }
-    
 }
+?>

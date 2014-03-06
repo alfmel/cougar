@@ -12,8 +12,10 @@ use Cougar\Exceptions\Exception;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.03.06:
+ *   (AT)  Add renameKeys() method
  *
- * @version 2013.09.30
+ * @version 2014.03.06
  * @package Cougar
  * @licence MIT
  *
@@ -91,7 +93,50 @@ class Arrays implements iArrays
         # Return the associative array
         return $assoc_array;
     }
-    
+
+    /**
+     * Renames the keys in an array of associative arrays. This is useful to
+     * convert the keys of a SQL database result set from one set of values to
+     * another.
+     *
+     * The key map must be an associative array where the key is the old name
+     * and the value is the new name. You must provide a complete map of old
+     * keys to new keys, even if the new key will rename the same. This saves
+     * calls to array_key_exists() and speeds up the operation considerably.
+     *
+     * @history
+     * 2014.03.06
+     *   (AT)  Initial release
+     *
+     * @version 2014.03.06
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param array $data Array on which to rename the keys
+     * @param array $key_map Assoc. array mapping old key names to the new ones
+     * @return array Re-keyed array
+     */
+    public static function renameKeys(array $data, array $key_map)
+    {
+        // Go through each element in the array
+        foreach($data as &$row)
+        {
+            // Create a new array to hold the new values
+            $new_row = array();
+
+            // Go through each key/value pair
+            foreach($row as $key => $value)
+            {
+                $new_row[$key_map[$key]] = $value;
+            }
+
+            // Replace the row with the new row
+            $row = $new_row;
+        }
+
+        // Return the data
+        return $data;
+    }
+
     /**
      * Sorts a 2-dimensional array that represents a record set by the specified
      * indexes in the second array or object property, in ascending order.

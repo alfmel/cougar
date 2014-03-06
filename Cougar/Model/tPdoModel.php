@@ -8,6 +8,7 @@ use Cougar\Cache\Cache;
 use Cougar\Cache\CacheFactory;
 use Cougar\Security\iSecurity;
 use Cougar\Util\Annotations;
+use Cougar\Util\Arrays;
 use Cougar\Util\QueryParameter;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\AccessDeniedException;
@@ -51,8 +52,13 @@ use Cougar\Exceptions\RecordNotFoundException;
  *         value
  * 2014.02.27:
  *   (AT)  Fix bad logic when setting limit and offset on OCI
+ * 2014.03.05:
+ *   (AT)  Added queryUnique flag
+ * 2014.03.06:
+ *   (AT)  Make sure the keys in an array are in the proper case when returning
+ *         an array in query() and using the OCI driver
  *
- * @version 2014.02.27
+ * @version 2014.03.06
  * @package Cougar
  * @license MIT
  *
@@ -887,8 +893,12 @@ trait tPdoModel
      * 2014.03.04:
      *   (AT)  Split function into a query-generating function and a query
      *         execution part to make it easier to extend query functionality
+     * 2014.03.05:
+     *   (AT)  Handle queryUnique flag
+     * 2014.03.06:
+     *   (AT)  Rename array keys when using the OCI driver
      *
-     * @version 2014.03.04
+     * @version 2014.03.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $parameters
@@ -921,6 +931,7 @@ trait tPdoModel
         $query_aliases =
             array_intersect($this->__alias, $this->__queryProperties);
         $columns = array();
+        $key_map = array();
         foreach($this->__queryProperties as $property)
         {
             if ($this->__visible[$property])
@@ -929,11 +940,15 @@ trait tPdoModel
                     $this->__columnMap[$property])
                 {
                     $columns[$property] = $this->__columnMap[$property];
+                    $key_map[$this->__columnMap[$property]] =
+                        $this->__columnMap[$property];;
                 }
                 else
                 {
                     $columns[$property] = $this->__columnMap[$property] .
                         " AS " . $this->__exportAlias[$property];
+                    $key_map[$this->__exportAlias[$property]] =
+                        $this->__exportAlias[$property];
                 }
             }
         }
@@ -962,11 +977,15 @@ trait tPdoModel
                         $this->__columnMap[$property])
                     {
                         $columns[$property] = $this->__columnMap[$property];
+                        $key_map[$this->__columnMap[$property]] =
+                            $this->__columnMap[$property];;
                     }
                     else
                     {
                         $columns[$property] = $this->__columnMap[$property] .
                             " AS " . $this->__exportAlias[$property];
+                        $key_map[$this->__exportAlias[$property]] =
+                            $this->__exportAlias[$property];
                     }
                 }
 
@@ -1043,8 +1062,24 @@ trait tPdoModel
                 " OFFSET " . $offset;
         }
 
-        # Execute the query and return the results
-        return $this->executeQuery($query, $values, $class_name, $ctorargs);
+        # Execute the query
+        $results = $this->executeQuery($query, $values, $class_name, $ctorargs);
+
+        # Oracle will turn all column names as uppercase. This will rename them
+        # if we are returning an array and are using OCI
+        if ($class_name == "array" &&
+            count($results) > 0 &&
+            $this->__pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == "oci")
+        {
+            # Change the keys in the key map to uppercase
+            $key_map = array_change_key_case($key_map, CASE_UPPER);
+
+            # Rename the keys
+            $results = Arrays::renameKeys($results, $key_map);
+        }
+
+        # Return the result
+        return $results;
     }
     
     /**
