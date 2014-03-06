@@ -28,8 +28,15 @@ class PdoEnumerationMySQLTest extends \PHPUnit_Framework_TestCase {
      * Create the necessary tables
      */
     protected function setUp() {
-        $this->pdo = new \PDO("mysql:host=localhost;dbname=UnitTest",
-            "root", "");
+        try
+        {
+            $this->pdo = new \PDO("mysql:host=localhost;dbname=UnitTest",
+                "root", "");
+        }
+        catch (\PDOException $e)
+        {
+            $this->markTestSkipped("Could not connect to local MySQL instance");
+        }
 
         $this->pdo->exec("
             CREATE TEMPORARY TABLE IF NOT EXISTS tbl1 (
@@ -50,8 +57,11 @@ class PdoEnumerationMySQLTest extends \PHPUnit_Framework_TestCase {
      * Remove the tables
      */
     protected function tearDown() {
-        $this->pdo->exec("DROP TABLE tbl1");
-        $this->pdo->exec("DROP TABLE tbl2");
+        if ($this->pdo)
+        {
+            $this->pdo->exec("DROP TABLE tbl1");
+            $this->pdo->exec("DROP TABLE tbl2");
+        }
     }
 
     /**

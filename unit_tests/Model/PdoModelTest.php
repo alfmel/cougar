@@ -80,7 +80,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -128,7 +128,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -177,7 +177,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -263,7 +263,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -346,7 +346,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -450,7 +450,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
@@ -550,7 +550,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
@@ -649,7 +649,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
@@ -729,7 +729,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
@@ -794,7 +794,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->at(0))
             ->method("prepare")
             ->with($this->equalTo(
@@ -828,7 +828,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         
         $cache = $this->getMock("\\Cougar\\Cache\\Cache");
         
-        $pdo = new PDO("mysql:");
+        $pdo = new PDO("sqlite::memory:");
         
         $object = new PdoModelUnitTest($security, $cache, $pdo);
         $object->userId = "userId value";
@@ -898,7 +898,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -1031,7 +1031,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -1092,7 +1092,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -1154,7 +1154,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->with($this->equalTo(
@@ -1181,7 +1181,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         
         $cache = $this->getMock("\\Cougar\\Cache\\Cache");
         
-        $pdo = new PDO("mysql:");
+        $pdo = new PDO("sqlite::memory:");
         
         $object = new PdoModelUnitTest($security, $cache, $pdo);
         
@@ -1207,7 +1207,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
         
         $cache = $this->getMock("\\Cougar\\Cache\\Cache");
         
-        $pdo = new PDO("mysql:");
+        $pdo = new PDO("sqlite::memory:");
         
         $object = new PdoModelUnitTest($security, $cache, $pdo);
         $object->save();
@@ -1230,7 +1230,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->never())
             ->method("prepare");
 
@@ -1257,7 +1257,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->never())
             ->method("prepare");
 
@@ -1298,7 +1298,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->will($this->returnValue($pdo_statement));
@@ -1341,7 +1341,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("prepare")
             ->will($this->returnValue($pdo_statement));
@@ -1370,7 +1370,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $pdo = $this->getMock("\\PDO",
             array("prepare"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->never())
             ->method("prepare");
 

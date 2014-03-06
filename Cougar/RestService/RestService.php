@@ -304,8 +304,11 @@ class RestService implements iRestService
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.06:
+     *   (AT)  Use the headers() method to extract all headers; then extract
+     *         from the list
      *
-     * @version 2013.09.30
+     * @version 2014.03.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param string $header Header name
@@ -315,6 +318,18 @@ class RestService implements iRestService
      */
     public function header($header, $type = "string", $default = null)
     {
+        # See if we already have the headers
+        if (! $this->headers)
+        {
+            # Get all the headers
+            $this->headers();
+
+            # Create the header map
+            $this->headerMap = array_combine(
+                array_keys(array_change_key_case($this->headers)),
+                array_keys($this->headers));
+        }
+
         # Handle special headers that are not in the HTTP_* form
         switch(strtolower($header))
         {
@@ -327,25 +342,28 @@ class RestService implements iRestService
         }
         
         # See if the header exists
-        $array_key = "HTTP_" . str_replace("-", "_", strtoupper($header));
-        if (array_key_exists($array_key, $_SERVER))
+        $lc_header = strtolower($header);
+        if (array_key_exists($lc_header, $this->headerMap))
         {
+            # Get the value of the header
+            $value = $this->headers[$this->headerMap[$lc_header]];
+
             # See what we will be returning
             switch ($type)
             {
                 case "string":
                 default:
-                    return $_SERVER[$array_key];
+                    return $value;
                     break;
                 case "int":
-                    return (int) $_SERVER[$array_key];
+                    return (int) $value;
                     break;
                 case "float":
-                    return (float) $_SERVER[$array_key];
+                    return (float) $value;
                     break;
                 case "bool":
-                    $value = $_SERVER[$array_key];
-                    return Format::strToBool($value, true);
+                    Format::strToBool($value, true);
+                    return $value;
                     break;
             }
         }
@@ -991,8 +1009,10 @@ class RestService implements iRestService
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.06:
+     *   (AT)  Fixed call to get headers
      *
-     * @version 2013.09.30
+     * @version 2014.03.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @return string Raw request
@@ -1003,7 +1023,7 @@ class RestService implements iRestService
         $raw_request = "";
         
         # Go through all the headers
-        foreach($this->headers as $header => $value)
+        foreach($this->headers() as $header => $value)
         {
             $raw_request .= $header . ": " . $value . "\n";
         }
@@ -1068,7 +1088,12 @@ class RestService implements iRestService
      * @var array Associative array with the request headers
      */
     protected $headers = null;
-    
+
+    /**
+     * @var array Map from lower-case header names to the actual header name
+     */
+    protected $headerMap = array();
+
     /**
      * @var string The request method, here for easy access
      */

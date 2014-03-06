@@ -110,7 +110,7 @@ class RestServiceTest extends \PHPUnit_Framework_TestCase {
             #    "application/xml;q=0.9,*/*;q=0.8"),
             "Accept" => "application/json;version=2,application/json," .
                 "application/xml;q=0.8,text/html;q=0.5"),
-            $this->object->Headers());
+            $this->object->headers());
     }
 
     /**
@@ -263,9 +263,9 @@ class RestServiceTest extends \PHPUnit_Framework_TestCase {
      * @covers \Cougar\RestService\RestService::sendResponse
      */
     public function testSendResponseWithTransactionCoordinatorCommit() {
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("commit", "rollBack"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->once())
             ->method("commit")
             ->will($this->returnValue(true));
@@ -283,9 +283,9 @@ class RestServiceTest extends \PHPUnit_Framework_TestCase {
      * @covers \Cougar\RestService\RestService::sendResponse
      */
     public function testSendResponseWithTransactionCoordinatorRollback() {
-        $pdo = $this->getMock("\PDO",
+        $pdo = $this->getMock("\\PDO",
             array("commit", "rollBack"),
-            array("mysql:"));
+            array("sqlite::memory:"));
         $pdo->expects($this->never())
             ->method("commit");
         $pdo->expects($this->once())
@@ -300,12 +300,9 @@ class RestServiceTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\RestService\RestService::rawRequest
-     * @todo   Implement testRawRequest().
      */
     public function testRawRequest() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $raw_request = $this->object->rawRequest();
+        $this->assertNotEmpty($raw_request);
     }
 }
