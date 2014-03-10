@@ -4,6 +4,7 @@ namespace Cougar\PDO;
 
 use Cougar\Util\Config;
 use Cougar\Util\Arc4;
+use Cougar\Util\Format;
 use Cougar\Util\StringObfuscator;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\ConfigurationFileNotFoundException;
@@ -80,8 +81,10 @@ class PDOFactory
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.10:
+     *   (AT)  Allow connection files to have a persistence flag
      *
-     * @version 2013.09.30
+     * @version 2014.03.10
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $name
@@ -160,6 +163,8 @@ class PDOFactory
         $dsn = $config->value("dsn");
         $orig_username = $config->value("username");
         $orig_password = $config->value("password");
+        $persistent = $config->value("persistent");
+        Format::strToBool($persistent);
         
         if (! $dsn)
         {
@@ -186,9 +191,18 @@ class PDOFactory
             $username = Arc4::decode($username);
             $password = Arc4::decode($password);
         }
-        
-        # Return the new database connection
-        return new PDO($dsn, $username, $password);
+
+        # See if we are establishing a persistent connection
+        if ($persistent)
+        {
+            return new PDO($dsn, $username, $password,
+                array(PDO::ATTR_PERSISTENT => true));
+        }
+        else
+        {
+            # Return the new database connection
+            return new PDO($dsn, $username, $password);
+        }
     }
 
     /**
@@ -199,8 +213,10 @@ class PDOFactory
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.10:
+     *   (AT)  Add support for persistent connections
      *
-     * @version 2013.09.30
+     * @version 2014.03.10
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $name
@@ -217,11 +233,14 @@ class PDOFactory
      *   Encoding to use (Arc4 or Obfuscation)
      * @param string $arc4_config_file
      *   Configuration file with ARC4 parameters
+     * @param bool $persistent
+     *   Whether to establish a persistent connection
      * @return string Filename of created file
      * @throws \Cougar\Exceptions\Exception
      */
     static public function createConnectionFile($name, $environment, $dsn,
-        $username, $password, $encoding = "Arc4", $arc4_config_file = null)
+        $username, $password, $encoding = "Arc4", $arc4_config_file = null,
+        $persistent = false)
     {
         # Make sure we have a name
         if (! $name)
@@ -268,6 +287,16 @@ class PDOFactory
         {
             $arc4_config_line = "arc4 = " . $arc4_config_file;
         }
+
+        # See if the connection is persistent
+        if ($persistent)
+        {
+            $persistence_string = "yes";
+        }
+        else
+        {
+            $persistence_string = "no";
+        }
         
         # Create the contents of the file
         $file =
@@ -279,6 +308,7 @@ class PDOFactory
 dsn = " . $dsn . "
 username = " . $enc_username . "
 password = " . $enc_password . "
+persistent = " . $persistence_string . "
 " . $arc4_config_line . "
 
 # End Database connection File

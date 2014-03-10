@@ -33,17 +33,21 @@ require_once(__DIR__ . "/../../cougar.php");
 
 
 echo("\n");
-echo("How do you plan to provide the encryption key?
+echo("How would you like to protect the password?
 
-    1. I will enter it manually
-    2. Load it from a file
-    3. I will use Obfuscation (no key required)\n\n");
+    1. With Obfuscation (no key required)
+    2. With ARC4; I'll enter the encryption key manually
+    3. With ARC4; the encryption key is stored in a file\n\n");
 
 $use_obfuscation = false;
 $arc4_filename = null;
 switch(getUserInput("Encryption key source", range(1, 3)))
 {
     case "1":
+        echo("\n");
+        $use_obfuscation = true;
+        break;
+    case "2":
         echo("\n");
         $enc_key = "";
         while (! $enc_key)
@@ -78,7 +82,7 @@ switch(getUserInput("Encryption key source", range(1, 3)))
             Arc4::useCompression(true);
         }
         break;
-    case "2":
+    case "3":
         echo("\n");
         $enc_key = false;
         while(! $enc_key)
@@ -114,10 +118,6 @@ switch(getUserInput("Encryption key source", range(1, 3)))
                 }
             }
         }
-        break;
-    case "3":
-        echo("\n");
-        $use_obfuscation = true;
         break;
 }
 
@@ -260,6 +260,21 @@ while (! $username)
 }
 $password = getUserInput("Enter the password");
 
+echo("\n");
+echo("Use persistent connections (recommended for Oracle only)?
+
+    1. No
+    2. Yes\n\n");
+
+switch(getUserInput("Persistent connection", range(1,2)))
+{
+    case 1:
+        $persistent = false;
+        break;
+    case 2:
+        $persistent = true;
+        break;
+}
 
 echo("\n");
 $connection_name = "";
@@ -282,7 +297,7 @@ else
 
 # Create the file
 $filename = PDOFactory::createConnectionFile($connection_name, $environment,
-    $dsn, $username, $password, $encoding, $arc4_filename);
+    $dsn, $username, $password, $encoding, $arc4_filename, $persistent);
 echo("\nConnection file " . $filename . " has been created.\n");
 
 
