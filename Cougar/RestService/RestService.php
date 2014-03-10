@@ -654,8 +654,8 @@ class RestService implements iRestService
      * Negotiates the mime type for the response based on the values of the
      * Accept header and the provided list of mime types which the service can
      * provide. If the Accept header is missing, then the first mime type will
-     * be returned. If no negotation can be achieved and the strict flag is set,
-     * a 406 response should be sent to the browser.
+     * be returned. If no negotiation can be achieved and the strict flag is
+     * set, a 406 response should be sent to the browser.
      *
      * @history
      * 2013.09.30:

@@ -39,12 +39,14 @@ use Cougar\Exceptions\NotAcceptableException;
  *         URI but accepted different content types
  *   (AT)  Extract annotations using extractFromObjectWithInheritance() method
  *         and enable inheritance from interfaces
+ * 2014.03.10:
+ *   (AT)  Improve matching of root-level paths (like / and /:id)
  *
- * @version 2014.02.26
+ * @version 2014.03.10
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -98,7 +100,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
     
     /**
      * Binds all the services in the given object. This call can be made as
-     * many timeas as necessary to bind all necessary services.
+     * many times as as necessary to bind all necessary services.
      *
      * @history
      * 2013.09.30:
@@ -109,8 +111,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * 2014.02.26:
      *   (AT)  Extract annotations using extractFromObjectWithInheritance()
      *         method and enable inheritance from interfaces
+     * 2014.03.10:
+     *   (AT)  Add ^/ to the path regex to match explicitly on the beginning of
+     *         the path
      *
-     * @version 2014.02.26
+     * @version 2014.03.10
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param object $object_reference
@@ -459,8 +464,8 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                         $subpath = $param_regex;
                     }
 
-                    # Reconstruct the path
-                    $new_path = implode("/", $path);
+                    # Reconstruct the path from the new regex values
+                    $new_path = "^/" . implode("/", $path);
                     
                     # Add the binding
                     $bindings[$new_path][] = $real_binding;
