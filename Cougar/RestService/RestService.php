@@ -990,30 +990,46 @@ class RestService implements iRestService
     /**
      * Returns the entire request, as a string, as received by the browser.
      *
+     * Because there is no way to capture the actual request byte-per-byte, this
+     * method recreates it as best it can. So even though it wont be identical
+     * it will be pretty close.
+     *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
      * 2014.03.06:
      *   (AT)  Fixed call to get headers
+     * 2014.03.11:
+     *   (AT)  Don't read the body from php://input directly
+     *   (AT)  Add the initial request line
      *
-     * @version 2014.03.06
+     * @version 2014.03.11
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @return string Raw request
      */
     public function rawRequest()
     {
-        # There is no way to get the raw request in PHP, so we will recreate it
-        $raw_request = "";
+        # There is no way to get the raw request in PHP, so we will recreate it;
+        # Start with the request line
+        $raw_request = $this->method() . " " . $this->uri() . " " .
+            $_SERVER["SERVER_PROTOCOL"];
         
         # Go through all the headers
         foreach($this->headers() as $header => $value)
         {
             $raw_request .= $header . ": " . $value . "\n";
         }
-        
-        # Add the body and return the data
-        return "\n" . $raw_request . file_get_contents("php://input");
+
+        # Add the body, if we have any
+        $body = $this->body();
+        if ($body)
+        {
+            $raw_request .= "\n" . $body;
+        }
+
+        # Return the recreated raw request
+        return $raw_request;
     }
     
     /**

@@ -35,7 +35,7 @@ interface iXml
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-     * 
+     *
      * @param mixed $data
      *   The data to convert
      * @param string $root_element
