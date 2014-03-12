@@ -11,6 +11,8 @@ class Binding extends Struct
 {
     public $object = null;
     public $method = null;
+    public $pathArgumentCount = 0;
+    public $literalPathArgumentCount = 0;
     public $http_methods = array();
     public $accepts = null;
     public $returns = null;

@@ -45,6 +45,26 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
      * @covers \Cougar\RestService\RestService::bindFromObject
      * @covers \Cougar\RestService\RestService::handleRequest
      */
+    public function testSimpleCaseWithExtraSlash() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/SimpleCase/";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize($object->simpleCase()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
     public function testSingleUriArgument() {
         $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
         $_SERVER["REQUEST_METHOD"] = "GET";

@@ -138,8 +138,9 @@ class Arrays implements iArrays
     }
 
     /**
-     * Sorts a 2-dimensional array that represents a record set by the specified
-     * indexes in the second array or object property, in ascending order.
+     * Sorts a 2-dimensional array with a record set or an array of objects by
+     * the specified indexes in the second array or properties in the object,
+     * in ascending order.
      * 
      * This method is a simpler interface to array_multisort() function. See
      * Example 3 in the PHP documentation for implementation details.
@@ -211,7 +212,7 @@ class Arrays implements iArrays
             }
         }
         
-        # Come up with the arugment list
+        # Come up with the argument list
         $arguments = array();
         
         foreach($sort_values as $sort_value)
@@ -223,7 +224,7 @@ class Arrays implements iArrays
         # Add the array to sort at the end of the arguments
         $arguments[] = &$array;
         
-        # Call array_multisort with the arugments
+        # Call array_multisort with the arguments
         call_user_func_array("array_multisort", $arguments);
         
         # Return the sorted array

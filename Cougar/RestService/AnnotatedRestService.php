@@ -5,6 +5,7 @@ namespace Cougar\RestService;
 use Cougar\Security\iSecurity;
 use Cougar\Cache\CacheFactory;
 use Cougar\Util\Annotations;
+use Cougar\Util\Arrays;
 use Cougar\Util\Format;
 use Cougar\Util\QueryParameter;
 use Cougar\Util\Xml;
@@ -41,8 +42,12 @@ use Cougar\Exceptions\NotAcceptableException;
  *         and enable inheritance from interfaces
  * 2014.03.10:
  *   (AT)  Improve matching of root-level paths (like / and /:id)
+ * 2014.03.12:
+ *   (AT)  Ignore trailing slashes in the URI
+ *   (AT)  Improve URI matching by considering the total number of argumetns and
+ *         the number of literal arguments
  *
- * @version 2014.03.10
+ * @version 2014.03.12
  * @package Cougar
  * @license MIT
  *
@@ -114,8 +119,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * 2014.03.10:
      *   (AT)  Add ^/ to the path regex to match explicitly on the beginning of
      *         the path
+     * 2014.03.12:
+     *   (AT)  Require a URI parameter to contain at least one character
+     *   (AT)  Add the number of URI parameters and literals to the binding
      *
-     * @version 2014.03.10
+     * @version 2014.03.12
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param object $object_reference
@@ -395,6 +403,9 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                     $path = explode("/", $str_path);
                     array_shift($path);
 
+                    # Add the number of URI parameters to the binding
+                    $real_binding->pathArgumentCount = count($path);
+
                     # Go through each part of the path
                     foreach($path as $index => &$subpath)
                     {
@@ -402,22 +413,30 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                         $subpath_parts = explode(":", $subpath, 4);
                         $subpath_count = count($subpath_parts);
 
-                        # Skip empty or literal expressions
+                        # See if this is a literal argument
                         if ($subpath_count < 2)
                         {
+                            # Increase the literal argument count
+                            $real_binding->literalPathArgumentCount++;
+
+                            # Go on to the next argument
                             continue;
                         }
 
-                        # Define the new parameter, its name and regex expression
+                        # Define the new parameter, its name and regex
+                        # expression, and add the number of path parameters
                         $parameter = new Parameter();
                         $param_name = "";
                         if (mb_substr($subpath, -1) == "+")
                         {
                             $param_regex = ".*";
+
+                            # Declare the number of arguments to be 1000
+                            $real_binding->pathArgumentCount = 1000;
                         }
                         else
                         {
-                            $param_regex = "[^/]*";
+                            $param_regex = "[^/]+";
                         }
 
                         # See how many parts we have
@@ -499,8 +518,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * 2014.02.26:
      *   (AT)  Fix bug where continue would only exit case statement rather than
      *         going to the next binding when evaluating content-type
+     * 2014.03.12:
+     *   (AT)  Sort bindings by number of parameters, number of literal
+     *         parameters and finally by pattern; improves binding accuracy
      *
-     * @version 2014.02.26
+     * @version 2014.03.12
      *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * @throws \Cougar\Exceptions\Exception
@@ -511,15 +533,30 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      */
     public function handleRequest()
     {
+        # Grab some of the global variables
         global $_PATH;
         global $_METHOD;
-        
-        # Go through the bindings in reverse path sort order (from most specific
-        # to least specific path) and find those which match the URI pattern and
+
+        # Sort the bindings from most specific to least specific
+        $path_argument_counts = array();
+        $literal_path_argument_counts = array();
+        $patterns = array();
+        foreach($this->bindings as $pattern => $method_bindings)
+        {
+            $path_argument_counts[$pattern] =
+                $method_bindings[0]->pathArgumentCount;
+            $literal_path_argument_counts[$pattern] =
+                $method_bindings[0]->literalPathArgumentCount;
+            $patterns[$pattern] = $pattern;
+        }
+        array_multisort($path_argument_counts, SORT_DESC,
+            $literal_path_argument_counts, SORT_DESC,
+            $patterns, SORT_NATURAL, $this->bindings);
+
+        # Go through the bindings and find those which match the URI pattern and
         # HTTP method
         $method_list = array();
         $http_method_mismatch = false;
-        krsort($this->bindings);
         foreach($this->bindings as $pattern => $method_bindings)
         {
             # See if the pattern matches

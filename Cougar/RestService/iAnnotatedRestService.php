@@ -6,9 +6,14 @@ namespace Cougar\RestService;
  * Extends the RestService interface and adds the ability to create secure, web
  * service bindings based on annotations on a method's documentation block.
  * When services are bound and you call the handleRequest() method, the object
- * will find the appropriate method call to use, authenticate the caller (f
- * needed) and call the method and generate a response from the method's return
+ * will find the appropriate method call to use, authenticate the caller (if
+ * required) call the method, and generate a response from the method's return
  * value.
+ *
+ * Annotations can be specified either in a class, or in the interface
+ * implemented by the class. If you adhere to Interface Driven Development (IDD)
+ * principles, the annotations should exist at the interface level since this is
+ * where the API contract is established.
  * 
  * The annotation name is case sensitive, with all other aspects being
  * case-insensitive. Paths are case sensitive. The supported annotations are:
@@ -28,13 +33,19 @@ namespace Cougar\RestService;
  * 
  * @Accepts JSON|XML|PHP|mime/type
  *   A list of mime types the call will accept. You may use the generic JSON,
- *   XML and PHP keywords for their respective types. If this annoation is
+ *   XML and PHP keywords for their respective types. If this annotation is
  *   omitted, the method will be called with any incoming data type.
  * 
  * @Returns JSON|XML|PHP|mime/type
  *   The type of data the method will return. This makes it possible to separate
  *   calls to handle different data output types. If this annotation is omitted,
  *   the method will be called on any requested data type.
+ *
+ * @Resource resource_name
+ *   Provide an alternative name to the resource. Usually the resource name is
+ *   the unqualified name of the object that is returned. When only primitives
+ *   are returned or you wish to use a different name, use this annotation to
+ *   specify the alternative name.
  * 
  * @XmlRootElement name
  *   This value will set the name of the root element when converting a response
@@ -75,7 +86,7 @@ namespace Cougar\RestService;
  *   is the same as the method's name, you only need to specify it once.
  * 
  * @GetQuery method_param_name
- *   Parses the URI's GET query into a list of QueryParamter objects and passes
+ *   Parses the URI's GET query into a list of QueryParameter objects and passes
  *   them as the given method parameter.
  * 
  * @PostArray method_param_name
@@ -87,7 +98,7 @@ namespace Cougar\RestService;
  * 
  * @Body [method_param_name] [XML|OBJECT|ARRAY|PHP]
  *   Binds the body with the method's variable. If the name of the variable
- *   is ommitted, the $body variable will used. Optionally, you may specify that
+ *   is omitted, the $body variable will used. Optionally, you may specify that
  *   the data must be parsed and that the resulting object should be passed
  *   instead. If the data comes in XML, using XML will return data in a
  *   SimpleXmlObject. If the data comes in as JSON and OBJECT is specified, it will
@@ -133,7 +144,7 @@ interface iAnnotatedRestService extends iRestService
     
     /**
      * Binds all the services in the given object. This call can be made as
-     * many time as as necessary to bind all necessary objects.
+     * many time as necessary to bind as many objects as desired.
      *
      * @history
      * 2013.09.30:
