@@ -903,6 +903,150 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
         $service->bindFromObject($object);
         $service->handleRequest();
     }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testMultiParameterRegexAlphanumericId() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/id/regex/123456789";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize(
+            $object->getWithMultiParameterRegex(null, 123456789)));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testMultiParameterRegexNumericId() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/id/regex/abc123";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize(
+            $object->getWithMultiParameterRegex("abc123", null)));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testMultiParameterRegexInvalidId() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/id/regex/12345678901234567890";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testVariableRegexWithYearQuarter() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/variable/regex/2014Q1/sales";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize($object->getWithVariableRegex(
+            '2014Q1', null, null, "sales")));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testVariableRegexWithYearAndQuarter() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/variable/regex/2014/1/sales";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize($object->getWithVariableRegex(
+            null, "2014", "1", "sales")));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testVariableRegexInvalidQuarter() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/variable/regex/2014Q8/sales";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testVariableRegexInvalidQuarter2() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/variable/regex/2014/8/sales";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 }
 
 class AnnotatedRestServiceGetTests
@@ -1131,10 +1275,32 @@ class AnnotatedRestServiceGetTests
     }
 
     /**
-     * @Path /get/with/regex/:value::[A-Za-z0-9]{1,8}
+     * @Path /get/with/regex/:value::[[:alnum:]]{1,8}
      * @Methods GET
      */
     public function getWithAlphanumericRegex($value)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+
+    /**
+     * @Path /get/with/id/regex/:id::[[:alnum:]]{1,8}
+     * @Path /get/with/id/regex/:num_id:int:[0-9]{9}
+     * @Methods GET
+     */
+    public function getWithMultiParameterRegex($id, $num_id = null)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+
+    /**
+     * @Path /get/variable/regex/:year_quarter::[0-9]{4}Q[1-4]/:report
+     * @Path /get/variable/regex/:year::[0-9]{4}/:quarter::[1-4]/:report
+     */
+    public function getWithVariableRegex($year_quarter, $year, $quarter,
+        $report)
     {
         return array("method" => __FUNCTION__,
             "arguments" => func_get_args());

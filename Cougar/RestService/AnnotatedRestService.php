@@ -5,9 +5,6 @@ namespace Cougar\RestService;
 use Cougar\Security\iSecurity;
 use Cougar\Cache\CacheFactory;
 use Cougar\Util\Annotations;
-use Cougar\Util\Arrays;
-use Cougar\Util\Format;
-use Cougar\Util\QueryParameter;
 use Cougar\Util\Xml;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\AuthenticationRequiredException;
@@ -52,6 +49,9 @@ use Cougar\Exceptions\NotAcceptableException;
  *         exactly (makes matching more strict)
  *   (AT)  Make sure variable path parameters with regular expressions get
  *         passed to the method at run time
+ * 2014.03.14:
+ *   (AT)  Make sure regex classes (like [[:alpha:]]) work in the path
+ *         annotation
  *
  * @version 2014.03.14
  * @package Cougar
@@ -554,6 +554,8 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      *         parameters and finally by pattern; improves binding accuracy
      * 2014.03.14:
      *   (AT)  Remove single trailing slashes from the URI path
+     *   (AT)  Use the backtick (`) as the regex delimiter to allow the colon
+     *         to be used in regex classes
      *
      * @version 2014.03.14
      *
@@ -599,7 +601,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
         foreach($this->bindings as $pattern => $method_bindings)
         {
             # See if the pattern matches
-            if (preg_match(":" . $pattern . ":u", $_PATH))
+            if (preg_match("`" . $pattern . "`u", $_PATH))
             {
                 # See if we are dealing with an OPTIONS request
                 if ($_METHOD == "OPTIONS")
