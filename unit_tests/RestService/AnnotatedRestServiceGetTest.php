@@ -25,6 +25,46 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
      * @covers \Cougar\RestService\RestService::bindFromObject
      * @covers \Cougar\RestService\RestService::handleRequest
      */
+    public function testRootPath() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+        
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize($object->rootPath()));
+        
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testRootLiteral() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/literal";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize($object->rootLiteral()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
     public function testSimpleCase() {
         $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
         $_SERVER["REQUEST_METHOD"] = "GET";
@@ -32,10 +72,10 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
         $_SERVER["PHP_SELF"] = "/request_handler";
         $_SERVER["HTTP_HOST"] = "localhost";
         $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
-        
+
         $object = new AnnotatedRestServiceGetTests();
         $this->expectOutputString(serialize($object->simpleCase()));
-        
+
         $service = new AnnotatedRestService(new Security());
         $service->bindFromObject($object);
         $service->handleRequest();
@@ -325,7 +365,7 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
      * @covers \Cougar\RestService\RestService::handleRequest
      * @expectedException \Cougar\Exceptions\BadRequestException
      */
-    public function testNonExistantEndPoint() {
+    public function testNonExistentEndPoint() {
         $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
         $_SERVER["REQUEST_METHOD"] = "GET";
         $_SERVER["REQUEST_URI"] = "/whatever";
@@ -739,10 +779,154 @@ class AnnotatedRestServiceTestGet extends \PHPUnit_Framework_TestCase {
         $service->bindFromObject($object);
         $service->handleRequest();
     }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testLiteralRegexThis() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/regex/literal/this";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize(
+            $object->getWithLiteralRegexThisThat()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testLiteralRegexThat() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/regex/literal/that";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize(
+            $object->getWithLiteralRegexThisThat()));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testLiteralRegexSomethingElse() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/regex/literal/something_else";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testRegexNumeric() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/regex/123456789";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize(
+            $object->getWithNumericRegex(123456789)));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     */
+    public function testRegexAlphanumeric() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/regex/abc123";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+        $this->expectOutputString(serialize(
+            $object->getWithAlphanumericRegex("abc123")));
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
+
+    /**
+     * @covers \Cougar\RestService\RestService::bindFromObject
+     * @covers \Cougar\RestService\RestService::handleRequest
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testRegexIncorrectValue() {
+        $_SERVER["SERVER_PROTOCOL"] = "HTTP/1.1";
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_SERVER["REQUEST_URI"] = "/get/with/regex/something_else";
+        $_SERVER["PHP_SELF"] = "/request_handler";
+        $_SERVER["HTTP_HOST"] = "localhost";
+        $_SERVER["HTTP_ACCEPT"] = "application/vnd.php.serialized";
+
+        $object = new AnnotatedRestServiceGetTests();
+
+        $service = new AnnotatedRestService(new Security());
+        $service->bindFromObject($object);
+        $service->handleRequest();
+    }
 }
 
 class AnnotatedRestServiceGetTests
 {
+    /**
+     * @Path /
+     * @Methods GET
+     */
+    public function rootPath()
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+
+    /**
+     * @Path /literal
+     * @Methods GET
+     */
+    public function rootLiteral()
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+
     /**
      * @Path /get/SimpleCase
      * @Methods GET
@@ -924,6 +1108,36 @@ class AnnotatedRestServiceGetTests
     public function getReturnMagicMethod()
     {
         return new SampleObjectWithXmlAndHtmlExport();
+    }
+
+    /**
+     * @Path /get/with/regex/literal/this|that
+     * @Methods GET
+     */
+    public function getWithLiteralRegexThisThat()
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+
+    /**
+     * @Path /get/with/regex/:value:int:[0-9]{9}
+     * @Methods GET
+     */
+    public function getWithNumericRegex($value)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
+    }
+
+    /**
+     * @Path /get/with/regex/:value::[A-Za-z0-9]{1,8}
+     * @Methods GET
+     */
+    public function getWithAlphanumericRegex($value)
+    {
+        return array("method" => __FUNCTION__,
+            "arguments" => func_get_args());
     }
 }
 

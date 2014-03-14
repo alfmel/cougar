@@ -44,10 +44,16 @@ use Cougar\Exceptions\NotAcceptableException;
  *   (AT)  Improve matching of root-level paths (like / and /:id)
  * 2014.03.12:
  *   (AT)  Ignore trailing slashes in the URI
- *   (AT)  Improve URI matching by considering the total number of argumetns and
+ *   (AT)  Improve URI matching by considering the total number of arguments and
  *         the number of literal arguments
+ * 2014.03.14:
+ *   (AT)  Make sure the root path (/) is always matched last
+ *   (AT)  Add $ to path regular expression to make sure URIs match paths
+ *         exactly (makes matching more strict)
+ *   (AT)  Make sure variable path parameters with regular expressions get
+ *         passed to the method at run time
  *
- * @version 2014.03.12
+ * @version 2014.03.14
  * @package Cougar
  * @license MIT
  *
@@ -122,8 +128,13 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * 2014.03.12:
      *   (AT)  Require a URI parameter to contain at least one character
      *   (AT)  Add the number of URI parameters and literals to the binding
+     * 2014.03.14:
+     *   (AT)  Fix matching of root paths (those are simply /)
+     *   (AT)  Add $ to end of regex to be more exact on path matching
+     *   (AT)  Make sure to set the parameter name when the parameter contains a
+     *         regular expression
      *
-     * @version 2014.03.12
+     * @version 2014.03.14
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param object $object_reference
@@ -191,7 +202,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                             $paths[] = $annotation->value;
                             break;
                         case "Methods":
-                            $binding->http_methods = preg_split("/\s+/u",
+                            $binding->http_methods = preg_split('/\s+/u',
                                 mb_strtoupper($annotation->value));
                             break;
                         case "Accepts":
@@ -240,7 +251,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                             $parameter = new Parameter();
                             
                             # Split the values at word boundaries
-                            $values = preg_split("/\s+/u", $annotation->value,
+                            $values = preg_split('/\s+/u', $annotation->value,
                                 3);
                             
                             # See how many values we have
@@ -281,7 +292,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                             $parameter = new Parameter();
 
                             # Split the values at word boundaries
-                            $values = preg_split("/\s+/u", $annotation->value,
+                            $values = preg_split('/\s+/u', $annotation->value,
                                 3);
 
                             # See how many values we have
@@ -315,7 +326,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                             $parameter = new Parameter();
                             
                             # Split the values at word boundaries
-                            $values = preg_split("/\s+/u", $annotation->value,
+                            $values = preg_split('/\s+/u', $annotation->value,
                                 3);
                             
                             # See how many values we have
@@ -356,7 +367,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                             $parameter = new Parameter();
             
                             # Split the values at word boundaries
-                            $values = preg_split("/\s+/u", $annotation->value,
+                            $values = preg_split('/\s+/u', $annotation->value,
                                 2);
 
                             # See how many values we have
@@ -398,13 +409,31 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                 {
                     # Clone the binding
                     $real_binding = clone $binding;
-                    
-                    # Split the path and get rid of first argument (blank)
-                    $path = explode("/", $str_path);
-                    array_shift($path);
 
-                    # Add the number of URI parameters to the binding
-                    $real_binding->pathArgumentCount = count($path);
+                    # Remote leading and trailing slashes on the path
+                    $str_path = preg_replace(':^/|/$:', "", $str_path);
+
+                    # Separate the path elements by the backslash
+                    $path = explode("/", $str_path);
+
+                    # See if the first element is blank (usually the case)
+                    if ($path[0] === "")
+                    {
+                        # Get rid of the element
+                        array_shift($path);
+                    }
+
+                    # Check for root path (a simple / for the path)
+                    if (count($path) == 1 && $path[0] === "")
+                    {
+                        # The number of URI parameters is 0
+                        $real_binding->pathArgumentCount = 0;
+                    }
+                    else
+                    {
+                        # Add the number of URI parameters to the binding
+                        $real_binding->pathArgumentCount = count($path);
+                    }
 
                     # Go through each part of the path
                     foreach($path as $index => &$subpath)
@@ -416,6 +445,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                         # See if this is a literal argument
                         if ($subpath_count < 2)
                         {
+                            # See if we had a value (useful for root path)
                             # Increase the literal argument count
                             $real_binding->literalPathArgumentCount++;
 
@@ -440,10 +470,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                         }
 
                         # See how many parts we have
-                        switch (count($subpath_parts))
+                        switch ($subpath_count)
                         {
                             case 4:
                                 # :param_name:type:regex
+                                $param_name = $subpath_parts[1];
                                 $parameter->source = "URI";
                                 $parameter->index = $index;
                                 $parameter->type = $subpath_parts[2];
@@ -484,7 +515,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                     }
 
                     # Reconstruct the path from the new regex values
-                    $new_path = "^/" . implode("/", $path);
+                    $new_path = "^/" . implode("/", $path) . "$";
                     
                     # Add the binding
                     $bindings[$new_path][] = $real_binding;
@@ -521,8 +552,10 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * 2014.03.12:
      *   (AT)  Sort bindings by number of parameters, number of literal
      *         parameters and finally by pattern; improves binding accuracy
+     * 2014.03.14:
+     *   (AT)  Remove single trailing slashes from the URI path
      *
-     * @version 2014.03.12
+     * @version 2014.03.14
      *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * @throws \Cougar\Exceptions\Exception
@@ -536,6 +569,12 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
         # Grab some of the global variables
         global $_PATH;
         global $_METHOD;
+
+        # Remove trailing slash from the path
+        if (mb_strlen($_PATH) > 1)
+        {
+            $_PATH = preg_replace(':/$:', "", $_PATH);
+        }
 
         # Sort the bindings from most specific to least specific
         $path_argument_counts = array();

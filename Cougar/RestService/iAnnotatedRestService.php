@@ -18,13 +18,20 @@ namespace Cougar\RestService;
  * The annotation name is case sensitive, with all other aspects being
  * case-insensitive. Paths are case sensitive. The supported annotations are:
  * 
- * @Path /uri/path/[:named_param[:type[:optional_regex_match]]/:param_array][+]
- *   The @Path annotation provides one or more matching URI patterns for the
- *   service. The name of the named parameters must match the name of one of
- *   the arguments in the function. You may also provide a regular expression
- *   to validate the field. If you have a variable number of parameters,
- *   you may specify a + at the end of the path. If you provide a named
- *   parameter, an array with the values will be passed to the method.
+ * @Path /uri/path[/:named_param[:type[:optional_regex_match]]][/:param_array+]
+ *   The Path annotation provides one or more matching URI patterns for the
+ *   service. By prefixing a colon to a path element the element will be treated
+ *   as a method parameter that will be passed to the method at call time. The
+ *   name of the parameter must match the method's parameter name. Parameters
+ *   can have an optional scalar type. At run time the parameter will be cast to
+ *   that given type. Parameters can also include a regular expression to limit
+ *   the values that are accepted by the method.
+ *
+ *   If you have a varying number of parameters, you may specify a + at the end
+ *   of the parameter name to collect all remaining parameters into an array.
+ *
+ *   The path literals (those areas that are not tied to parameters) may also
+ *   contain regular expressions (for example, /path/to/[0-9]/resource).
  * 
  * @Methods GET|POST|PUT|DELETE
  *   A list of methods the function will handle. Multiple values are separated
