@@ -1,6 +1,6 @@
 <?php
 
-namespace Cougar\UniTests\Model;
+namespace Cougar\UnitTests\Model;
 
 use PDO;
 use Cougar\Model\PdoModel;

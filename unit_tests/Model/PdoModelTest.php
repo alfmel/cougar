@@ -1,6 +1,6 @@
 <?php
 
-namespace Cougar\UniTests\Model;
+namespace Cougar\UnitTests\Model;
 
 use PDO;
 use Cougar\Model\PdoModel;
@@ -36,7 +36,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @var \Cougar\UniTests\Model\PdoModelUnitTest
+     * @var \Cougar\UnitTests\Model\PdoModelUnitTest
      */
     public static $pdoFetchIntoObject;
 
@@ -1463,7 +1463,7 @@ class PdoModelUnitTest extends PdoModel
  * @Allow QUERY
  * @QueryUnique
  */
-class PdoModelUnitTeustQueryUnique extends PdoModelUnitTest
+class PdoModelUnitTestQueryUnique extends PdoModelUnitTest
 {
 
 }
