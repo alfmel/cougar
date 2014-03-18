@@ -296,6 +296,17 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
      */
     public function testExtractFromClassInheritedClass()
     {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+
+        Annotations::$cache = $local_cache;
+
         # Extract the annotations from the class name
         $annotations = Annotations::extractFromObject(
             __NAMESPACE__ . "\\ExtendedBasicAnnotationTest");
@@ -365,6 +376,17 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
      */
     public function testExtractFromClassInheritedClassNotAllMembers()
     {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+
+        Annotations::$cache = $local_cache;
+
         # Extract the annotations from the class name
         $annotations = Annotations::extractFromObject(
             __NAMESPACE__ . "\\ExtendedBasicAnnotationTest", false);
@@ -409,7 +431,18 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers Cougar\Util\Annotations::extractFromObjectWithInheritance
      */
-    public function testExtractFromObjectwithInheritance() {
+    public function testExtractFromObjectWithInheritance() {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+
+        Annotations::$cache = $local_cache;
+
         # Extract the annotations from the class name
         $annotations = Annotations::extractFromObjectWithInheritance(
             __NAMESPACE__ . "\\ExtendedBasicAnnotationTest");
@@ -563,6 +596,8 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
             ->method("set")
             ->will($this->returnValue(false));
 
+        Annotations::$cache = $local_cache;
+
         # Create the object and extract annotations
         $object = new BasicTraitAnnotationTest();
         $annotations = Annotations::extract($local_cache, $object);
@@ -604,6 +639,17 @@ class AnnotationsTest extends \PHPUnit_Framework_TestCase {
      */
     public function testInterfaceAnnotationsFromObjectWithInheritance()
     {
+        # Mock the cache
+        $local_cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $local_cache->expects($this->any())
+            ->method("get")
+            ->will($this->returnValue(false));
+        $local_cache->expects($this->any())
+            ->method("set")
+            ->will($this->returnValue(false));
+
+        Annotations::$cache = $local_cache;
+
         $annotations = Annotations::extractFromObjectWithInheritance(
             __NAMESPACE__ . "\\BasicClassFromInterface");
 

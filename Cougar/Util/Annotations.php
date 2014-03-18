@@ -155,42 +155,8 @@ class Annotations implements iAnnotations
         // Reflect the object
         $r_object = new ReflectionClass($object_class_name);
 
-        // Get the filename where the class is defined
-        $file = $r_object->getFileName();
-
-        // See if we had a file (as opposed to code running in the PHP shell)
-        if ($file !== "php shell code")
-        {
-            // See when we last cached the file to determine if cache is valid
-            $cache_valid = true;
-            $cached_file_mtime = self::$cache->get(self::$fileMtimeCachePrefix .
-                "." . $file);
-            if ($cached_file_mtime === false)
-            {
-                // We haven't cached the file; get the current time plus a few
-                // seconds to make sure the upcoming comparison fails
-                $cached_file_mtime = time() + 5;
-            }
-
-            // Get the file's modification time
-            $file_mtime = filemtime($file);
-
-            // See if the mtime of the file matches the one in the cache
-            if ($file_mtime != $cached_file_mtime)
-            {
-                // The cache is invalid
-                $cache_valid = false;
-
-                // Store this file's modification time in the cache
-                self::$cache->set(self::$fileMtimeCachePrefix . "." . $file,
-                    $file_mtime, self::$cacheTime);
-            }
-        }
-        else
-        {
-            // Cache is not valid since we have command line code
-            $cache_valid = false;
-        }
+        $cache_valid = ! self::filesHaveChanged(
+            $r_object->getFileName());
 
         // Get the annotations from the cache if the cache is valid
         $annotations = false;
@@ -317,12 +283,25 @@ class Annotations implements iAnnotations
                 "Object must be an object reference or class name");
         }
 
+        // Figure out the cache key
+        $cache_key = self::$annotationsCachePrefix . "." . $object_class_name .
+            ".inherited." . implode(",", $exclude_class_list) . "." .
+            (int) $inherit_from_traits . "." . (int) $inherit_from_interfaces;
+
+        // See if we have an entry in the execution cache
+        if (array_key_exists($cache_key, self::$executionCache))
+        {
+            // Return the annotations from the execution cache
+            return self::$executionCache[$cache_key];
+        }
+
         // Reflect the object
         $r_object = new ReflectionClass($object_class_name);
 
-        // Start the class hierarchy and list of traits
+        // Start the class hierarchy, trait list and filename list
         $class_hierarchy = array();
         $trait_list = array();
+        $filename_list = array();
 
         // Recursively get the parent classes
         $parent = $r_object;
@@ -334,6 +313,9 @@ class Annotations implements iAnnotations
             {
                 // Add the class to the hierarchy
                 array_unshift($class_hierarchy, $parent->name);
+
+                // Get the class filename
+                $filename_list[$parent->name] = $parent->getFileName();
 
                 // See if we are extracting from traits
                 if ($inherit_from_traits)
@@ -381,7 +363,23 @@ class Annotations implements iAnnotations
         }
         while ($parent !== false);
 
-        // Define an empty set of annotations as consider them cached
+        // See if the files have been modified
+        if (! self::filesHaveChanged($filename_list, false))
+        {
+            // See if we have an entry in the local cache
+            $annotations = self::$cache->get($cache_key);
+
+            if ($annotations !== false)
+            {
+                // Store the annotations in the execution cache
+                self::$executionCache[$cache_key] = $annotations;
+
+                // Return the cached annotations
+                return $annotations;
+            }
+        }
+
+        // Define an empty set of annotations and consider them cached
         $annotations = new ClassAnnotations();
         $annotations->cached = true;
 
@@ -409,6 +407,13 @@ class Annotations implements iAnnotations
                     false));
             }
         }
+
+        // Store the annotations in the cache
+        $orig_cache_flag = $annotations->cached;
+        $annotations->cached = true;
+        self::$executionCache[$cache_key] = $annotations;
+        self::$cache->set($cache_key, $annotations, self::$cacheTime);
+        $annotations->cached = $orig_cache_flag;
 
         // Return the annotations
         return $annotations;
@@ -677,6 +682,110 @@ class Annotations implements iAnnotations
     /**
      * @var array Execution cache
      */
-    protected static $executionCache = array();
+    public static $executionCache = array();
+
+    /**
+     * Determines whether one or more files have been modified since the last
+     * time it was checked by this method. You may pass a single filename as a
+     * string or a list of filenames in an array. If the file, or any file in
+     * the list has changed since the last check, the method will return true.
+     *
+     * @history
+     * 2014.03.17:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.03.17
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param string|array $filename
+     *   Filename or array of filenames to check for changes
+     * @param bool $store_change
+     *   Whether to record the new changes (true by default)
+     * @return bool True if any file has changed, false otherwise
+     */
+    protected static function filesHaveChanged($filename, $store_change = true)
+    {
+        // Make sure we have a cache
+        if (! self::$cache instanceof iCache)
+        {
+            self::$cache = CacheFactory::getLocalCache();
+        }
+
+        // See if we have been given an array
+        if (is_array($filename))
+        {
+            $file_list = &$filename;
+        }
+        else
+        {
+            $file_list = array($filename);
+        }
+
+        // Go through each item in the array
+        $results = array();
+        foreach($file_list as $file)
+        {
+            // Create the cache key
+            $cache_key = self::$fileMtimeCachePrefix . "." . $file;
+
+            // See if we have a value in our execution cache; if not extract
+            // from the real cache
+            if (array_key_exists($cache_key, self::$executionCache))
+            {
+                $last_known_file_mtime = self::$executionCache[$cache_key];
+            }
+            else
+            {
+                $last_known_file_mtime = self::$cache->get($cache_key);
+            }
+
+            // Check the cache for the last known modification time
+            if ($last_known_file_mtime === false)
+            {
+                // We don't know what the last modification time was; consider
+                // it changed; see if we need to store the result
+                if ($store_change)
+                {
+                    // Store the file's modification time for next time
+                    $file_mtime = filemtime($file);
+                    self::$executionCache[$cache_key] = $file_mtime;
+                    self::$cache->set($cache_key, $file_mtime,
+                        self::$cacheTime);
+                }
+
+                // Return that the file has changed
+                return true;
+            }
+            else
+            {
+                // The response may come from the local cache; make sure we have
+                // an entry in the execution cache
+                self::$executionCache[$cache_key] = $last_known_file_mtime;
+
+                // Get the file's modification time
+                $file_mtime = filemtime($file);
+
+                // See if the time has changed
+                if ($file_mtime != $last_known_file_mtime)
+                {
+                    // The file has been modified; see if we need to store the
+                    // change
+                    if ($store_change)
+                    {
+                        // Store this file's modification time in the caches
+                        self::$executionCache[$cache_key] = $file_mtime;
+                        self::$cache->set($cache_key, $file_mtime,
+                            self::$cacheTime);
+                    }
+
+                    // Return that the file has changed
+                    return true;
+                }
+            }
+        }
+
+        // None of the files have changed; return false
+        return false;
+    }
 }
 ?>

@@ -1165,7 +1165,7 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
                 "LIMIT 10000 OFFSET 0"))
             ->will($this->returnValue($pdo_statement));
 
-        $object = new PdoModelUnitTeustQueryUnique($security, $cache, $pdo);
+        $object = new PdoModelUnitTestQueryUnique($security, $cache, $pdo);
         $query_result = $object->query();
         $this->assertCount(1, $query_result);
         $this->assertArrayHasKey("userId", $query_result[0]);
