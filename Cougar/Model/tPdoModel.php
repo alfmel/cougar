@@ -571,6 +571,12 @@ trait tPdoModel
      */
     public function save()
     {
+        # Make sure we are still persistent
+        if (! $this->__persistent)
+        {
+            throw new Exception("Save is no longer allowed on this model");
+        }
+
         # Validate the object
         $this->__validate();
 
@@ -818,6 +824,12 @@ trait tPdoModel
      */
     public function delete()
     {
+        # Make sure we are still persistent
+        if (! $this->__persistent)
+        {
+            throw new Exception("Delete is no longer allowed on this model");
+        }
+
         # Make sure the record can be deleted
         if (! $this->__allowDelete)
         {
@@ -908,11 +920,18 @@ trait tPdoModel
      * @param array $ctorargs
      *   Constructor arguments if returning objects
      * @return array Record list
+     * @throws \Cougar\Exceptions\Exception;
      * @throws \Cougar\Exceptions\AccessDeniedException;
      */
     public function query(array $parameters = array(), $class_name = "array",
         array $ctorargs = array())
     {
+        # Make sure we are still persistent
+        if (! $this->__persistent)
+        {
+            throw new Exception("Querying is no longer allowed on this model");
+        }
+
         # See if querying is allowed
         if (! $this->__allowQuery)
         {
@@ -1081,7 +1100,33 @@ trait tPdoModel
         # Return the result
         return $results;
     }
-    
+
+    /**
+     * Unlinks or breaks the model's persistence.
+     *
+     * After calling this method this method nobody will be able to save, delete
+     * or query the persistent model, turning it into a non-persistent model.
+     * This allows developers to safely return the model without fear of data
+     * being modified or altered outside of their control.
+     *
+     * @history
+     * 2014.03.18:
+     *   (AT) Initial definition
+     *
+     * @version 2014.03.18
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     */
+    public function endPersistence()
+    {
+        // Set the persistent flag to false
+        $this->__persistent = false;
+
+        // Unset the database and cache to truly disconnect the model from the
+        // persistence layers
+        $this->__cache = null;
+        $this->__pdo = null;
+    }
+
     /**
      * Returns an associative array with properties that changed since the last
      * save() call and their old values. This is useful for auditing or for
@@ -1132,7 +1177,7 @@ trait tPdoModel
     protected $__pdo = null;
     
     /**
-     * @var cache Reference to Cache objct
+     * @var cache Reference to Cache object
      */
     protected $__cache = null;
     
@@ -1235,7 +1280,12 @@ trait tPdoModel
      * @var bool True if inserting a new record; false for updating
      */
     protected $__insertMode = false;
-    
+
+    /**
+     * @var bool Whether the model is persistent; true by default
+     */
+    protected $__persistent = true;
+
     /**
      * @var array Properties and values that changed during the last save()
      */

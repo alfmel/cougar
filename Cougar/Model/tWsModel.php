@@ -688,9 +688,17 @@ trait tWsModel
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @throws Exception
      */
     public function save()
     {
+        # Make sure we are still persistent
+        if (! $this->__persistent)
+        {
+            throw new Exception("Save is no longer allowed on this model");
+        }
+
         # Validate the object
         $this->__validate();
 
@@ -795,9 +803,17 @@ trait tWsModel
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @throws Exception
      */
     public function delete()
     {
+        # Make sure we are still persistent
+        if (! $this->__persistent)
+        {
+            throw new Exception("Delete is no longer allowed on this model");
+        }
+
         # Make sure the record can be deleted
         if (! $this->__allowDelete)
         {
@@ -819,7 +835,7 @@ trait tWsModel
             $this->__cache->clear($this->getCacheKey());
         }
     }
-    
+
     /**
      * Returns a list of records with the given values
      *
@@ -831,15 +847,23 @@ trait tWsModel
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @todo Allow selecting into an object
-     * 
+     *
      * @param array $parameters List of query parameters
      * @param string $class_name Use array to return list as an array, or class name to return objects
-     * @param array $ctoargs Constructor arguments if returning objects
+     * @param array $ctorargs Constructor arguments if returning objects
      * @return array Record list
+     * @throws Exception
+     * @throws BadRequestException
      */
     public function query(array $parameters = array(), $class_name = "array",
         array $ctorargs = array())
     {
+        # Make sure we are still persistent
+        if (! $this->__persistent)
+        {
+            throw new Exception("Delete is no longer allowed on this model");
+        }
+
         # See if querying is allowed
         if (! $this->__allowQuery)
         {
@@ -883,8 +907,34 @@ trait tWsModel
         
         return $results;
     }
-    
-    
+
+    /**
+     * Unlinks or breaks the model's persistence.
+     *
+     * After calling this method this method nobody will be able to save, delete
+     * or query the persistent model, turning it into a non-persistent model.
+     * This allows developers to safely return the model without fear of data
+     * being modified or altered outside of their control.
+     *
+     * @history
+     * 2014.03.18:
+     *   (AT) Initial definition
+     *
+     * @version 2014.03.18
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     */
+    public function endPersistence()
+    {
+        // Set the persistent flag to false
+        $this->__persistent = false;
+
+        // Unset the rest client and cache to truly disconnect the model from
+        // the persistence layers
+        $this->__cache = null;
+        $this->__restClient = null;
+    }
+
+
     /***************************************************************************
      * PROTECTED PROPERTIES AND METHODS
      **************************************************************************/
@@ -1029,6 +1079,11 @@ trait tWsModel
      * @var bool True if creating a new record; false for updating
      */
     protected $__createMode = false;
+
+    /**
+     * @var bool Whether the model is persistent; true by default
+     */
+    protected $__persistent = true;
 
     /**
      * Makes the REST call for the given operation

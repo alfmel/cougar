@@ -1215,6 +1215,63 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::endPersistence
+     * @covers \Cougar\Model\WsModel::save
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testEndPersistenceWithSave()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+
+        $pdo = new PDO("sqlite::memory:");
+
+        $object = new PdoModelUnitTest($security, $cache, $pdo);
+        $object->endPersistence();
+        $object->save();
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::endPersistence
+     * @covers \Cougar\Model\WsModel::delete
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testEndPersistenceWithDelete()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+
+        $pdo = new PDO("sqlite::memory:");
+
+        $object = new PdoModelUnitTest($security, $cache, $pdo);
+        $object->endPersistence();
+        $object->delete();
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::endPersistence
+     * @covers \Cougar\Model\WsModel::query
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testEndPersistenceWithQuery()
+    {
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+
+        $pdo = new PDO("sqlite::memory:");
+
+        $object = new PdoModelUnitTest($security, $cache, $pdo);
+        $object->endPersistence();
+        $object->query();
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
      * @covers \Cougar\Model\PdoModel::save
      * @expectedException \Cougar\Exceptions\AccessDeniedException
      */

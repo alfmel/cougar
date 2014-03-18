@@ -415,6 +415,54 @@ class WsModelTest extends \PHPUnit_Framework_TestCase {
             new QueryParameter("lastName", "abcdefg")));
         $this->assertCount(0, $result);
     }
+
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::endPersistence
+     * @covers \Cougar\Model\WsModel::save
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testEndPersistenceWithSave() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $object->endPersistence();
+        $object->save();
+    }
+
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::endPersistence
+     * @covers \Cougar\Model\WsModel::delete
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testEndPersistenceWithDelete() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $object->endPersistence();
+        $object->delete();
+    }
+
+    /**
+     * @covers \Cougar\Model\WsModel::__construct
+     * @covers \Cougar\Model\WsModel::endPersistence
+     * @covers \Cougar\Model\WsModel::query
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testEndPersistenceWithQuery() {
+        $security = $this->getMock("\\Cougar\\Security\\Security");
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $pdo = $this->getMock("\\Cougar\\RestClient\\RestClient");
+
+        $object = new WsModelUnitTest($security, $cache, $pdo);
+        $object->endPersistence();
+        $object->query();
+    }
 }
 
 require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");

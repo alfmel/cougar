@@ -15,6 +15,8 @@ namespace Cougar\Model;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.03.18:
+ *   (AT)  Add endPersistence() method
  *
  * @version 2013.09.30
  * @package Cougar
@@ -65,11 +67,28 @@ interface iPersistentModel extends iModel
      *   List of query parameters
      * @param string $class_name
      *   Use array to return list as an array, or class name to return objects
-     * @param array $ctoargs
+     * @param array $ctorargs
      *   Constructor arguments if returning objects
      * @return array Record list
      */
     public function query(array $parameters = array(), $class_name = "array",
         array $ctorargs = array());
+
+    /**
+     * Unlinks or breaks the model's persistence.
+     *
+     * After calling this method this method nobody will be able to save, delete
+     * or query the persistent model, turning it into a non-persistent model.
+     * This allows developers to safely return the model without fear of data
+     * being modified or altered outside of their control.
+     *
+     * @history
+     * 2014.03.18:
+     *   (AT) Initial definition
+     *
+     * @version 2014.03.18
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     */
+    public function endPersistence();
 }
 ?>
