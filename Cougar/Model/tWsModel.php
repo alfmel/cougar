@@ -25,12 +25,14 @@ use Cougar\Exceptions\NotImplementedException;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.03.18:
+ *   (AT)  Add support for endPersistence()
  *
- * @version 2013.09.30
+ * @version 2014.03.18
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -685,8 +687,10 @@ trait tWsModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.18:
+     *   (AT)  Make sure the method is still persistent
      *
-     * @version 2013.09.30
+     * @version 2014.03.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws Exception
@@ -800,8 +804,10 @@ trait tWsModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.18:
+     *   (AT)  Make sure the method is still persistent
      *
-     * @version 2013.09.30
+     * @version 2014.03.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws Exception
@@ -842,8 +848,10 @@ trait tWsModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.18:
+     *   (AT)  Make sure the method is still persistent
      *
-     * @version 2013.09.30
+     * @version 2014.03.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @todo Allow selecting into an object

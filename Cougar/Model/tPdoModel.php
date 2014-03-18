@@ -57,8 +57,10 @@ use Cougar\Exceptions\RecordNotFoundException;
  * 2014.03.06:
  *   (AT)  Make sure the keys in an array are in the proper case when returning
  *         an array in query() and using the OCI driver
+ * 2014.03.18:
+ *   (AT)  Add support for endPersistence()
  *
- * @version 2014.03.06
+ * @version 2014.03.18
  * @package Cougar
  * @license MIT
  *
@@ -563,8 +565,10 @@ trait tPdoModel
      *         When creating queries
      *   (AT)  Make sure we only call format() method on DateTime object, not on
      *         a null value
+     * 2014.03.18:
+     *   (AT)  Make sure the method is still persistent
      *
-     * @version 2014.02.18
+     * @version 2014.03.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
@@ -814,8 +818,10 @@ trait tPdoModel
      *   (AT)  Initial release
      * 2013.10.25:
      *   (AT)  Improve thrown exceptions
+     * 2014.03.18:
+     *   (AT)  Make sure the method is still persistent
      *
-     * @version 2013.10.25
+     * @version 2014.03.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
@@ -909,8 +915,10 @@ trait tPdoModel
      *   (AT)  Handle queryUnique flag
      * 2014.03.06:
      *   (AT)  Rename array keys when using the OCI driver
+     * 2014.03.18:
+     *   (AT)  Make sure the method is still persistent
      *
-     * @version 2014.03.06
+     * @version 2014.03.18
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $parameters

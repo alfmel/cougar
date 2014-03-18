@@ -18,11 +18,11 @@ namespace Cougar\Model;
  * 2014.03.18:
  *   (AT)  Add endPersistence() method
  *
- * @version 2013.09.30
+ * @version 2014.03.18
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
