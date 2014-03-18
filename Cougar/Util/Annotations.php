@@ -35,8 +35,10 @@ use Cougar\Exceptions\Exception;
  * 2014.03.05:
  *   (AT)  Make sure cached flag is properly preserved when extracting with
  *         inheritance
+ * 2014.03.17:
+ *   (AT)  Cache inherited annotations directly to improve performance
  *
- * @version 2014.03.05
+ * @version 2014.03.17
  * @package Cougar
  * @licence MIT
  *
@@ -247,8 +249,9 @@ class Annotations implements iAnnotations
      * 2014.03.05:
      *   (AT)  Make sure to set the cached flag on the empty annotations object
      *         so that the child annotation object cached flags may be preserved
+     * 2014.03.17:
+     *   (AT)  Cache inherited annotations directly to improve performance
      *
-     * @version 2014.03.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -268,6 +271,12 @@ class Annotations implements iAnnotations
         array $exclude_class_list = array(), $inherit_from_traits = true,
         $inherit_from_interfaces = true)
     {
+        // Make sure we have a cache
+        if (! self::$cache instanceof iCache)
+        {
+            self::$cache = CacheFactory::getLocalCache();
+        }
+
         // Get the name of the object, class or interface
         if (is_object($object))
         {
@@ -705,12 +714,6 @@ class Annotations implements iAnnotations
      */
     protected static function filesHaveChanged($filename, $store_change = true)
     {
-        // Make sure we have a cache
-        if (! self::$cache instanceof iCache)
-        {
-            self::$cache = CacheFactory::getLocalCache();
-        }
-
         // See if we have been given an array
         if (is_array($filename))
         {
