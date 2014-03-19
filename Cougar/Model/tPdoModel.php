@@ -59,6 +59,7 @@ use Cougar\Exceptions\RecordNotFoundException;
  *         an array in query() and using the OCI driver
  * 2014.03.18:
  *   (AT)  Add support for endPersistence()
+ *   (AT)  Include the statement bound values when debugging statements
  *
  * @version 2014.03.18
  * @package Cougar
@@ -607,10 +608,6 @@ trait tPdoModel
                 implode(", ", $vars) . ")";
             
             # Prepare the statement
-            if ($this->__debug)
-            {
-                error_log("PdoModel Insert: " . $statement);
-            }
             $pdo_statement = $this->__pdo->prepare($statement);
             
             # Get the values
@@ -658,8 +655,13 @@ trait tPdoModel
             }
             
             # Execute the statement
+            if ($this->__debug)
+            {
+                error_log("PdoModel Insert: " . $statement);
+                error_log("Insert values: " . print_r($values, true));
+            }
             $pdo_statement->execute($values);
-            
+
             if ($pdo_statement->rowCount() !== 1)
             {
                 throw new Exception("Row was not inserted");
@@ -765,13 +767,15 @@ trait tPdoModel
                     $this->buildWhereClause();
                 
                 # Prepare the statement
-                if ($this->__debug)
-                {
-                    error_log("PdoModel Update: " . $statement);
-                }
                 $pdo_statement = $this->__pdo->prepare($statement);
                 
                 # Execute the statement
+                if ($this->__debug)
+                {
+                    error_log("PdoModel Update: " . $statement);
+                    error_log("Update values: " . print_r(array_merge(
+                            $new_values, $this->getWhereParameters()), true));
+                }
                 $pdo_statement->execute(
                     array_merge($new_values, $this->getWhereParameters()));
                 
@@ -870,13 +874,14 @@ trait tPdoModel
         }
         
         # Prepare the statement
-        if ($this->__debug)
-        {
-            error_log("PdoModel Delete: " . $statement);
-        }
         $pdo_statement = $this->__pdo->prepare($statement);
 
         # Execute the statement
+        if ($this->__debug)
+        {
+            error_log("PdoModel Delete: " . $statement);
+            error_log("Delete values: " . print_r($values, true));
+        }
         $pdo_statement->execute($values);
 
         if ($pdo_statement->rowCount() > 1)
@@ -1412,6 +1417,8 @@ trait tPdoModel
             if ($this->__debug)
             {
                 error_log("PdoModel Select: " . $statement_query);
+                error_log("Select values: " .
+                    print_r($this->getWhereParameters(), true));
             }
             $statement = $this->__pdo->prepare($statement_query);
             $statement->setFetchMode(\PDO::FETCH_INTO, $this);
@@ -1509,6 +1516,7 @@ trait tPdoModel
             if ($this->__debug)
             {
                 error_log("PdoModel Query: " . $query_statement);
+                error_log("Query values: " . print_r($query_parameters, true));
             }
             $statement = $this->__pdo->prepare($query_statement);
             $statement->execute($query_parameters);
