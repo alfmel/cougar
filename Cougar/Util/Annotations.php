@@ -37,8 +37,11 @@ use Cougar\Exceptions\Exception;
  *         inheritance
  * 2014.03.17:
  *   (AT)  Cache inherited annotations directly to improve performance
+ * 2014.03.19:
+ *   (AT)  Make sure cached inherited annotations are cloned when stored and
+ *         retrieved
  *
- * @version 2014.03.17
+ * @version 2014.03.19
  * @package Cougar
  * @licence MIT
  *
@@ -231,7 +234,7 @@ class Annotations implements iAnnotations
         else
         {
             // Store the annotations in the execution cache
-            self::$executionCache[$class_cache_key] = $annotations;
+            self::$executionCache[$class_cache_key] = clone $annotations;
         }
 
         return $annotations;
@@ -251,7 +254,10 @@ class Annotations implements iAnnotations
      *         so that the child annotation object cached flags may be preserved
      * 2014.03.17:
      *   (AT)  Cache inherited annotations directly to improve performance
+     * 2014.03.19:
+     *   (AT)  Clone annotations object before storing in execution cache
      *
+     * @version 2014.03.19
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -301,7 +307,7 @@ class Annotations implements iAnnotations
         if (array_key_exists($cache_key, self::$executionCache))
         {
             // Return the annotations from the execution cache
-            return self::$executionCache[$cache_key];
+            return clone self::$executionCache[$cache_key];
         }
 
         // Reflect the object
@@ -381,7 +387,7 @@ class Annotations implements iAnnotations
             if ($annotations !== false)
             {
                 // Store the annotations in the execution cache
-                self::$executionCache[$cache_key] = $annotations;
+                self::$executionCache[$cache_key] = clone $annotations;
 
                 // Return the cached annotations
                 return $annotations;
@@ -420,7 +426,7 @@ class Annotations implements iAnnotations
         // Store the annotations in the cache
         $orig_cache_flag = $annotations->cached;
         $annotations->cached = true;
-        self::$executionCache[$cache_key] = $annotations;
+        self::$executionCache[$cache_key] = clone $annotations;
         self::$cache->set($cache_key, $annotations, self::$cacheTime);
         $annotations->cached = $orig_cache_flag;
 

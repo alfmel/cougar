@@ -16,8 +16,10 @@ use Cougar\Exceptions\Exception;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.03.19:
+ *   (AT)  Fix typo where type was being accessed incorrectly
  *
- * @version 2013.09.30
+ * @version 2014.03.19
  * @package Cougar
  * @license MIT
  *
@@ -66,11 +68,11 @@ class Cache implements iCache
             switch (get_class($type))
             {
                 case "Memcached":
-                    $this->Type = "memcached";
+                    $this->type = "memcached";
                     $this->Memcached = $type;
                     break;
                 case "Memcache":
-                    $this->Type = "memcache";
+                    $this->type = "memcache";
                     $this->Memcache = $type;
                     break;
                 default:
@@ -90,35 +92,35 @@ class Cache implements iCache
                     {
                         throw new Exception("APC is not enabled");
                     }
-                    $this->Type = "apc";
+                    $this->type = "apc";
                     break;
                 case "wincache":
                     if (! extension_loaded("wincache"))
                     {
                         throw new Exception("WinCache is not enabled");
                     }
-                    $this->Type = "wincache";
+                    $this->type = "wincache";
                     break;
                 case "memory":
-                    $this->Type = "memory";
+                    $this->type = "memory";
                     break;
                 case "nocache":
-                    $this->Type = "nocache";
+                    $this->type = "nocache";
                     break;
                 case "local":
                 case "auto":
                     # See if APC is enabled
                     if (extension_loaded("apc"))
                     {
-                        $this->Type = "apc";
+                        $this->type = "apc";
                     }
                     else if (extension_loaded("wincache"))
                     {
-                        $this->Type = "wincache";
+                        $this->type = "wincache";
                     }
                     else
                     {
-                        $this->Type = "memory";
+                        $this->type = "memory";
                     }
                     break;
                 default:
@@ -160,7 +162,7 @@ class Cache implements iCache
      */
     public function getCacheType()
     {
-        return $this->Type;
+        return $this->type;
     }
     
     /**
@@ -234,7 +236,7 @@ class Cache implements iCache
     public function set($key, $value, $expiration = null)
     {
         # See which type of key we are using
-        switch ($this->Type)
+        switch ($this->type)
         {
             case "memcached":
                 try
@@ -375,7 +377,7 @@ class Cache implements iCache
     public function get($key)
     {
         # See which type of key we are using
-        switch ($this->Type)
+        switch ($this->type)
         {
             case "memcached":
                 try
@@ -460,7 +462,7 @@ class Cache implements iCache
     public function clear($key)
     {
         # See which type of key we are using
-        switch ($this->Type)
+        switch ($this->type)
         {
             case "memcached":
                 try
