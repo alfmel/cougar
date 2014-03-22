@@ -100,7 +100,46 @@ interface iRestService
      * @return mixed Header value
      */
     public function header($header, $type = "string", $default = null);
-    
+
+    /**
+     * Returns an associative array with information extracted from the
+     * Authorization header, if present. If no Authorization header was sent
+     * this method will return null.
+     *
+     * The authorization header, as specified in RFC 2617 should be in the form
+     *
+     *   Authorization: scheme parameter...
+     *
+     * where the format of the parameter is specific to each scheme.
+     *
+     * The returned associative array will contain the following keys and
+     * values:
+     *
+     *   raw_header   The full, raw header (scheme and parameter)
+     *   scheme       The authentication scheme (first value in raw header)
+     *   parameter    The raw authentication parameter from the header
+     *
+     * The returned associative array will also contain the following keys when
+     * the client has sent a Basic authentication header:
+     *
+     *   username   The plain-text username the parameter
+     *   password   The plain-text password in the parameter
+     *
+     * As specified in section 3.1.1 of RFC 2617, Basic Authentication "is not
+     * considered to be a secure method of user authentication, as the user name
+     * and password are passed over the network in an unencrypted form."
+     *
+     * @history
+     * 2014.03.22:
+     *   (AT)  Initial specification
+     *
+     * @version 2014.03.22
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @return array Header information
+     */
+    public function authorizationHeader();
+
     /**
      * Returns the value of the URI parameter specified by the given numeric
      * offset. If it does not exist, return the default value (null by default).
