@@ -38,6 +38,10 @@ use Cougar\Exceptions\NotAcceptableException;
  * 2014.03.24:
  *   (AT)  Add path to protected properties so that the AnnotatedRestService
  *         class doesn't have to access global variables
+ *   (AT)  Add support for PHP_AUTH_DIGEST in the $_SERVER variable in
+ *         authorizationHeader() method
+ *
+ * @version 2014.03.24
  *
  * @version 2014.03.24
  * @package Cougar
@@ -421,8 +425,10 @@ class RestService implements iRestService
      * @history
      * 2014.03.22:
      *   (AT)  Initial implementation
+     * 2014.03.24:
+     *   (AT)  Add support for PHP_AUTH_DIGEST in the $_SERVER variable
      *
-     * @version 2014.03.22
+     * @version 2014.03.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @return array Header information
@@ -465,6 +471,14 @@ class RestService implements iRestService
                 "parameter" => $parameter,
                 "username" => $_SERVER["PHP_AUTH_USER"],
                 "password" => $_SERVER["PHP_AUTH_PW"]);
+        }
+        else if (array_key_exsits("PHP_AUTH_DIGEST", $_SERVER))
+        {
+            // Create the response, recreating the raw parameter as well
+            $response = array(
+                "rawHeader" => "Digest " . $_SERVER[PHP_AUTH_DIGEST],
+                "scheme" => "Digest",
+                "parameter" => $_SERVER[PHP_AUTH_DIGEST]);
         }
         else
         {
