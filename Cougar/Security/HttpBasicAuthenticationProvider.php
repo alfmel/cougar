@@ -9,6 +9,18 @@ use Cougar\Exceptions\AuthenticationRequiredException;
 /**
  * Performs HTTP Basic Authentication via the provided credential validator
  * object.
+ *
+ * @history
+ * 2014.03.24:
+ *   (AT)  Initial implementation
+ *
+ * @version 2014.01.24
+ * @package Cougar
+ * @license MIT
+ *
+ * @copyright 2014 Brigham Young University
+ *
+ * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
 class HttpBasicAuthenticationProvider implements iAuthenticationProvider
 {
@@ -16,6 +28,13 @@ class HttpBasicAuthenticationProvider implements iAuthenticationProvider
      * Accepts the reference to the REST Service object and a credential
      * validator which will validate the credentials when the authenticate()
      * method is called.
+     *
+     * @history:
+     * 2014.03.24:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.03.24
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param iRestService $rest_service
      *   REST Service object for extracting the Authorization header
@@ -42,6 +61,13 @@ class HttpBasicAuthenticationProvider implements iAuthenticationProvider
      * the object will throw an AuthenticationRequiredException (HTTP 401). If
      * the authentication scheme is not Basic, the object will simply return a
      * null.
+     *
+     * @history:
+     * 2014.03.24:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.03.24
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
      * @throws \Cougar\Exceptions\AuthenticationRequiredException

@@ -32,7 +32,7 @@ use phpCAS;
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  */
@@ -51,6 +51,9 @@ class CasAuthenticationProvider implements iAuthenticationProvider
      *   (AT)  Initial implementation
      * 2014.01.17:
      *   (AT)  Added previous_session parameter
+     *
+     * @version 2013.11.21
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param callable $setup_callable CAS setup function
      * @param boolean $previous_session_only Authenticate only if previous session exists
