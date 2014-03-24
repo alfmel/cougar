@@ -52,8 +52,10 @@ use Cougar\Exceptions\NotAcceptableException;
  * 2014.03.14:
  *   (AT)  Make sure regex classes (like [[:alpha:]]) work in the path
  *         annotation
+ * 2014.03.24:
+ *   (AT)  Avoid using global variables for PATH and METHOD
  *
- * @version 2014.03.14
+ * @version 2014.03.24
  * @package Cougar
  * @license MIT
  *
@@ -556,8 +558,10 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      *   (AT)  Remove single trailing slashes from the URI path
      *   (AT)  Use the backtick (`) as the regex delimiter to allow the colon
      *         to be used in regex classes
+     * 2014.03.24:
+     *   (AT)  Access path and method variables directly from the object
      *
-     * @version 2014.03.14
+     * @version 2014.03.24
      *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * @throws \Cougar\Exceptions\Exception
@@ -568,14 +572,10 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      */
     public function handleRequest()
     {
-        # Grab some of the global variables
-        global $_PATH;
-        global $_METHOD;
-
         # Remove trailing slash from the path
-        if (mb_strlen($_PATH) > 1)
+        if (mb_strlen($this->path) > 1)
         {
-            $_PATH = preg_replace(':/$:', "", $_PATH);
+            $this->path = preg_replace(':/$:', "", $this->path);
         }
 
         # Sort the bindings from most specific to least specific
@@ -601,10 +601,10 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
         foreach($this->bindings as $pattern => $method_bindings)
         {
             # See if the pattern matches
-            if (preg_match("`" . $pattern . "`u", $_PATH))
+            if (preg_match("`" . $pattern . "`u", $this->path))
             {
                 # See if we are dealing with an OPTIONS request
-                if ($_METHOD == "OPTIONS")
+                if ($this->method == "OPTIONS")
                 {
                     /* Either we need to continue to iterate through all methods
                      * or we need to gather all the information and generate the
@@ -640,7 +640,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                     foreach($method_bindings as $binding)
                     {
                         # See if this binding can handle this method
-                        if (! in_array($_METHOD, $binding->http_methods))
+                        if (! in_array($this->method, $binding->http_methods))
                         {
                             $http_method_mismatch = true;
                             continue;
