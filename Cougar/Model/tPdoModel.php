@@ -60,8 +60,12 @@ use Cougar\Exceptions\RecordNotFoundException;
  * 2014.03.18:
  *   (AT)  Add support for endPersistence()
  *   (AT)  Include the statement bound values when debugging statements
+ * 2014.03.27:
+ *   (AT)  Make sure we fully validate the object when saving or exporting as an
+ *         array but still allow the object to be exported with its default
+ *         values
  *
- * @version 2014.03.18
+ * @version 2014.03.27
  * @package Cougar
  * @license MIT
  *
@@ -568,8 +572,10 @@ trait tPdoModel
      *         a null value
      * 2014.03.18:
      *   (AT)  Make sure the method is still persistent
+     * 2014.03.27:
+     *   (AT)  Make sure the object is fully validated
      *
-     * @version 2014.03.18
+     * @version 2014.03.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
@@ -581,6 +587,9 @@ trait tPdoModel
         {
             throw new Exception("Save is no longer allowed on this model");
         }
+
+        # Make sure we do full validation
+        $this->__validationWithDefaultValuesOk = false;
 
         # Validate the object
         $this->__validate();
@@ -815,7 +824,7 @@ trait tPdoModel
      * Deletes the record from the database.
      * 
      * Please note that this method will NOT issue a commit. The commit must
-     * be issued in the PDO provided at instanciation time.
+     * be issued in the PDO provided at instantiation time.
      *
      * @history
      * 2013.09.30:

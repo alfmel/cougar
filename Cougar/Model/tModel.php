@@ -34,8 +34,11 @@ use Cougar\Exceptions\BadRequestException;
  *         data to be converted back to an array.
  * 2014.02.26:
  *   (AT)  Extract annotations with extractFromObjectWithInheritance()
+ * 2014.03.27:
+ *   (AT)  Make sure we fully validate the object when exporting as an array but
+ *         still allow the object to be exported with its default values
  *
- * @version 2014.02.26
+ * @version 2014.03.27
  * @package Cougar
  * @license MIT
  *
@@ -541,8 +544,11 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.27:
+     *   (AT)  Validate the object when exporting instead of simply performing
+     *         casts
      *
-     * @version 2013.09.30
+     * @version 2014.03.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @return array Associative array with public properties and their values
@@ -550,7 +556,7 @@ trait tModel
     public function __toArray()
     {
         # Validate the values
-        $this->__performCasts();
+        $this->__validate();
         
         # Initialize the output array
         $output_array = array();
@@ -768,6 +774,10 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.27:
+     *   (AT)  Only validate if the object has not changed; this allows the
+     *         model to be exported with its default values without throwing
+     *         validation errors
      *
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
@@ -776,9 +786,29 @@ trait tModel
      */
     public function __validate()
     {
+        # See if the values have changed
+        if ($this->__validationWithDefaultValuesOk)
+        {
+            $values_changed = false;
+            foreach($this->__properties as $property)
+            {
+                if ($this->$property !== $this->__defaultValues[$property])
+                {
+                    $values_changed = true;
+                    break;
+                }
+            }
+
+            if (! $values_changed)
+            {
+                // We don't have any changes; consider the validation complete
+                return;
+            }
+        }
+
         # Perform the casts
         $this->__performCasts();
-        
+
         # See if the class has a __preValidate method
         if (method_exists($this, "__preValidate"))
         {
@@ -981,7 +1011,12 @@ trait tModel
      * @var bool Whether there have been any changes to properties
      */
     protected $__hasChanges = false;
-        
+
+    /**
+     * @var bool Whether to allow validation to pass with default values
+     */
+    protected $__validationWithDefaultValuesOk = true;
+
     /**
      * @var array Property type
      */
