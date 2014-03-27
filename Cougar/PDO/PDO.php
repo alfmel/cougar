@@ -19,8 +19,10 @@ use Cougar\Exceptions\Exception;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.03.27:
+ *   (AT)  Handle PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE fetch modes
  *
- * @version 2013.09.30
+ * @version 2014.03.27
  * @package Cougar
  * @license MIT
  *
@@ -216,7 +218,7 @@ class PDO extends \PDO implements iPDO
      *   The SQL statement to prepare and execute
      * @param int $fetch_mode
      *   One of the \PDO::FETCH_* constants
-     * @param mixed $classname
+     * @param mixed $classname_object
      *   The name of the class OR object to fetch into
      * @param array $ctorargs
      *   Constructor arugments for PDO::FETCH_CLASS
@@ -270,8 +272,13 @@ class PDO extends \PDO implements iPDO
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.27:
+     *   (AT)  Make sure we can handle a fetch mode of FETCH_CLASS ORed with
+     *         FETCH_PROPS_LATE
+     *   (AT)  Add default option to case statement to make sure we fetch
+     *         results
      *
-     * @version 2013.09.30
+     * @version 2014.03.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $statement
@@ -281,11 +288,12 @@ class PDO extends \PDO implements iPDO
      *   in the SQL statement being executed
      * @param int $fetch_mode
      *   The fetch mode must be one PDO::FETCH_ASSOC (default), PDO::FETCH_BOTH,
-     *   PDO::FETCH_NUM or PDO::FETCH_CLASS
+     *   PDO::FETCH_NUM, PDO::FETCH_CLASS or PDO::FETCH_CLASS ORed with
+     *   PDO::FETCH_PROPS_LATE
      * @param string $classname
      *   The name of the class to fetch into
      * @param array $ctorargs
-     *   Constructor arugments for PDO::FETCH_CLASS
+     *   Constructor arguments for PDO::FETCH_CLASS
      * @return array The result set
      * @throws \Cougar\Exceptions\Exception
      */
@@ -318,14 +326,16 @@ class PDO extends \PDO implements iPDO
         # See how we are returning data
         switch($fetch_mode)
         {
+            case \PDO::FETCH_CLASS:
+            case \PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE:
+                $rows = $statement->fetchAll($fetch_mode, $classname,
+                    $ctorargs);
+                break;
             case \PDO::FETCH_ASSOC:
             case \PDO::FETCH_BOTH:
             case \PDO::FETCH_NUM:
+            default:
                 $rows = $statement->fetchAll($fetch_mode);
-                break;
-            case \PDO::FETCH_CLASS:
-                $rows = $statement->fetchAll($fetch_mode, $classname,
-                    $ctorargs);
                 break;
         }
         
@@ -342,7 +352,6 @@ class PDO extends \PDO implements iPDO
     }
     
     /**
-    /**
      * Executes the given query statement and returns the single row of the
      * result set. If the result set returns more than one row, an exception
      * will be thrown.
@@ -350,8 +359,11 @@ class PDO extends \PDO implements iPDO
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.03.27:
+     *   (AT)  Add support for PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE fetch
+     *         mode
      *
-     * @version 2013.09.30
+     * @version 2014.03.27
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $statement
@@ -412,6 +424,7 @@ class PDO extends \PDO implements iPDO
                 $row = $statement->fetch($fetch_mode);
                 break;
             case \PDO::FETCH_CLASS:
+            case \PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE:
                 $statement->setFetchMode($fetch_mode, $classname_object,
                     $ctorargs);
                 $row = $statement->fetch();
