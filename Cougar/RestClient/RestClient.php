@@ -49,17 +49,17 @@ use Cougar\Exceptions\ServiceUnavailableException;
  *   (AT)  Improve exception handling by adding all 4xx and 5xx HTTP errors
  *         specified in RFC 2616.
  * 2014.01.31:
- *   (AT)  Add mising use directive for ServerErrorException
+ *   (AT)  Add missing use directive for ServerErrorException
+ * 2014.03.31:
+ *   (AT)  Documentation updates
  *
- * @version 2014.01.31
+ * @version 2014.03.31
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
- *
- * @todo: Implement client authorization providers
  */
 
 class RestClient extends CurlWrapper implements iRestClient
@@ -74,10 +74,15 @@ class RestClient extends CurlWrapper implements iRestClient
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
-     * @param string default_response_type [RAW|XML|JSON|PHP]
-     * @param string default_content_type
-     * @param int timeout (optional)
-     * @param string ssl (optional - See CurlWrapper constructor for options)
+     * @param string $response_type
+     *   Default response type for automatic response parsing [RAW|XML|JSON|PHP]
+     * @param string $content_type
+     *   Default content type for non-urlencoded body
+     * @param int $timeout
+     *   Connection timeout
+     * @param string $ssl
+     *   Path to SSL certificates, path to PEM file, false to turn off SSL
+     *   verification
      */
     public function __construct($response_type = null, $content_type = null,
         $timeout = null, $ssl = null)
