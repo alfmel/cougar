@@ -52,6 +52,8 @@ use Cougar\Exceptions\ServiceUnavailableException;
  *   (AT)  Add missing use directive for ServerErrorException
  * 2014.03.31:
  *   (AT)  Documentation updates
+ *   (AT)  Fix exception throwing when parsing errors occur
+ *   (AT)  Properly handle parsing of HTTP 204 and other empty responses
  *
  * @version 2014.03.31
  * @package Cougar
@@ -126,8 +128,11 @@ class RestClient extends CurlWrapper implements iRestClient
      * 2014.01.29:
      *   (AT)  Improve exception handling by adding all 4xx and 5xx HTTP errors
      *         specified in RFC 2616.
+     * 2014.03.31:
+     *   (AT)  Properly construct the HttpRequestParseException
+     *   (AT)  Handle HTTP 204 and other empty responses properly
      *
-     * @version 2014.01.29
+     * @version 2014.03.31
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $method
@@ -236,7 +241,15 @@ class RestClient extends CurlWrapper implements iRestClient
         $http_code = $this->Exec($url);
 
         # Get the response
-        $response = $this->getResponse();
+        if ($http_code == 204)
+        {
+            $response = null;
+        }
+        else
+        {
+            $response = $this->getResponse();
+        }
+
 
         # If the Accept header was not part of the headers defined by the user,
         #  remove it to avoid polluting them
@@ -245,39 +258,43 @@ class RestClient extends CurlWrapper implements iRestClient
             unset($this->headers["Accept"]);
         }
 
-        # Parse the response
-        try
+        # Parse the response (if we have one)
+        if ($this->responseType && trim($response))
         {
-            # See what the content-type headers says
-            $content_type = $this->getHeader("Content-Type");
+            try
+            {
+                # See what the content-type headers says
+                $content_type = $this->getHeader("Content-Type");
 
-            # The JSON case includes the ability to parse text as JSON because
-            #  in debug, I tend to tell it to return text so that I can see in
-            #  a browser
-            if (strpos($content_type, "json") !== false ||
-                ($content_type == "text/plain" &&
-                    $this->responseType == "json"))
-            {
-                $tmp_response = json_decode($response, true);
-                if ($tmp_response === null)
+                # The JSON case includes the ability to parse text as JSON
+                #  because in debug, I tend to tell it to return text so that I
+                #  can see in a browser
+                if (strpos($content_type, "json") !== false ||
+                    ($content_type == "text/plain" &&
+                        $this->responseType == "json"))
                 {
-                    throw new Exception("JSON decode error");
+                    $tmp_response = json_decode($response, true);
+                    if ($tmp_response === null)
+                    {
+                        throw new Exception("JSON decode error");
+                    }
+                    $response = $tmp_response;
                 }
-                $response = $tmp_response;
+                else if (strpos($content_type, "xml") !== false)
+                {
+                    $response = new \SimpleXMLElement($response);
+                }
+                else if (strpos($content_type, "php") !== false)
+                {
+                    $response = unserialize($response);
+                }
             }
-            else if (strpos($content_type, "xml") !== false)
+            catch (\Exception $e)
             {
-                $response = new \SimpleXMLElement($response);
+                throw new HttpRequestParseException("Could not parse " .
+                    "response as " . $content_type, $http_code, $response,
+                    $e->getCode(), $e);
             }
-            else if (strpos($content_type, "php") !== false)
-            {
-                $response = unserialize($response);
-            }
-        }
-        catch (\Exception $e)
-        {
-            throw new HttpRequestParseException("Could not parse response as " .
-                $content_type, $http_code, $response, $e->getMessage());
         }
 
         # Validate the return code
