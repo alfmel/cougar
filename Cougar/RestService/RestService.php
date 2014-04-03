@@ -40,10 +40,10 @@ use Cougar\Exceptions\NotAcceptableException;
  *         class doesn't have to access global variables
  *   (AT)  Add support for PHP_AUTH_DIGEST in the $_SERVER variable in
  *         authorizationHeader() method
+ * 2014.04.03:
+ *   (AT)  Add support for more HTTP status codes
  *
- * @version 2014.03.24
- *
- * @version 2014.03.24
+ * @version 2014.04.03
  * @package Cougar
  * @license MIT
  *
@@ -998,7 +998,7 @@ class RestService implements iRestService
         # Make sure the status code is one we support
         if (! array_key_exists($http_status_code, $this->httpMessages))
         {
-            throw new Exception("Invalid HTTP status code");
+            throw new Exception("Unsupported HTTP status code");
         }
         
         # Send the headers
@@ -1254,9 +1254,23 @@ class RestService implements iRestService
         404 => "Not Found",
         405 => "Method Not Allowed",
         406 => "Not Acceptable",
+        407 => "Proxy Authentication Required",
+        408 => "Request Timeout",
+        409 => "Conflict",
+        410 => "Gone",
+        411 => "Length Required",
+        412 => "Precondition Failed",
+        413 => "Request Entity Too Large",
+        414 => "Request URI Too Long",
+        415 => "Unsupported Media Type",
+        416 => "Request Range Not Satisfiable",
+        417 => "Expectation Failed",
         500 => "Internal Server Error",
         501 => "Not Implemented",
-        503 => "Service Unavailable"
+        502 => "Bad Gateway",
+        503 => "Service Unavailable",
+        504 => "Gateway Timeout",
+        505 => "HTTP Version Not Supported"
     );
 
     /**

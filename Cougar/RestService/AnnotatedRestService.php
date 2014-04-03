@@ -564,6 +564,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      * @version 2014.03.24
      *
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
      * @throws \Cougar\Exceptions\Exception
      * @throws \Cougar\Exceptions\AuthenticationRequiredException
      * @throws \Cougar\Exceptions\BadRequestException
@@ -1024,8 +1025,8 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
             $this->sendResponse(204, null, array(), $response_type);
         }
     }
-    
-    
+
+
     /***************************************************************************
      * PROTECTED PROPERTIES AND METHODS
      **************************************************************************/
