@@ -20,16 +20,19 @@ use Cougar\Exceptions\BadRequestException;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.04.02:
+ *   (AT)  Internal implementation changes corresponding to changes in
+ *         tModel.php
  *
- * @version 2013.09.30
+ * @version 2014.04.02
  * @package Cougar
  * @license MIT
  *
- * @copyright 2013 Brigham Young University
+ * @copyright 2013-2014 Brigham Young University
  *
  * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
  *
- * @todo Only perform casts in __set(); move constratins to __validate()
+ * @todo Only perform casts in __set(); move constraints to __validate()
  */
 trait tStrictModel
 {
@@ -127,8 +130,10 @@ trait tStrictModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.04.02:
+     *   (AT)  Remove reference to obsolete internal __hasChanges property
      *
-     * @version 2013.09.30
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param string $name
@@ -251,9 +256,6 @@ trait tStrictModel
         
         # Set the value
         $this->__values[$property] = $value;
-        
-        # Declare we have changes
-        $this->__hasChanges = true;
     }
 
     /**

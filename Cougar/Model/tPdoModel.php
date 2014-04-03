@@ -64,8 +64,13 @@ use Cougar\Exceptions\RecordNotFoundException;
  *   (AT)  Make sure we fully validate the object when saving or exporting as an
  *         array but still allow the object to be exported with its default
  *         values
+ * 2014.04.02:
+ *   (AT)  Fix bug where values changed via __import() method would not be saved
+ *         to the database
+ *   (AT)  Allow values that may not conform with a property's constraints to be
+ *         loaded from the database
  *
- * @version 2014.03.27
+ * @version 2014.04.02
  * @package Cougar
  * @license MIT
  *
@@ -92,8 +97,11 @@ trait tPdoModel
      *   (AT)  Change authorization() call parameter order
      * 2014.02.18:
      *   (AT)  Add support for the unbound annotation
+     * 2014.04.02:
+     *   (AT)  Switch from using __defaultValues to __previousValues and
+     *         __persistenceValues
      *
-     * @version 2014.02.18
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param \Cougar\Security\iSecurity $security
@@ -171,7 +179,7 @@ trait tPdoModel
                         $this->__allowQuery = false;
 
                         # See which operations will be allowed
-                        foreach(preg_split("/\s+/u",
+                        foreach(preg_split('/\s+/u',
                             strtolower($annotation->value)) as $operation)
                         {
                             switch($operation)
@@ -214,7 +222,7 @@ trait tPdoModel
                     case "PrimaryKey":
                         if ($annotation->value)
                         {
-                            foreach(preg_split("/\s+/u", $annotation->value) as
+                            foreach(preg_split('/\s+/u', $annotation->value) as
                                 $property)
                             {
                                 if (in_array($property, $this->__properties))
@@ -233,10 +241,11 @@ trait tPdoModel
                     case "ReadOnly":
                         if ($annotation->value)
                         {
-                            foreach(preg_split("/\s+/u", $annotation->value) as
+                            foreach(preg_split('/\s+/u', $annotation->value) as
                                 $property)
                             {
-                                if (array_key_exists($property, $this->__readOnly))
+                                if (array_key_exists($property,
+                                    $this->__readOnly))
                                 {
                                     $this->__readOnly[$property] = true;
                                 }
@@ -252,13 +261,13 @@ trait tPdoModel
                     case "DeleteFlag":
                         if ($annotation->value)
                         {
-                            $tmp_array = preg_split("/\s+/u",
+                            $tmp_array = preg_split('/\s+/u',
                                 $annotation->value, 2);
                             if (count($tmp_array )!= 2)
                             {
                                 throw new Exception("You must specify a " .
-                                    "property name and value with @DeleteFlag " .
-                                    "annotation");
+                                    "property name and value with " .
+                                    "@DeleteFlag annotation");
                             }
                             if (in_array($tmp_array[0], $this->__properties))
                             {
@@ -274,7 +283,7 @@ trait tPdoModel
                     case "QueryList":
                         if ($annotation->value)
                         {
-                            foreach(preg_split("/\s+/u", $annotation->value) as
+                            foreach(preg_split('/\s+/u', $annotation->value) as
                                 $property)
                             {
                                 if (in_array($property, $this->__properties))
@@ -378,6 +387,7 @@ trait tPdoModel
             # See if we had query properties
             if (! $this->__queryProperties)
             {
+                # Declare all properties are queryable
                 $this->__queryProperties = array_keys($this->__columnMap);
             }
             
@@ -485,11 +495,11 @@ trait tPdoModel
                     $this->$key = $value;
                 }
                 
-                # Get the record
+                # Get the record; method will also cast values
                 $this->getRecord();
 
                 # Call the authorization method; we call it after we get the
-                # record since the authorization may need all fields
+                # record since the authorization may be based on the values
                 $this->authorization($this->__security, $this->__allowCreate,
                     $this->__allowRead, $this->__allowUpdate,
                     $this->__allowDelete, $this->__allowQuery,
@@ -501,42 +511,25 @@ trait tPdoModel
                     throw new AccessDeniedException(
                         "You do not have access to this record");
                 }
-                
-                # Save the default values
-                foreach(array_keys($this->__columnMap) as $property)
-                {
-                    $this->__defaultValues[$property] = $this->$property;
-                }
             }
             else
             {
                 # Set up insert mode
                 $this->__insertMode = true;
                 $this->__enforceReadOnly = false;
-                
-                # Save the default values
-                foreach(array_keys($this->__columnMap) as $property)
-                {
-                    $this->__defaultValues[$property] = $this->$property;
-                }
+
+                # Set the persistent values from the previous values
+                $this->__persistentValues = $this->__previousValues;
             }
             
-            # Set the other properties
-            if ($values)
-            {
-                foreach($values as $property => $value)
-                {
-                    $this->$property = $value;
-                }
-                
-                $this->__performCasts();
-            }
-            
-            # Declare we have changes
-            $this->__hasChanges = true;
+            # Set the other properties via the __import method
+            $this->__import($values);
         }
         else
         {
+            # Set the persistent values from the previous (default) values
+            $this->__persistentValues = $this->__previousValues;
+
             # Call the authorization method
             $this->authorization($this->__security, $this->__allowCreate,
                 $this->__allowRead, $this->__allowUpdate, $this->__allowDelete,
@@ -574,8 +567,11 @@ trait tPdoModel
      *   (AT)  Make sure the method is still persistent
      * 2014.03.27:
      *   (AT)  Make sure the object is fully validated
+     * 2014.04.02:
+     *   (AT)  Switch from using __defaultValues to __previousValues and
+     *         __persistenceValues
      *
-     * @version 2014.03.27
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
@@ -588,12 +584,6 @@ trait tPdoModel
             throw new Exception("Save is no longer allowed on this model");
         }
 
-        # Make sure we do full validation
-        $this->__validationWithDefaultValuesOk = false;
-
-        # Validate the object
-        $this->__validate();
-
         # See if we are inserting or updating
         if ($this->__insertMode)
         {
@@ -603,6 +593,12 @@ trait tPdoModel
                 throw new AccessDeniedException(
                     "You are not allowed to create this record");
             }
+
+            # Make sure we validate all values
+            $this->__validateAllValues = true;
+
+            # Validate the object
+            $this->__validate();
 
             // Create the list of variable parameters
             $vars = array();
@@ -712,6 +708,9 @@ trait tPdoModel
                     "You are not allowed to update this record");
             }
 
+            # Validate the object
+            $this->__validate();
+
             # See which columns have changed
             $new_values = array();
             $set_declarations = array();
@@ -719,7 +718,7 @@ trait tPdoModel
             {
                 $value = $this->$property;
                 
-                if ($value !== $this->__defaultValues[$property])
+                if ($value !== $this->__persistentValues[$property])
                 {
                     // See what type this property is
                     switch($this->__type[$property])
@@ -811,12 +810,12 @@ trait tPdoModel
         $this->__lastChanges = array();
         foreach(array_keys($this->__columnMap) as $property)
         {
-            if ($this->__defaultValues[$property] !== $this->$property)
+            if ($this->__persistentValues[$property] !== $this->$property)
             {
                 $this->__lastChanges[$property] =
-                    $this->__defaultValues[$property];
+                    $this->__persistentValues[$property];
             }
-            $this->__defaultValues[$property] = $this->$property;
+            $this->__persistentValues[$property] = $this->$property;
         }
     }
     
@@ -1309,6 +1308,11 @@ trait tPdoModel
     protected $__persistent = true;
 
     /**
+     * @var array The last set of known persistent (saved) values
+     */
+    protected $__persistentValues = array();
+
+    /**
      * @var array Properties and values that changed during the last save()
      */
     protected $__lastChanges = array();
@@ -1375,8 +1379,11 @@ trait tPdoModel
      * 2013.10.28:
      *   (AT) Add column aliases to SELECT query to ensure properties are set
      *        properly
+     * 2014.04.02:
+     *   (AT)  Switch from using __defaultValues to __previousValues and
+     *         __persistenceValues
      *
-     * @version 2013.10.18
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     protected function getRecord()
@@ -1391,14 +1398,14 @@ trait tPdoModel
         # See if the value is cached
         if ($this->__noCache)
         {
-            $cache_entry = false;
+            $cached_record = false;
         }
         else
         {
-            $cache_entry = $this->__cache->get($this->getCacheKey());
+            $cached_record = $this->__cache->get($this->getCacheKey());
         }
         
-        if ($cache_entry === false)
+        if ($cached_record === false)
         {
             # See if the columns need aliases
             $columns = array();
@@ -1453,30 +1460,39 @@ trait tPdoModel
 
             # Close the cursor
             $statement->closeCursor();
-            
+
             # Store the record in the cache
             if (! $this->__noCache)
             {
-                $cache_entry = array();
+                $cached_record = array();
                 foreach(array_keys($this->__columnMap) as $property)
                 {
-                    $cache_entry[$property] = $this->$property;
+                    $cached_record[$property] = $this->$property;
                 }
-                $this->__cache->set($this->getCacheKey(), $cache_entry,
+                $this->__cache->set($this->getCacheKey(), $cached_record,
                     $this->__cacheTime);
             }
         }
         else
         {
-            # Store the properties from the cache
-            foreach($cache_entry as $property => $value)
+            # Set the properties from the cached models
+            foreach($cached_record as $property => $value)
             {
                 $this->$property = $value;
             }
         }
-        
-        # Perform casts
+
+        # Perform casts on that values that have just come through
         $this->__performCasts();
+
+
+        # Store the values from the database in the previous value and
+        # persistent value arrays
+        foreach(array_keys($this->__columnMap) as $property)
+        {
+            $this->__previousValues[$property] = $this->$property;
+            $this->__persistentValues[$property] = $this->$property;
+        }
     }
 
     /**

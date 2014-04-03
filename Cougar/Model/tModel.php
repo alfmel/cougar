@@ -37,8 +37,11 @@ use Cougar\Exceptions\BadRequestException;
  * 2014.03.27:
  *   (AT)  Make sure we fully validate the object when exporting as an array but
  *         still allow the object to be exported with its default values
+ * 2014.04.02:
+ *   (AT)  Only use the __defaultValues property for the default values; store
+ *         these in the cache
  *
- * @version 2014.03.27
+ * @version 2014.04.02
  * @package Cougar
  * @license MIT
  *
@@ -62,8 +65,9 @@ trait tModel
      * 2014.03.05:
      *   (AT)  Don't clobber cached annotations when loading parsed annotations
      *         from cache
+     *   (AT)  Switch from using __defaultValues to __previousValues
      *
-     * @version 2014.03.05
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -124,7 +128,7 @@ trait tModel
                         break;
                     case "Views":
                         # See which views are defined
-                        $views = preg_split("/\s+/u", $annotation->value, null,
+                        $views = preg_split('/\s+/u', $annotation->value, null,
                             PREG_SPLIT_NO_EMPTY);
 
                         # Create the views (if we have any)
@@ -206,7 +210,7 @@ trait tModel
                             break;
                         case "View":
                             # Separate the values
-                            $view_values = preg_split("/\s+/u",
+                            $view_values = preg_split('/\s+/u',
                                 $annotation->value);
 
                             # Extract the view (first value)
@@ -260,7 +264,7 @@ trait tModel
                             break;
                         case "var":
                             # Separate the variable name from the comment
-                            $var_values = preg_split("/\s+/u",
+                            $var_values = preg_split('/\s+/u',
                                 $annotation->value);
                             switch($var_values[0])
                             {
@@ -296,9 +300,12 @@ trait tModel
                             break;
                     }
                 }
+            }
 
-                # Remove the public property
-                #unset($this->$property_name);
+            # Get the default values
+            foreach($this->__properties as $property)
+            {
+                $this->__defaultValues[$property] = $this->$property;
             }
 
             # Store the record properties in the caches
@@ -312,8 +319,10 @@ trait tModel
                 "regex" => $this->__regex,
                 "alias" => $this->__alias,
                 "caseInsensitive" => $this->__caseInsensitive,
-                "view" => $this->__views
+                "view" => $this->__views,
+                "defaultValues" => $this->__defaultValues
             );
+
             self::$__executionCache[$class] = $parsed_annotations;
             $local_cache->set($cache_key, $parsed_annotations,
                 Annotations::$cacheTime);
@@ -321,6 +330,7 @@ trait tModel
         else
         {
             # Make sure we don't clobber any previous annotations
+            #  (otherwise we may lose the cached setting)
             if (! $this->__annotations)
             {
                 $this->__annotations = $parsed_annotations["annotations"];
@@ -336,17 +346,16 @@ trait tModel
             $this->__alias = $parsed_annotations["alias"];
             $this->__caseInsensitive = $parsed_annotations["caseInsensitive"];
             $this->__views = $parsed_annotations["view"];
+            $this->__defaultValues = $parsed_annotations["defaultValues"];
         }
-        
-        # Point the protected properties to the values in the default view
-        $this->__exportAlias = &$this->__views["__default__"]["exportAlias"];
-        $this->__optional = &$this->__views["__default__"]["optional"];
-        $this->__visible = &$this->__views["__default__"]["visible"];
 
-        # See if object is set
+        # Set the previous values from the default values
+        $this->__previousValues = $this->__defaultValues;
+        
+        # See if we have an incoming object or array
         if (is_array($object) || is_object($object))
         {
-            # Load the default values (if we have any
+            # Load the incoming values
             $this->__import($object, $strict);
         }
         else if (! is_null($object))
@@ -354,19 +363,18 @@ trait tModel
             throw new BadRequestException(
                 "Casting from object requires an object or array");
         }
-        else
-        {
-            # Store the default values
-            foreach($this->__properties as $property)
-            {
-                $this->__defaultValues[$property] = $this->$property;
-            }
-        }
-        
+
         # Set the desired view
         if ($requested_view)
         {
             $this->__setView($requested_view);
+        }
+        else
+        {
+            # Point the protected properties to the values in the default view
+            $this->__exportAlias = &$this->__views["__default__"]["exportAlias"];
+            $this->__optional = &$this->__views["__default__"]["optional"];
+            $this->__visible = &$this->__views["__default__"]["visible"];
         }
     }
     
@@ -457,9 +465,6 @@ trait tModel
 
             # Save the value
             $this->$name = $value;
-
-            # Declare we have changes
-            $this->__hasChanges = true;
         }
         else
         {
@@ -676,8 +681,11 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.04.02:
+     *   (AT)  Don't store the default values; they should never change
+     *   (AT)  Always do a full validation
      *
-     * @version 2013.09.30
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param mixed $object
@@ -702,9 +710,6 @@ trait tModel
             
             # Reset the strict value (strict from now on)
             $this->__strictPropertyChecks = true;
-            
-            # Declare we have changes
-            $this->__hasChanges = true;
         }
         else
         {
@@ -712,15 +717,8 @@ trait tModel
                 "Importing from object requires an object or array");
         }
         
-        # Store the default values
-        foreach($this->__properties as $property)
-        {
-            $this->__defaultValues[$property] = $this->$property;
-        }
-        
         # Validate all the values
-        #$this->__validate();
-        $this->__performCasts();
+        $this->__validate();
     }
     
     /**
@@ -765,7 +763,6 @@ trait tModel
         $this->__currentView = $view;
     }
 
-    
     /**
      * Validates that all properties are of the right type and follow their
      * attributes. This method may be overridden to provide additional
@@ -778,36 +775,46 @@ trait tModel
      *   (AT)  Only validate if the object has not changed; this allows the
      *         model to be exported with its default values without throwing
      *         validation errors
+     * 2014.04.02:
+     *   (AT)  Only validate values that have changed
      *
-     * @version 2013.09.30
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * @throws \Cougar\Exceptions\Exception
      * @throws \Cougar\Exceptions\BadRequestException
      */
     public function __validate()
     {
-        # See if the values have changed
-        if ($this->__validationWithDefaultValuesOk)
+        # See if we are validating all values
+        if ($this->__validateAllValues)
         {
-            $values_changed = false;
+            $values_have_changed = true;
+            $changed_properties = $this->__properties;
+        }
+        else
+        {
+            # See which values have changed from the previous known values
+            $values_have_changed = false;
+            $changed_properties = array();
             foreach($this->__properties as $property)
             {
-                if ($this->$property !== $this->__defaultValues[$property])
+                if ($this->$property !== $this->__previousValues[$property])
                 {
-                    $values_changed = true;
-                    break;
+                    # This value changed; add it to the list
+                    $values_have_changed = true;
+                    $changed_properties[] = $property;
                 }
-            }
-
-            if (! $values_changed)
-            {
-                // We don't have any changes; consider the validation complete
-                return;
             }
         }
 
+        if (! $values_have_changed)
+        {
+            // We don't have any changes; consider the validation complete
+            return;
+        }
+
         # Perform the casts
-        $this->__performCasts();
+        $this->__performCasts($changed_properties);
 
         # See if the class has a __preValidate method
         if (method_exists($this, "__preValidate"))
@@ -815,19 +822,12 @@ trait tModel
             $this->__preValidate();
         }
         
-        # Go through the data types and make sure the data is the right type
-        foreach($this->__properties as $property)
+        # Go through the properties that have changed
+        foreach($changed_properties as $property)
         {
-            # See if the property is null and whether it can be null
-            if ($this->__null[$property] && $this->$property === null)
-            {
-                # This property is fine
-                continue;
-            }
-            
-            # See if the property is read-only
+            # See if the property is marked as read-only
             if ($this->__enforceReadOnly && $this->__readOnly[$property] &&
-                $this->$property !== $this->__defaultValues[$property])
+                $this->$property !== $this->__previousValues[$property])
             {
                 throw new BadRequestException("Cannot modify " . $property .
                     ": property is read-only");
@@ -866,6 +866,9 @@ trait tModel
                     }
                     break;
             }
+
+            # Save the property's new value
+            $this->__previousValues[$property] = $this->$property;
         }
         
         # See if the class has a __postValidate method
@@ -874,6 +877,7 @@ trait tModel
             $this->__postValidate();
         }
     }
+
     
     /***************************************************************************
      * ITERATOR METHODS
@@ -1003,19 +1007,19 @@ trait tModel
     protected $__properties = array();
     
     /**
-     * @var array Default property values (used to check read-only status)
+     * @var array Default property values
      */
     protected $__defaultValues = array();
-    
+
     /**
-     * @var bool Whether there have been any changes to properties
+     * @var array Last set of validated values
      */
-    protected $__hasChanges = false;
+    protected $__previousValues = array();
 
     /**
      * @var bool Whether to allow validation to pass with default values
      */
-    protected $__validationWithDefaultValuesOk = true;
+    protected $__validateAllValues = false;
 
     /**
      * @var array Property type
@@ -1100,7 +1104,7 @@ trait tModel
      * @var array Execution record property cache
      */
     protected static $__executionCache = array();
-    
+
     /**
      * Performs all property casts.
      *
@@ -1113,14 +1117,28 @@ trait tModel
      *   (AT)  Check if an array value is in JSON; this allows the PDO Model to
      *         convert arrays into JSON for storage and for the incoming data to
      *         be converted back to an array.
+     * 2014.04.02:
+     *   (AT)  Allow an optional list of properties to cast so that we don't go
+     *         through every single one of them
      *
-     * @version 2014.02.13
+     * @version 2014.04.02
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param array $property_list
+     *   Only cast these properties; if null or array is empty, cast all values
+     * @throws \Cougar\Exceptions\Exception
+     * @throws \Cougar\Exceptions\BadRequestException
      */
-    public function __performCasts()
+    public function __performCasts($property_list = null)
     {
-        # Go through the data types and make sure the data is the right type
-        foreach($this->__properties as $property)
+        # See if we have properties in the list
+        if (! $property_list)
+        {
+            $property_list = $this->__properties;
+        }
+
+        # Go through the properties
+        foreach($property_list as $property)
         {
             # See if the property is null and whether it can be null
             if ($this->__null[$property] && $this->$property === null)
