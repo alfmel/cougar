@@ -42,8 +42,10 @@ use Cougar\Exceptions\NotAcceptableException;
  *         authorizationHeader() method
  * 2014.04.03:
  *   (AT)  Add support for more HTTP status codes
+ * 2014.04.04:
+ *   (AT)  Fixed typo that would lead to an exception
  *
- * @version 2014.04.03
+ * @version 2014.04.04
  * @package Cougar
  * @license MIT
  *
@@ -427,8 +429,10 @@ class RestService implements iRestService
      *   (AT)  Initial implementation
      * 2014.03.24:
      *   (AT)  Add support for PHP_AUTH_DIGEST in the $_SERVER variable
+     * 2014.04.04:
+     *   (AT)  Fixed typo which would lead to an exception
      *
-     * @version 2014.03.24
+     * @version 2014.04.04
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @return array Header information
@@ -472,7 +476,7 @@ class RestService implements iRestService
                 "username" => $_SERVER["PHP_AUTH_USER"],
                 "password" => $_SERVER["PHP_AUTH_PW"]);
         }
-        else if (array_key_exsits("PHP_AUTH_DIGEST", $_SERVER))
+        else if (array_key_exists("PHP_AUTH_DIGEST", $_SERVER))
         {
             // Create the response, recreating the raw parameter as well
             $response = array(
