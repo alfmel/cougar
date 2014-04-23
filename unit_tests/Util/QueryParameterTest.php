@@ -148,7 +148,7 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
         $aliases = array(
             "property1" => "property1",
             "property2" => "property2",
-            "property3" => "property3",
+            "property3" => "property3"
         );
         $values = array();
         
@@ -184,7 +184,7 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
         $aliases = array(
             "property1" => "property1",
             "property2" => "property2",
-            "property3" => "property3",
+            "property3" => "property3"
         );
         $values = array();
         
@@ -220,7 +220,7 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
         $aliases = array(
             "property1" => "property1",
             "property2" => "property2",
-            "property3" => "property3",
+            "property3" => "property3"
         );
         $values = array();
         
@@ -238,7 +238,99 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals("value2", $values["property2"]);
         $this->assertEquals("value3", $values["property3"]);
     }
-    
+
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlThreeParameterMixedWithOrNotNull() {
+        $query = array(
+            new QueryParameter("property1", "value1"),
+            new QueryParameter("property2", "value2", "!=", "AND", false, true),
+            new QueryParameter("property3", "value3", "<", "OR")
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3"
+        );
+        $values = array();
+
+        $this->assertEquals(
+            "Column1 = :property1 AND " .
+            "(Column2 != :property2 OR Column2 IS NOT NULL) OR " .
+            "Column3 < :property3",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(3, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertEquals("value1", $values["property1"]);
+        $this->assertEquals("value2", $values["property2"]);
+        $this->assertEquals("value3", $values["property3"]);
+    }
+
+    /**
+     * @covers \Cougar\UtilQueryParameter::__construct
+     * @covers \Cougar\Util\QueryParameter::toSql
+     */
+    public function testToSqlParametersWithNulls() {
+        $query = array(
+            new QueryParameter("property1", "value1"),
+            new QueryParameter("property2", null, "!=", "AND", false, true),
+            new QueryParameter("property3", null, "<", "AND", false, false,
+                true),
+            new QueryParameter("property4", null, "=", "AND", false, false,
+                true),
+            new QueryParameter("property5", "value5", "!=", "AND", false, false,
+                true),
+            new QueryParameter("property6", null, "!=", "AND", false, false,
+                true)
+        );
+        $column_map = array(
+            "property1" => "Column1",
+            "property2" => "Column2",
+            "property3" => "Column3",
+            "property4" => "Column4",
+            "property5" => "Column5",
+            "property6" => "Column6"
+        );
+        $aliases = array(
+            "property1" => "property1",
+            "property2" => "property2",
+            "property3" => "property3",
+            "property4" => "property4",
+            "property5" => "property5",
+            "property6" => "property6"
+        );
+        $values = array();
+
+        $this->assertEquals(
+            "Column1 = :property1 AND " .
+            "(Column2 != :property2 OR Column2 IS NOT NULL) AND " .
+            "Column3 < :property3 AND " .
+            "Column4 IS NULL AND " .
+            "Column5 != :property5 AND " .
+            "Column6 IS NOT NULL",
+            QueryParameter::toSql($query, $column_map, $aliases, false,
+                $values));
+        $this->assertCount(4, $values);
+        $this->assertArrayHasKey("property1", $values);
+        $this->assertArrayHasKey("property2", $values);
+        $this->assertArrayHasKey("property3", $values);
+        $this->assertArrayHasKey("property5", $values);
+        $this->assertEquals("value1", $values["property1"]);
+        $this->assertNull($values["property2"]);
+        $this->assertNull($values["property3"]);
+        $this->assertEquals("value5", $values["property5"]);
+    }
+
     /**
      * @covers \Cougar\UtilQueryParameter::__construct
      * @covers \Cougar\Util\QueryParameter::toSql

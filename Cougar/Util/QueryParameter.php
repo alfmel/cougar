@@ -18,8 +18,10 @@ use Cougar\Exceptions\Exception;
  *   (AT)  Add support for _limit, _count, _offset and _skip to toSql() method
  * 2014.02.27:
  *   (AT)  Make sure we break out of switch statement
+ * 2014.04.23:
+ *   (AT)  Add support for nullable, and orNotNull options
  *
- * @version 2014.02.27
+ * @version 2014.04.23
  * @package Cougar
  * @license MIT
  *
@@ -48,11 +50,21 @@ class QueryParameter extends Struct
      * @var string Append mode (AND or OR)
      */
     public $mode = "AND";
-    
+
+    /**
+     * @var bool Whether the value can be null
+     */
+    public $nullable = false;
+
     /**
      * @var bool Whether to add option for null value
      */
     public $orNull = false;
+
+    /**
+     * @var bool Whether to add option for not null value
+     */
+    public $orNotNull = false;
 
     /**
      * Populates the object's values.
@@ -60,8 +72,10 @@ class QueryParameter extends Struct
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.04.23:
+     *   (AT)  Add support for nullable and orNotNull properties
      *
-     * @version 2013.09.30
+     * @version 2014.04.23
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $property
@@ -72,12 +86,17 @@ class QueryParameter extends Struct
      *   Comparison operator (= != < > <= >= ** =* *=)
      * @param string $mode
      *   AND or OR
-     * @param bool $orNull
+     * @param bool $or_null
      *   Whether to include option for null value in SQL statement
+     * @param bool $or_not_null
+     *   Whether to include option for "not null" value in SQL statement
+     * @param bool $nullable
+     *   Whether the value can be null
      * @throws \Cougar\Exceptions\Exception
      */
     public function __construct($property = null, $value = null,
-        $operator = "=", $mode = "AND", $or_null = false)
+        $operator = "=", $mode = "AND", $or_null = false, $or_not_null = false,
+        $nullable = false)
     {
         # Validate and store the values
         if (is_array($property))
@@ -87,7 +106,7 @@ class QueryParameter extends Struct
                 if (! $query instanceof QueryParameter)
                 {
                     throw new Exception("Property array entry must be " .
-                        "instance of Cougar\Util\QueryParameter");
+                        "instance of Cougar\\Util\\QueryParameter");
                 }
             }
         }
@@ -123,8 +142,10 @@ class QueryParameter extends Struct
             default:
                 throw new Exception("Operator must be AND or OR");
         }
-        
-        $this->orNull = (bool) $or_null;        
+
+        $this->nullable = (bool) $nullable;
+        $this->orNull = (bool) $or_null;
+        $this->orNotNull = (bool) $or_not_null;
     }
     
     /**
@@ -185,7 +206,7 @@ class QueryParameter extends Struct
             
             # Get the property name, operator and value
             $param_parts = array();
-            preg_match_all("/([A-Za-z0-9_]+)(!=|<=|>=|<|>|\*\*|=\*|\*=|=)(.*)/",
+            preg_match_all('/([A-Za-z0-9_]+)(!=|<=|>=|<|>|\*\*|=\*|\*=|=)(.*)/',
                 $match[2], $param_parts, PREG_SET_ORDER);
             
             if (count($param_parts) >= 1)
@@ -262,8 +283,10 @@ class QueryParameter extends Struct
      *   (AT)  Add limit and offset parameters (by reference)
      * 2014.02.27:
      *   (AT)  Make sure we break out of switch statement
+     * 2014.04.23:
+     *   (AT)  Add support for isNotNull and nullable properties
      *
-     * @version 2014.02.27
+     * @version 2014.04.23
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $query_parameter_list
@@ -336,7 +359,7 @@ class QueryParameter extends Struct
                         break;
                 }
 
-                # Figure out the actual value of the property name
+                # Figure out the actual name of the property
                 if ($case_insensitive)
                 {
                     $property = strtolower($param->property);
@@ -363,16 +386,6 @@ class QueryParameter extends Struct
                     $sql .= " " . $param->mode;
                 }
 
-                # See if we have the orNull option
-                if ($param->orNull)
-                {
-                    $sql .= " (";
-                }
-                else
-                {
-                    $sql .= " ";
-                }
-                
                 # Figure out the name of the parameter
                 $param_name = $property;
                 while (in_array($param_name, $used_parameters))
@@ -380,41 +393,72 @@ class QueryParameter extends Struct
                     $param_name .= "_" . $index;
                 }
                 $used_parameters[] = $param_name;
-                
-                # See which type of operator we have
-                switch ($param->operator)
+
+                # See if the value is null and whether it can be null
+                if ($param->nullable && $param->value === null &&
+                    ($param->operator == "=" || $param->operator == "!="))
                 {
-                    case "=":
-                    case "!=":
-                    case "<":
-                    case ">":
-                    case "<=":
-                    case ">=":
-                        $sql .= $column . " " . $param->operator . " :" .
-                            $param_name;
-                        $values[$param_name] = $param->value;
-                        break;
-                    case "**":
-                        $sql .= $column . " LIKE" . " :" . $param_name;
-                        $values[$param_name] = "%" . $param->value . "%";
-                        break;
-                    case "=*":
-                        $sql .= $column . " LIKE" . " :" . $param_name;
-                        $values[$param_name] = $param->value . "%";
-                        break;
-                    case "*=":
-                        $sql .= $column . " LIKE" . " :" . $param_name;
-                        $values[$param_name] = "%" . $param->value;
-                        break;
-                    default:
-                        throw new Exception("Invalid comparison operator: " .
-                            $param->operator);
+                    if ($param->operator == "=")
+                    {
+                        $sql .= " " . $column . " IS NULL";
+                    }
+                    else
+                    {
+                        $sql .= " " . $column . " IS NOT NULL";
+                    }
                 }
-                
-                # See if we need to finish orNull option
-                if ($param->orNull)
+                else
                 {
-                    $sql .= " OR " . $column . " IS NULL)";
+                    # See if we have the orNull or orNotNull option
+                    if ($param->orNull || $param->orNotNull)
+                    {
+                        $sql .= " (";
+                    }
+                    else
+                    {
+                        $sql .= " ";
+                    }
+
+                    # See which type of operator we have
+                    switch ($param->operator)
+                    {
+                        case "=":
+                        case "!=":
+                        case "<":
+                        case ">":
+                        case "<=":
+                        case ">=":
+                            $sql .= $column . " " . $param->operator . " :" .
+                                $param_name;
+                            $values[$param_name] = $param->value;
+                            break;
+                        case "**":
+                            $sql .= $column . " LIKE" . " :" . $param_name;
+                            $values[$param_name] = "%" . $param->value . "%";
+                            break;
+                        case "=*":
+                            $sql .= $column . " LIKE" . " :" . $param_name;
+                            $values[$param_name] = $param->value . "%";
+                            break;
+                        case "*=":
+                            $sql .= $column . " LIKE" . " :" . $param_name;
+                            $values[$param_name] = "%" . $param->value;
+                            break;
+                        default:
+                            throw new Exception(
+                                "Invalid comparison operator: " .
+                                $param->operator);
+                    }
+
+                    # See if we need to finish orNull option
+                    if ($param->orNull)
+                    {
+                        $sql .= " OR " . $column . " IS NULL)";
+                    }
+                    else if ($param->orNotNull)
+                    {
+                        $sql .= " OR " . $column . " IS NOT NULL)";
+                    }
                 }
             }
             
