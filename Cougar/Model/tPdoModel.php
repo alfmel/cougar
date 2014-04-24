@@ -69,8 +69,11 @@ use Cougar\Exceptions\RecordNotFoundException;
  *         to the database
  *   (AT)  Allow values that may not conform with a property's constraints to be
  *         loaded from the database
+ * 2014.04.24:
+ *   (AT)  When querying, make sure objects that implement the iModel interface
+ *         are validated
  *
- * @version 2014.04.02
+ * @version 2014.04.24
  * @package Cougar
  * @license MIT
  *
@@ -1503,8 +1506,10 @@ trait tPdoModel
      * @history
      * 2014.03.04:
      *   (AT)  Initial implementation from the code in the query() method
+     * 2014.04.24:
+     *   (AT)  Make sure objects that implement iModel interface are validated
      *
-     * @version 2014.03.04
+     * @version 2014.04.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $query_statement
@@ -1556,6 +1561,19 @@ trait tPdoModel
                 $result = $statement->fetchAll(
                     \PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $class_name,
                     $ctorargs);
+
+                # See if the object implements the iModel interface
+                if ($result)
+                {
+                    if ($result[0] instanceof iModel)
+                    {
+                        # Go through each row and validate the model
+                        foreach($result as $row)
+                        {
+                            $result->__validate();
+                        }
+                    }
+                }
             }
 
             # Store the results in the cache

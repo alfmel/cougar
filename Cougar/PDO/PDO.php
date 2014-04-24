@@ -3,6 +3,7 @@
 namespace Cougar\PDO;
 
 use Cougar\Exceptions\Exception;
+use Cougar\Model\iModel;
 
 # Initialize the framework (disabled; should have been done by application)
 #require_once(__DIR__ . "/../../cougar.php");
@@ -277,8 +278,11 @@ class PDO extends \PDO implements iPDO
      *         FETCH_PROPS_LATE
      *   (AT)  Add default option to case statement to make sure we fetch
      *         results
+     * 2014.04.24:
+     *   (AT)  Make the default value of ctorargs and empty array
+     *   (AT)  Validate objects that implement the iModel interface
      *
-     * @version 2014.03.27
+     * @version 2014.04.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $statement
@@ -299,7 +303,7 @@ class PDO extends \PDO implements iPDO
      */
     public function queryFetchAll($statement, array $input_parameters = null,
         $fetch_mode = \PDO::FETCH_ASSOC, $classname = null,
-        array $ctorargs = null)
+        array $ctorargs = array())
     {
         # Make sure we have a connection
         if ($this->pdo === null)
@@ -330,6 +334,20 @@ class PDO extends \PDO implements iPDO
             case \PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE:
                 $rows = $statement->fetchAll($fetch_mode, $classname,
                     $ctorargs);
+
+                # See if we have records
+                if ($rows)
+                {
+                    // See if the object is an instance of iModel
+                    if ($rows[0] instanceof iModel)
+                    {
+                        // Go through the rows and validate the model
+                        foreach($rows as $row)
+                        {
+                            $row->__validate();
+                        }
+                    }
+                }
                 break;
             case \PDO::FETCH_ASSOC:
             case \PDO::FETCH_BOTH:
@@ -362,8 +380,11 @@ class PDO extends \PDO implements iPDO
      * 2014.03.27:
      *   (AT)  Add support for PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE fetch
      *         mode
+     * 2014.04.24:
+     *   (AT)  Make the default value of ctorargs and empty array
+     *   (AT)  Validate the object if it implements the iModel interface
      *
-     * @version 2014.03.27
+     * @version 2014.04.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $statement
@@ -383,7 +404,7 @@ class PDO extends \PDO implements iPDO
      */
     public function queryFetchRow($statement, array $input_parameters = null,
         $fetch_mode = \PDO::FETCH_ASSOC, $classname_object = null,
-        array $ctorargs = null)
+        array $ctorargs = array())
     {
         # Make sure we have a connection
         if ($this->pdo === null)
@@ -428,11 +449,25 @@ class PDO extends \PDO implements iPDO
                 $statement->setFetchMode($fetch_mode, $classname_object,
                     $ctorargs);
                 $row = $statement->fetch();
+
+                # See if the object implements iModel
+                if ($row instanceof iModel)
+                {
+                    # Validate the model
+                    $row->__validate();
+                }
                 break;
             case \PDO::FETCH_INTO:
                 $statement->setFetchMode($fetch_mode,
                     $classname_object);
                 $row = $statement->fetch();
+
+                # See if the object implements iModel
+                if ($row instanceof iModel)
+                {
+                    # Validate the model
+                    $row->__validate();
+                }
                 break;
         }
         
