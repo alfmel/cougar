@@ -40,8 +40,10 @@ use Cougar\Exceptions\BadRequestException;
  * 2014.04.02:
  *   (AT)  Only use the __defaultValues property for the default values; store
  *         these in the cache
+ * 2014.04.24:
+ *   (AT)  Make sure full validation is performed during iteration
  *
- * @version 2014.04.02
+ * @version 2014.04.24
  * @package Cougar
  * @license MIT
  *
@@ -964,16 +966,17 @@ trait tModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.04.24:
+     *   (AT)  Make sure full validation is performed
      *
-     * @version 2013.09.30
+     * @version 2014.04.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     public function rewind()
     {
         # Validate the values
-        #$this->__validate();
-        $this->__performCasts();
-        
+        $this->__validate();
+
         # Move back one position past the start
         $this->__iterator = -1;
         
