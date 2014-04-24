@@ -265,5 +265,189 @@ class ArraysTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $sorted_array[3]["id"]);
         $this->assertEquals(4, $sorted_array[4]["id"]);
     }
+
+    /**
+     * @covers \Cougar\Util\Arrays::dataFilter
+     */
+    public function testDataFilterSingleValue()
+    {
+        // Define the array with records
+        $records = array(
+            array(
+                "id" => 1,
+                "firstName" => "Peter",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 2,
+                "firstName" => "John",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 3,
+                "firstName" => "John",
+                "lastName" => "Smith",
+                "age" => 45
+            ),
+            array(
+                "id" => 4,
+                "firstName" => "Mark",
+                "lastName" => "Johnson",
+                "age" => 58
+            ),
+            array(
+                "id" => 5,
+                "firstName" => "Michael",
+                "lastName" => "Zimmerman",
+                "age" => 19
+            )
+        );
+
+        // Filter the results by last name
+        $filtered_records = Arrays::dataFilter($records, "lastName", "Smith");
+        $this->assertCount(1, $filtered_records);
+        $this->assertEquals($filtered_records[2]["lastName"], "Smith");
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::dataFilter
+     */
+    public function testDataFilterSingleValueNegate()
+    {
+        // Define the array with records
+        $records = array(
+            array(
+                "id" => 1,
+                "firstName" => "Peter",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 2,
+                "firstName" => "John",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 3,
+                "firstName" => "John",
+                "lastName" => "Smith",
+                "age" => 45
+            ),
+            array(
+                "id" => 4,
+                "firstName" => "Mark",
+                "lastName" => "Johnson",
+                "age" => 58
+            ),
+            array(
+                "id" => 5,
+                "firstName" => "Michael",
+                "lastName" => "Zimmerman",
+                "age" => 19
+            )
+        );
+
+        // Filter the results by last name
+        $filtered_records = Arrays::dataFilter($records, "lastName", "Smith",
+            false);
+        $this->assertCount(4, $filtered_records);
+        foreach($filtered_records as $record)
+        {
+            $this->assertNotEquals($record["lastName"], "Smith");
+        }
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::dataFilter
+     */
+    public function testDataFilterMultipleValues()
+    {
+        // Define the array with records
+        $records = array(
+            array(
+                "id" => 1,
+                "firstName" => "Peter",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 2,
+                "firstName" => "John",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 3,
+                "firstName" => "John",
+                "lastName" => "Smith",
+                "age" => 45
+            ),
+            array(
+                "id" => 4,
+                "firstName" => "Mark",
+                "lastName" => "Johnson",
+                "age" => 58
+            ),
+            array(
+                "id" => 5,
+                "firstName" => "Michael",
+                "lastName" => "Zimmerman",
+                "age" => 19
+            )
+        );
+
+        // Filter the results by last name
+        $filtered_records = Arrays::dataFilter($records, "firstName",
+            array("John", "Michael"));
+        $this->assertCount(3, $filtered_records);
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::dataFilter
+     */
+    public function testDataFilterMultipleValuesNegate()
+    {
+        // Define the array with records
+        $records = array(
+            array(
+                "id" => 1,
+                "firstName" => "Peter",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 2,
+                "firstName" => "John",
+                "lastName" => "Stevens",
+                "age" => 45
+            ),
+            array(
+                "id" => 3,
+                "firstName" => "John",
+                "lastName" => "Smith",
+                "age" => 45
+            ),
+            array(
+                "id" => 4,
+                "firstName" => "Mark",
+                "lastName" => "Johnson",
+                "age" => 58
+            ),
+            array(
+                "id" => 5,
+                "firstName" => "Michael",
+                "lastName" => "Zimmerman",
+                "age" => 19
+            )
+        );
+
+        // Filter the results by last name
+        $filtered_records = Arrays::dataFilter($records, "firstName",
+            array("John", "Michael"), false);
+        $this->assertCount(2, $filtered_records);
+    }
 }
 ?>

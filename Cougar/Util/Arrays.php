@@ -230,5 +230,109 @@ class Arrays implements iArrays
         # Return the sorted array
         return $array;
     }
+
+    /**
+     * Filters records from a 2-dimensional record set array by the specified
+     * index in the second array or object property and the given values. For
+     * example, to filter a list of addresses that are either from Canada,
+     * United States or Mexico you would call:
+     *
+     *   Arrays::dataFilter($address_list, "country", array("CA", "US", "MX"));
+     *
+     * You may optionally pass false as the fourth argument to negate the filter;
+     * that is, all address except those in CA, US, or MX.
+     *
+     * @history:
+     * 2014.04.24:
+     *   (AT)  Initial definition
+     *
+     * @version 2014.04.24
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param array $array Array with data to filter
+     * @param string $index Index or property name to filter by
+     * @param mixed $value String or array of values to filter by
+     * @param bool $equal Set to true to return records that don't match values
+     * @throws \Cougar\Exceptions\Exception
+     * @return array Filtered array
+     */
+    public static function dataFilter(array $array, $index, $value,
+        $equal = true)
+    {
+        # Prepare the array that will store the results
+        $filtered_array = array();
+
+        # See if the value is a single value
+        if (! is_array($value))
+        {
+            # Turn the value into an array
+            $value = array($value);
+        }
+
+        $first = true;
+        foreach($array as $key => $record)
+        {
+            # See if we have an object or array and make sure the index exists
+            if ($first)
+            {
+                if (is_array($record))
+                {
+                    $is_array = true;
+                    if (! array_key_exists($index, $record))
+                    {
+                        throw new Exception(
+                            "Array value does not have given index key");
+                    }
+                }
+                else if (is_object($record))
+                {
+                    $is_array = false;
+                    if (! property_exists($record, $index))
+                    {
+                        throw new Exception("Array value does not have " .
+                            "given index property");
+                    }
+                }
+                else
+                {
+                    throw new Exception(
+                        "Array must contain associative arrays or objects");
+                }
+            }
+
+            $first = false;
+
+            // Get the value in the record
+            if ($is_array)
+            {
+                $record_value = $record[$index];
+            }
+            else
+            {
+                $record_value = $record->$index;
+            }
+
+            // See if the value matches any of the given values
+            if (in_array($record_value, $value))
+            {
+                // If we are returning records that are equal, add this record
+                if ($equal)                {
+                    $filtered_array[$key] = $record;
+                }
+            }
+            else
+            {
+                // If we are not returning records that are equal, add this
+                // record
+                if (! $equal)
+                {
+                    $filtered_array[$key] = $record;
+                }
+            }
+        }
+
+        # Return the filtered results
+        return $filtered_array;
+    }
 }
 ?>
