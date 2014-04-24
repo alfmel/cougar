@@ -1570,7 +1570,7 @@ trait tPdoModel
                         # Go through each row and validate the model
                         foreach($result as $row)
                         {
-                            $result->__validate();
+                            $row->__validate();
                         }
                     }
                 }
