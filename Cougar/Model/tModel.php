@@ -42,8 +42,11 @@ use Cougar\Exceptions\BadRequestException;
  *         these in the cache
  * 2014.04.24:
  *   (AT)  Make sure full validation is performed during iteration
+ * 2014.04.25:
+ *   (AT)  Make sure properties that were changed in __preValidate() are
+ *         validated the first time
  *
- * @version 2014.04.24
+ * @version 2014.04.25
  * @package Cougar
  * @license MIT
  *
@@ -779,8 +782,10 @@ trait tModel
      *         validation errors
      * 2014.04.02:
      *   (AT)  Only validate values that have changed
+     * 2014.04.25:
+     *   (AT)  Recalculate changed values after call to __preValidate()
      *
-     * @version 2014.04.02
+     * @version 2014.04.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * @throws \Cougar\Exceptions\Exception
      * @throws \Cougar\Exceptions\BadRequestException
@@ -822,6 +827,18 @@ trait tModel
         if (method_exists($this, "__preValidate"))
         {
             $this->__preValidate();
+
+            // Recalculate the list of properties that have changed since the
+            // pre-validation may have changed more of them
+            $changed_properties = array();
+            foreach($this->__properties as $property)
+            {
+                if ($this->$property !== $this->__previousValues[$property])
+                {
+                    # This value changed; add it to the list
+                    $changed_properties[] = $property;
+                }
+            }
         }
         
         # Go through the properties that have changed
@@ -845,6 +862,7 @@ trait tModel
                         $match = false;
                         foreach($this->__regex[$property] as $regex)
                         {
+
                             $result = preg_match($regex, $this->$property);
                             
                             if ($result)
