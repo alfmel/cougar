@@ -2,6 +2,7 @@
 
 namespace Cougar\UnitTests\Util;
 
+use stdClass;
 use Cougar\Util\Arrays;
 
 /**
@@ -214,8 +215,8 @@ class ArraysTest extends \PHPUnit_Framework_TestCase {
         // Stop the timer
         $stop_time = microtime(true);
 
-        // Make sure the rename took less than a quarter of a second
-        $this->assertLessThan(0.25, $stop_time - $start_time);
+        // Make sure the rename took less than one second
+        $this->assertLessThan(1, $stop_time - $start_time);
     }
 
     /**
@@ -448,6 +449,89 @@ class ArraysTest extends \PHPUnit_Framework_TestCase {
         $filtered_records = Arrays::dataFilter($records, "firstName",
             array("John", "Michael"), false);
         $this->assertCount(2, $filtered_records);
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::setModelView
+     */
+    public function testSetModelView()
+    {
+        $object1 = $this->getMockBuilder('\Cougar\Model\Model')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $object1->expects($this->once())
+            ->method("__setView")
+            ->with("new_view");
+
+        $object2 = $this->getMockBuilder('\Cougar\Model\Model')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $object2->expects($this->once())
+            ->method("__setView")
+            ->with("new_view");
+
+        $objects = array($object1, $object2);
+
+        Arrays::setModelView($objects, "new_view");
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::setModelView
+     * @expectedException \Cougar\Exceptions\Exception
+     */
+    public function testSetModelViewBadObjects()
+    {
+        $object1 = new stdClass();
+        $object2 = new stdClass();
+
+        $objects = array($object1, $object2);
+
+        Arrays::setModelView($objects, "new_view");
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::cloneObjects
+     */
+    public function testCloneObjects()
+    {
+        $object1 = new stdClass();
+        $object1->value = "Object 1";
+
+        $object2 = new stdClass();
+        $object2->value = "Object 2";
+
+        $objects = array($object1, $object2);
+
+        Arrays::cloneObjects($objects);
+
+        $objects[0]->value = "Cloned Object 1";
+        $objects[1]->value = "Cloned Object 2";
+
+        $this->assertNotEquals($object1->value, $objects[0]->value);
+        $this->assertNotEquals($object2->value, $objects[1]->value);
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::cloneObjects
+     */
+    public function testCloneObjectsMixedArray()
+    {
+        $object1 = new stdClass();
+        $object1->value = "Object 1";
+
+        $object2 = new stdClass();
+        $object2->value = "Object 2";
+
+        $objects = array($object1, $object2, "stuff");
+
+        Arrays::cloneObjects($objects);
+
+        $objects[0]->value = "Cloned Object 1";
+        $objects[1]->value = "Cloned Object 2";
+
+        $this->assertNotEquals($object1->value, $objects[0]->value);
+        $this->assertNotEquals($object2->value, $objects[1]->value);
+        $this->assertEquals("stuff", $objects[2]);
     }
 }
 ?>

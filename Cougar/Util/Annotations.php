@@ -572,7 +572,7 @@ class Annotations implements iAnnotations
             else
             {
                 # Split the annotation on white space
-                $values = preg_split("/\s/", trim($part), 2);
+                $values = preg_split('/\s/', trim($part), 2);
 
                 # See if this annotation is in the ignore list
                 if (! in_array($values[0], self::$ignoreList))

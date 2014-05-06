@@ -2,6 +2,7 @@
 namespace Cougar\Util;
 
 use Cougar\Exceptions\Exception;
+use Cougar\Model\iModel;
 
 # Initialize the framework (disabled; should have been done by application)
 #require_once(__DIR__ . "/../../cougar.php");
@@ -244,7 +245,7 @@ class Arrays implements iArrays
      *
      * @history:
      * 2014.04.24:
-     *   (AT)  Initial definition
+     *   (AT)  Initial implementation
      *
      * @version 2014.04.24
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
@@ -333,6 +334,78 @@ class Arrays implements iArrays
 
         # Return the filtered results
         return $filtered_array;
+    }
+
+    /**
+     * Sets the view on all elements in the array. The elements in an array must
+     * implement the Cougar\Model\iModel interface.
+     *
+     * The array is passed as a reference, and changes will be made directly to
+     * the array.
+     *
+     * @history:
+     * 2014.05.06:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.05.06
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param \Cougar\Model\iModel[] $array Array of model objects
+     * @param string $view New view to set on the objects
+     * @throws \Cougar\Exceptions\Exception
+     */
+    public static function setModelView(array &$array, $view = "__default__")
+    {
+        # Go through the elements in the array
+        foreach($array as $model)
+        {
+            # Make sure the object is an instance of iModel
+            if (! $model instanceof iModel)
+            {
+                throw new Exception("Array element must be instance of " .
+                    "Cougar\\Model\\iModel");
+            }
+
+            # Set the view
+            $model->__setView($view);
+        }
+    }
+
+    /**
+     * Clones all objects in the array. Because PHP always passes all objects
+     * as references and calling clone on array is not possible, this method
+     * will iterate through the array and clone its objects.
+     *
+     * Note that this will only perform a shallow copy. That is, object
+     * references within the object will not be cloned. If you need a deep copy
+     * where all objects references are cloned, make sure the objects in your
+     * array clone those objects in the __clone() method.
+     *
+     * @history:
+     * 2014.05.06:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.05.06
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param array $array Array of objects to be cloned
+     * @return array Array with cloned objects
+     */
+    public static function cloneObjects(array &$array)
+    {
+        # Go through each element of the array
+        foreach($array as &$object)
+        {
+            # See if we have an object
+            if (is_object($object))
+            {
+                # Clone the object
+                $object = clone $object;
+            }
+        }
+
+        # Return the cloned array
+        return $array;
     }
 }
 ?>
