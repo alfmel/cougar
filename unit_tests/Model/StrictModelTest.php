@@ -597,6 +597,53 @@ class StrictModelTest extends \PHPUnit_Framework_TestCase {
         $object = new StrictModelWithChildUnitTest($array);
         $this->fail("Expected exception was not thrown");
     }
+
+    /**
+     * @covers \Cougar\Model\StrictModel::__construct
+     * @covers \Cougar\Model\StrictModel::__isset
+     * @covers \Cougar\Model\StrictModel::__set
+     * @covers \Cougar\Model\StrictModel::__get
+     */
+    public function testNewObjectWithArrayOfObjects()
+    {
+        $object = new StrictModelWithArrayOfObjectsUnitTest();
+        $object->userId = "12345";
+        $object->lastName = "Cougar";
+        $object->firstName = "Cosmo";
+        $object->email = "cosmo@byu.edu";
+        $object->phone = "555-1212";
+        $object->birthDate = "01 JUN 1960";
+        $object->attributes = array(new \stdClass(), new \stdClass());
+
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Cougar", $object->lastName);
+        $this->assertEquals("Cosmo", $object->firstName);
+        $this->assertEquals("cosmo@byu.edu", $object->email);
+        $this->assertEquals("555-1212", $object->phone);
+        $this->assertInstanceOf("Cougar\\Util\\DateTime", $object->birthDate);
+        $this->assertEquals("1960-06-01", (string) $object->birthDate);
+        $this->assertTrue($object->active);
+        $this->assertCount(2, $object->attributes);
+    }
+
+    /**
+     * @covers \Cougar\Model\StrictModel::__construct
+     * @covers \Cougar\Model\StrictModel::__isset
+     * @covers \Cougar\Model\StrictModel::__set
+     * @covers \Cougar\Model\StrictModel::__get
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testNewObjectWithBadArrayOfObjects()
+    {
+        $object = new StrictModelWithArrayOfObjectsUnitTest();
+        $object->userId = "12345";
+        $object->lastName = "Cougar";
+        $object->firstName = "Cosmo";
+        $object->email = "cosmo@byu.edu";
+        $object->phone = "555-1212";
+        $object->birthDate = "01 JUN 1960";
+        $object->attributes = array(new StrictModelUnitTest());
+    }
 }
 
 require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
@@ -612,7 +659,7 @@ require_once(__DIR__ . "/../../Cougar/Model/tStrictModel.php");
 require_once(__DIR__ . "/../../Cougar/Model/StrictModel.php");
 
 /**
- * Example AnnotatedRealStruct extension
+ * Example StrictModel extension
  * 
  * @Views alt
  */
@@ -673,7 +720,7 @@ class StrictModelUnitTest extends \Cougar\Model\StrictModel
 }
 
 /**
- * Example AnnotatedRealStruct extension with child object
+ * Example StrictModel extension with child object
  */
 class StrictModelWithChildUnitTest extends StrictModelUnitTest
 {
@@ -686,5 +733,16 @@ class StrictModelWithChildUnitTest extends StrictModelUnitTest
      * @var \StdClass object
      */
     public $object;
+}
+
+/**
+ * Example StrictModel extension with array of objects
+ */
+class StrictModelWithArrayOfObjectsUnitTest extends StrictModelUnitTest
+{
+    /**
+     * @var StdClass[] Attribute list
+     */
+    public $attributes;
 }
 ?>

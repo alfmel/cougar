@@ -2,6 +2,7 @@
 
 namespace Cougar\UnitTests\Model;
 
+use stdClass;
 use Cougar\Model\Model;
 
 /**
@@ -707,6 +708,57 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
         $object = new ModelWithChildUnitTest($array);
         $this->fail("Expected exception was not thrown");
     }
+
+    /**
+     * @covers \Cougar\Model\Model::__construct
+     * @covers \Cougar\Model\Model::__isset
+     * @covers \Cougar\Model\Model::__set
+     * @covers \Cougar\Model\Model::__get
+     * @covers \Cougar\Model\Model::validate();
+     */
+    public function testNewObjectWithArrayOfObjects()
+    {
+        $object = new ModelWithArrayOfObjectsUnitTest();
+        $object->userId = "12345";
+        $object->lastName = "Cougar";
+        $object->firstName = "Cosmo";
+        $object->email = "cosmo@byu.edu";
+        $object->phone = "801-555-1212";
+        $object->birthDate = "01 JUN 1960";
+        $object->attributes = array(new stdClass(), new stdClass());
+        $object->__validate();
+
+        $this->assertEquals(12345, $object->userId);
+        $this->assertEquals("Cougar", $object->lastName);
+        $this->assertEquals("Cosmo", $object->firstName);
+        $this->assertEquals("cosmo@byu.edu", $object->email);
+        $this->assertEquals("801-555-1212", $object->phone);
+        $this->assertInstanceOf("Cougar\Util\DateTime", $object->birthDate);
+        $this->assertEquals("1960-06-01", (string) $object->birthDate);
+        $this->assertTrue($object->active);
+        $this->assertCount(2, $object->attributes);
+    }
+
+    /**
+     * @covers \Cougar\Model\Model::__construct
+     * @covers \Cougar\Model\Model::__isset
+     * @covers \Cougar\Model\Model::__set
+     * @covers \Cougar\Model\Model::__get
+     * @covers \Cougar\Model\Model::validate();
+     * @expectedException \Cougar\Exceptions\BadRequestException
+     */
+    public function testNewObjectWithArrayOfObjectsBadElement()
+    {
+        $object = new ModelWithArrayOfObjectsUnitTest();
+        $object->userId = "12345";
+        $object->lastName = "Cougar";
+        $object->firstName = "Cosmo";
+        $object->email = "cosmo@byu.edu";
+        $object->phone = "801-555-1212";
+        $object->birthDate = "01 JUN 1960";
+        $object->attributes = array(new stdClass(), new ModelUnitTest());
+        $object->__validate();
+    }
 }
 
 require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
@@ -720,7 +772,7 @@ require_once(__DIR__ . "/../../Cougar/Model/tModel.php");
 require_once(__DIR__ . "/../../Cougar/Model/Model.php");
 
 /**
- * Example AnnotatedStruct extension
+ * Example Model extension
  * 
  * @Views alt
  */
@@ -784,7 +836,7 @@ class ModelUnitTest extends \Cougar\Model\Model
 }
 
 /**
- * Example AnnotatedStruct extension with child object
+ * Example Model extension with child object
  */
 class ModelWithChildUnitTest extends ModelUnitTest
 {
@@ -797,5 +849,16 @@ class ModelWithChildUnitTest extends ModelUnitTest
      * @var \StdClass object
      */
     public $object;
+}
+
+/**
+ * Example Model with array of objects
+ */
+class ModelWithArrayOfObjectsUnitTest extends ModelUnitTest
+{
+    /**
+     * @var stdClass[] User's attributes
+     */
+    public $attributes = array();
 }
 ?>

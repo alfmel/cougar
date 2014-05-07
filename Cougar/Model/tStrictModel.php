@@ -23,8 +23,10 @@ use Cougar\Exceptions\BadRequestException;
  * 2014.04.02:
  *   (AT)  Internal implementation changes corresponding to changes in
  *         tModel.php
+ * 2014.05.07:
+ *   (AT)  Allow property types to include [] to denote arrays
  *
- * @version 2014.04.02
+ * @version 2014.05.07
  * @package Cougar
  * @license MIT
  *
@@ -132,8 +134,10 @@ trait tStrictModel
      *   (AT)  Initial release
      * 2014.04.02:
      *   (AT)  Remove reference to obsolete internal __hasChanges property
+     * 2014.05.07:
+     *   (AT)  Allow property types to include [] to denote arrays
      *
-     * @version 2014.04.02
+     * @version 2014.05.07
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param string $name
@@ -245,11 +249,39 @@ trait tStrictModel
                     }
                     break;
                 default:
-                    # Assume object; make sure it is an instance
-                    if (! $value instanceof $this->__type[$name])
+                    # See if this is an array of objects
+                    if (substr($this->__type[$name], -2) == "[]")
                     {
-                        throw new Exception("Property " . $name . " must be " .
-                            "instance of " . $this->__type[$name]);
+                        # Extract the actual type
+                        $type = substr($this->__type[$name], 0, -2);
+
+                        # Make sure this is an array
+                        if (! is_array($value))
+                        {
+                            throw new BadRequestException(
+                                $name . " property must be an array of " .
+                                $type);
+                        }
+
+                        # Make sure all the elements are of the right type
+                        foreach($value as $element)
+                        {
+                            if (! $element instanceof $type)
+                            {
+                                throw new BadRequestException("element in " .
+                                    $name . " property must be instance " .
+                                    "of " . $type);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        # Assume object; make sure it is an instance
+                        if (! $value instanceof $this->__type[$name])
+                        {
+                            throw new Exception("Property " . $name ." must " .
+                                "be instance of " . $this->__type[$name]);
+                        }
                     }
             }
         }

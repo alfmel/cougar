@@ -45,8 +45,10 @@ use Cougar\Exceptions\BadRequestException;
  * 2014.04.25:
  *   (AT)  Make sure properties that were changed in __preValidate() are
  *         validated the first time
+ * 2014.05.07:
+ *   (AT)  Allow property types to include [] to denote arrays
  *
- * @version 2014.04.25
+ * @version 2014.05.07
  * @package Cougar
  * @license MIT
  *
@@ -1141,8 +1143,10 @@ trait tModel
      * 2014.04.02:
      *   (AT)  Allow an optional list of properties to cast so that we don't go
      *         through every single one of them
+     * 2014.05.07:
+     *   (AT)  Allow property types to include [] to denote arrays
      *
-     * @version 2014.04.02
+     * @version 2014.05.07
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $property_list
@@ -1167,7 +1171,7 @@ trait tModel
                 # This property is fine
                 continue;
             }
-            
+
             # Check the property type and cast as necessary
             switch($this->__type[$property])
             {
@@ -1223,11 +1227,40 @@ trait tModel
                     }
                     break;
                 default:
-                    if (! $this->$property instanceof $this->__type[$property])
+                    # See if this is an array of objects
+                    if (substr($this->__type[$property], -2) == "[]")
                     {
-                        throw new Exception($property .
-                            " property must be an instance of " .
-                            $this->__type[$property]);
+                        # Extract the actual type
+                        $type = substr($this->__type[$property], 0, -2);
+
+                        # Make sure this is an array
+                        if (! is_array($this->$property))
+                        {
+                            throw new BadRequestException(
+                                $property . " property must be an array of " .
+                                $type);
+                        }
+
+                        # Make sure all the elements are of the right type
+                        foreach($this->$property as $element)
+                        {
+                            if (! $element instanceof $type)
+                            {
+                                throw new BadRequestException("element in " .
+                                    $property . " property must be instance " .
+                                    "of " . $type);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (! $this->$property instanceof
+                            $this->__type[$property])
+                        {
+                            throw new Exception($property .
+                                " property must be an instance of " .
+                                $this->__type[$property]);
+                        }
                     }
             }
         }
