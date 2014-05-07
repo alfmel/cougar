@@ -559,8 +559,10 @@ trait tModel
      * 2014.03.27:
      *   (AT)  Validate the object when exporting instead of simply performing
      *         casts
+     * 2014.05.07:
+     *   (AT)  Handle property types that include [] as arrays
      *
-     * @version 2014.03.27
+     * @version 2014.05.07
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @return array Associative array with public properties and their values
@@ -589,9 +591,17 @@ trait tModel
                 # Skip this property
                 continue;
             }
+
+            # Check the property type for [] array indicators
+            $property_type = $this->__type[$property];
+            if (substr($property_type, -2) == "[]")
+            {
+                // Treat the property as an array
+                #$property_type = "array";
+            }
             
             # Check the property type
-            switch($this->__type[$property])
+            switch($property_type)
             {
                 case "string":
                 case "int":
@@ -644,13 +654,13 @@ trait tModel
                     {
                         $object = $object->__toArray();
                     }
-                    else if (method_exists($sub_value, "toArray"))
+                    else if (method_exists($object, "toArray"))
                     {
-                        $object = $sub_value->toArray();
+                        $object = $object->toArray();
                     }
                     else
                     {
-                        $object = (array) $sub_value;
+                        $object = (array) $object;
                     }
                     
                     # Save the value
