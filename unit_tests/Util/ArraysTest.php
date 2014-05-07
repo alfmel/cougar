@@ -533,5 +533,56 @@ class ArraysTest extends \PHPUnit_Framework_TestCase {
         $this->assertNotEquals($object2->value, $objects[1]->value);
         $this->assertEquals("stuff", $objects[2]);
     }
+
+    /**
+     * @covers \Cougar\Util\Arrays::cloneObjectArray
+     */
+    public function testCloneObjectArray()
+    {
+        $object1 = new stdClass();
+        $object1->value = "Object 1";
+
+        $object2 = new stdClass();
+        $object2->value = "Object 2";
+
+        $objects = array($object1, $object2);
+
+        $cloned_objects = Arrays::cloneObjectArray($objects);
+
+        $cloned_objects[0]->value = "Cloned Object 1";
+        $cloned_objects[1]->value = "Cloned Object 2";
+
+        $this->assertNotEquals($object1->value, $cloned_objects[0]->value);
+        $this->assertNotEquals($object2->value, $cloned_objects[1]->value);
+
+        $this->assertEquals($object1->value, $objects[0]->value);
+        $this->assertEquals($object2->value, $objects[1]->value);
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::cloneObjectArray
+     */
+    public function testCloneObjectArrayMixedArray()
+    {
+        $object1 = new stdClass();
+        $object1->value = "Object 1";
+
+        $object2 = new stdClass();
+        $object2->value = "Object 2";
+
+        $objects = array($object1, $object2, "stuff");
+
+        $cloned_objects = Arrays::cloneObjectArray($objects);
+
+        $cloned_objects[0]->value = "Cloned Object 1";
+        $cloned_objects[1]->value = "Cloned Object 2";
+
+        $this->assertNotEquals($object1->value, $cloned_objects[0]->value);
+        $this->assertNotEquals($object2->value, $cloned_objects[1]->value);
+        $this->assertEquals("stuff", $objects[2]);
+
+        $this->assertEquals($object1->value, $objects[0]->value);
+        $this->assertEquals($object2->value, $objects[1]->value);
+    }
 }
 ?>

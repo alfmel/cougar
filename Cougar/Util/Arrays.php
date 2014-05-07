@@ -381,15 +381,19 @@ class Arrays implements iArrays
      * where all objects references are cloned, make sure the objects in your
      * array clone those objects in the __clone() method.
      *
+     * Note that the array is passed by reference. If you wish to create a new
+     * array with the cloned objects use cloneObjectArray().
+     *
      * @history:
      * 2014.05.06:
      *   (AT)  Initial implementation
+     * 2014.05.07:
+     *   (AT)  Don't return the array; only perform in given array
      *
-     * @version 2014.05.06
+     * @version 2014.05.07
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $array Array of objects to be cloned
-     * @return array Array with cloned objects
      */
     public static function cloneObjects(array &$array)
     {
@@ -403,9 +407,54 @@ class Arrays implements iArrays
                 $object = clone $object;
             }
         }
+    }
 
-        # Return the cloned array
-        return $array;
+    /**
+     * Clones the given array and all objects in it. Because PHP always passes
+     * all objects as references and calling clone on array is not possible,
+     * this method iterate through the array and return a new array with clones
+     * of its elements.
+     *
+     * Note that this will only perform a shallow copy. That is, object
+     * references within the object will not be cloned. If you need a deep copy
+     * where all objects references are cloned, make sure the objects in your
+     * array clone those objects in the __clone() method.
+     *
+     * This implementation will create a new array. If you wish to clone the
+     * objects in place, use cloneObjects().
+     *
+     * @history:
+     * 2014.05.07:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.05.07
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param array $array Array of objects to be cloned
+     * @return array New array of cloned objects
+     */
+    public static function cloneObjectArray(array $array)
+    {
+        # Define the target array
+        $cloned_array = array();
+
+        # Go through each element of the array
+        foreach($array as $key => $object)
+        {
+            # See if we have an object
+            if (is_object($object))
+            {
+                # Clone the object
+                $cloned_array[$key] = clone $object;
+            }
+            else
+            {
+                # Just pass the object as is
+                $cloned_array[$key] = $object;
+            }
+        }
+
+        return $cloned_array;
     }
 }
 ?>
