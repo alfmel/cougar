@@ -40,8 +40,10 @@ use Cougar\Exceptions\Exception;
  * 2014.03.19:
  *   (AT)  Make sure cached inherited annotations are cloned when stored and
  *         retrieved
+ * 2014.05.08:
+ *   (AT)  Make sure trait and interface filenames are checked for changes
  *
- * @version 2014.03.19
+ * @version 2014.05.08
  * @package Cougar
  * @licence MIT
  *
@@ -256,8 +258,10 @@ class Annotations implements iAnnotations
      *   (AT)  Cache inherited annotations directly to improve performance
      * 2014.03.19:
      *   (AT)  Clone annotations object before storing in execution cache
+     * 2014.05.08:
+     *   (AT)  Make sure trait and interface filenames are checked for changes
      *
-     * @version 2014.03.19
+     * @version 2014.05.08
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -336,7 +340,7 @@ class Annotations implements iAnnotations
                 if ($inherit_from_traits)
                 {
                     // Go through the traits
-                    foreach($parent->getTraitNames() as $trait)
+                    foreach($parent->getTraits() as $trait => $r_trait)
                     {
                         // Skip if in Cougar\Model or exclude_class_list
                         if (substr($trait, 0, 12) !== "Cougar\\Model" &&
@@ -347,6 +351,9 @@ class Annotations implements iAnnotations
 
                             // Add the trait to the list of traits
                             $trait_list[] = $trait;
+
+                            // Add the file name to the filename list
+                            $filename_list[] = $r_trait->getFileName();
                         }
                     }
                 }
@@ -355,7 +362,8 @@ class Annotations implements iAnnotations
                 if ($inherit_from_interfaces)
                 {
                     // Go through the interfaces
-                    foreach($parent->getInterfaceNames() as $interface)
+                    foreach($parent->getInterfaces() as
+                        $interface => $r_interface)
                     {
                         // Skip if in Cougar\Model or exclude_class_list
                         if (substr($interface, 0, 12) !== "Cougar\\Model" &&
@@ -363,6 +371,9 @@ class Annotations implements iAnnotations
                         {
                             // Add the interface to the class hierarchy
                             array_unshift($class_hierarchy, $interface);
+
+                            // Add the file name to the filename list
+                            $filename_list[] = $r_interface->getFileName();
                         }
                     }
                 }
@@ -379,7 +390,7 @@ class Annotations implements iAnnotations
         while ($parent !== false);
 
         // See if the files have been modified
-        if (! self::filesHaveChanged($filename_list, false))
+        if (! self::filesHaveChanged(array_unique($filename_list), false))
         {
             // See if we have an entry in the local cache
             $annotations = self::$cache->get($cache_key);
