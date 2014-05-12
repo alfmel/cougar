@@ -36,7 +36,7 @@ namespace Cougar\RestService;
  * @Methods GET|POST|PUT|DELETE
  *   A list of methods the function will handle. Multiple values are separated
  *   by white space. If this annotation is omitted, the method will be called
- *   on any method.
+ *   on any HTTP method.
  * 
  * @Accepts JSON|XML|PHP|mime/type
  *   A list of mime types the call will accept. You may use the generic JSON,
@@ -48,11 +48,20 @@ namespace Cougar\RestService;
  *   calls to handle different data output types. If this annotation is omitted,
  *   the method will be called on any requested data type.
  *
- * @Resource resource_name
- *   Provide an alternative name to the resource. Usually the resource name is
- *   the unqualified name of the object that is returned. When only primitives
- *   are returned or you wish to use a different name, use this annotation to
- *   specify the alternative name.
+ * @Resource class [alternate_name]
+ *   Usually the resource type is determined from the return value of the method
+ *   or the input parameters. However, when this is not possible or you wish to
+ *   override the auto-detection method, you may use this annotation. The first
+ *   argument is the fully-qualified class name that describes the resource. If
+ *   you wish to provide a different name, you may do so using the second
+ *   argument. This annotation is particularly useful in methods that don't
+ *   return a value, such as delete operations.
+ *
+ * @Action action_name
+ *   Specify the action performed on the resource. This should be a single word
+ *   that describes the action (like get, read, list, query, update, delete,
+ *   etc.) If the action is not specified it will be derived from the Methods
+ *   annotation and the data it returns.
  * 
  * @XmlRootElement name
  *   This value will set the name of the root element when converting a response
@@ -67,7 +76,7 @@ namespace Cougar\RestService;
  *   array elements. If object name is not specified, the object name will
  *   default to "object."
  *
- * @XmlObjecList
+ * @XmlObjectList
  *   Force the object to be treated as a list. All first-level elements will be
  *   created as elements named XmlObjectList and their indexes will be stored as
  *   the id attribute of the tag. Useful when you have a list of objects in an
@@ -123,8 +132,12 @@ namespace Cougar\RestService;
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.04.15:
+ *   (AT)  Added support for Resource and Action annotations
+ * 2014.05.12:
+ *   (AT)  Updates to annotations for API documentation
  *
- * @version 2013.09.30
+ * @version 2014.04.15
  * @package Cougar
  * @license MIT
  *
@@ -144,11 +157,11 @@ interface iAnnotatedRestService extends iRestService
      * @version 2013.09.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
-     * @param \Cougar\Security\iSecurity
-     *   security Reference to Security object
+     * @param \Cougar\Security\iSecurity $security
+     *   Reference to Security context object
      */
     public function __construct(\Cougar\Security\iSecurity $security);
-    
+
     /**
      * Binds all the services in the given object. This call can be made as
      * many time as necessary to bind as many objects as desired.

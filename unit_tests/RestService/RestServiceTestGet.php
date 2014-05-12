@@ -94,6 +94,28 @@ class RestServiceTestGet extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers \Cougar\RestService\RestService::urlPrefix
+     */
+    public function testUrlPrefix()
+    {
+        $this->assertEquals(
+            "http://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]),
+            $this->object->urlPrefix() . "/");
+
+        // Add SSL
+        $_SERVER["HTTPS"] = "on";
+        $this->assertEquals(
+            "https://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]),
+            $this->object->urlPrefix() . "/");
+        unset($_SERVER["HTTPS"]);
+
+        // Set a different port
+        $_SERVER["SERVER_PORT"] = "8080";
+        $this->assertEquals("http://" . $_SERVER["HTTP_HOST"] . ":8080" .
+            dirname($_SERVER["PHP_SELF"]), $this->object->urlPrefix() . "/");
+    }
+
+    /**
      * @covers \Cougar\RestService\RestService::uri
      */
     public function testUri()

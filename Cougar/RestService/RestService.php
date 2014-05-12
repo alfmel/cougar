@@ -76,8 +76,10 @@ class RestService implements iRestService
      *   (AT)  Parse and store the headers
      * 2014.03.24:
      *   (AT)  Store the path as a protected variable as well
+     * 2014.05.12:
+     *   (AT)  Store the URI prefix in the object
      *
-     * @version 2014.03.22
+     * @version 2014.04.25
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @todo Make sure the code works in CGI and Windows environments
@@ -130,17 +132,17 @@ class RestService implements iRestService
         }
         
         # Determine the path prefix 
-        $prefix = dirname($_SERVER["PHP_SELF"]);
-        
+        $this->pathPrefix = dirname($_SERVER["PHP_SELF"]);
+
         # Determine the path (uri without prefix);
         global $_PATH;
-        if ($prefix == "/")
+        if ($this->pathPrefix == "/")
         {
             $_PATH = $uri;
         }
         else
         {
-            $_PATH = str_replace($prefix, "", $uri);
+            $_PATH = str_replace($this->pathPrefix, "", $uri);
         }
 
         # Store the path inside the object
@@ -282,6 +284,52 @@ class RestService implements iRestService
 
         // Add the URI and return
         return $url . $_SERVER["REQUEST_URI"];
+    }
+
+    /**
+     * Returns the application prefix URL, or the URL up to the current entry
+     * point. This call has been designed specifically for the ApiDocumentation
+     * object which requires the URL prefix to generate a full URL for a call.
+     *
+     * @history
+     * 2014.05.12:
+     *   (AT)  Initial release
+     *
+     * @version 2014.05.12
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @return string Application URL prefix
+     */
+    public function urlPrefix()
+    {
+        // See if SSL is turned on
+        if (array_key_exists("HTTPS", $_SERVER))
+        {
+            $url_prefix = "https://";
+        }
+        else
+        {
+            $url_prefix = "http://";
+        }
+
+        // Add the host
+        $url_prefix .= $_SERVER["HTTP_HOST"];
+
+        // See if we have a port other than 80 or 443
+        if (! ($_SERVER["SERVER_PORT"] == "80" ||
+            $_SERVER["SERVER_PORT"] == "443"))
+        {
+            $url_prefix .= ":" . $_SERVER["SERVER_PORT"];
+        }
+
+        // Add the path prefix
+        if ($this->pathPrefix !== "/")
+        {
+            $url_prefix .= $this->pathPrefix;
+        }
+
+        // Return the URL prefix
+        return $url_prefix;
     }
 
     /**
@@ -806,7 +854,7 @@ class RestService implements iRestService
         # Go through the list of acceptable outputs
         foreach($accept_list as $accept)
         {
-            # Go throgh the list of produceables and see if one matches
+            # Go through the list of produceables and see if one matches
             $best_match = null;
             foreach($produceable_list as &$produceable)
             {
@@ -1225,6 +1273,11 @@ class RestService implements iRestService
      * @var string The URI path
      */
     protected $path = "";
+
+    /**
+     * @var string Path prefix (or where we are located)
+     */
+    protected $pathPrefix;
 
     /**
      * @var array The URI parameters, here for easy access

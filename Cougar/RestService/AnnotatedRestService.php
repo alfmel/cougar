@@ -110,7 +110,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
     /***************************************************************************
      * PUBLIC PROPERTIES AND METHODS
      **************************************************************************/
-    
+
     /**
      * Binds all the services in the given object. This call can be made as
      * many times as as necessary to bind all necessary services.

@@ -53,6 +53,22 @@ interface iRestService
     public function url();
 
     /**
+     * Returns the application prefix URL, the URL up to the current entry
+     * point. This call has been designed specifically for the ApiDocumentation
+     * object which requires the URL prefix to generate a full URL for a call.
+     *
+     * @history
+     * 2014.05.12:
+     *   (AT)  Initial release
+     *
+     * @version 2014.05.12
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @return string Application URL prefix
+     */
+    public function urlPrefix();
+
+    /**
      * Returns the entire request URI, including the GET query. You may remove
      * the query parameters by setting the first argument to false.
      *
