@@ -47,8 +47,11 @@ use Cougar\Exceptions\BadRequestException;
  *         validated the first time
  * 2014.05.07:
  *   (AT)  Allow property types to include [] to denote arrays
+ * 2014.05.29:
+ *   (AT)  Fix minor bug where properties with [] were be exported as an array
+ *         inside an array when the model was converted to an array
  *
- * @version 2014.05.07
+ * @version 2014.05.29
  * @package Cougar
  * @license MIT
  *
@@ -561,8 +564,11 @@ trait tModel
      *         casts
      * 2014.05.07:
      *   (AT)  Handle property types that include [] as arrays
+     * 2014.05.29:
+     *   (AT)  Remove comment marker from line of code that prevented properties
+     *         with [] from being treated as arrays
      *
-     * @version 2014.05.07
+     * @version 2014.05.29
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @return array Associative array with public properties and their values
@@ -597,7 +603,7 @@ trait tModel
             if (substr($property_type, -2) == "[]")
             {
                 // Treat the property as an array
-                #$property_type = "array";
+                $property_type = "array";
             }
             
             # Check the property type
