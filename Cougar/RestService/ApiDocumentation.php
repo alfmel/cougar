@@ -21,8 +21,13 @@ use Cougar\Exceptions\NotFoundException;
  * @history
  * 2014.04.15:
  *   (AT)  Initial implementation
+ * 2014.05.29:
+ *   (AT)  Added shortDescription field to resource list
+ * 2014.05.30:
+ *   (AT)  Added the actions parameter to getResources() to be able to retrieve
+ *         actions in one call
  *
- * @version 2014.04.15
+ * @version 2014.05.30
  * @package Cougar
  * @license MIT
  *
@@ -149,10 +154,6 @@ class ApiDocumentation implements iApiDocumentation
      *
      * @version 2014.05.12
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-     *
-     * @Path /:prefix
-     * @Methods GET
-     * @XmlRootElement application
      *
      * @return \Cougar\RestService\Models\Application
      */
@@ -338,17 +339,22 @@ class ApiDocumentation implements iApiDocumentation
      * @history
      * 2014.04.15:
      *   (AT)  Initial implementation
+     * 2014.05.30:
+     *   (AT)  Added support for the actions parameter to include actions in the
+     *         return value
      *
-     * @version 2014.04.15
+     * @version 2014.05.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $component_id
      *   Component ID
+     * @param bool $actions
+     *   Whether to include the resource's actions
      * @throws \Cougar\Exceptions\NotFoundException
      * @return \Cougar\RestService\Models\Resource[]
      *   List of available resources for the given component
      */
-    public function getResources($component_id = null)
+    public function getResources($component_id = null, $actions = false)
     {
         // Go through the components
         $resources = null;
@@ -378,7 +384,14 @@ class ApiDocumentation implements iApiDocumentation
         }
 
         // Set the view to list
-        Arrays::setModelView($resources, "list");
+        if ($actions)
+        {
+            Arrays::setModelView($resources, "list_with_actions");
+        }
+        else
+        {
+            Arrays::setModelView($resources, "list");
+        }
 
         // Return the resources
         return $resources;
@@ -431,7 +444,7 @@ class ApiDocumentation implements iApiDocumentation
         {
             if ($annotation->name == "_comment")
             {
-                // Set the
+                // Set the description
                 $resource_desc->description = $annotation->value;
                 break;
             }
@@ -859,8 +872,10 @@ class ApiDocumentation implements iApiDocumentation
      * @history
      * 2014.04.29:
      *   (AT)  Initial implementation
+     * 2014.05.29:
+     *   (AT)  Added short description to the resource
      *
-     * @version 2014.04.29
+     * @version 2014.05.29
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $method_info
@@ -933,6 +948,41 @@ class ApiDocumentation implements iApiDocumentation
 
         // Set the Resource ID from the name
         $resource->resourceId = $resource->name;
+
+        // Set the short description from the class name
+        if ($resource->class)
+        {
+            try
+            {
+                $class_annotations =
+                    Annotations::extractFromObject($resource->class);
+                foreach($class_annotations->class as $annotation)
+                {
+                    if ($annotation->name == "_comment")
+                    {
+                        // Extract the first sentence
+                        $first_period_pos = mb_strpos($annotation->value, ".");
+                        if ($first_period_pos)
+                        {
+                            // The description is the first sentence
+                            $resource->shortDescription =
+                                substr($annotation->value, 0,
+                                    $first_period_pos);
+                        }
+                        else
+                        {
+                            // The entire comment is the description
+                            $resource->shortDescription = $annotation->value;
+                        }
+                        break;
+                    }
+                }
+            }
+            catch (\Exception $e)
+            {
+                // Ignore the error
+            }
+        }
 
         # Return the resource
         return $resource;

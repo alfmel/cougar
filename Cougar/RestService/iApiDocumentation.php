@@ -8,8 +8,12 @@ namespace Cougar\RestService;
  * @history
  * 2014.05.12:
  *   (AT)  Initial definition
+ * 2014.05.30:
+ *   (AT)  Add actions parameter to getResources() to return the list of
+ *         resources in one call; helps the AngularJS application search on all
+ *         resource and action information
  *
- * @version 2014.05.12
+ * @version 2014.05.30
  * @package Cougar
  * @license MIT
  *
@@ -85,12 +89,12 @@ interface iApiDocumentation
     public function getApplicationInformation();
 
     /**
-     * Adds a component to the application. A component is a subset of the application
-     * functionality. You must provide a interface or class name or a list of
-     * interfaces and class name that are part of the component.
+     * Adds a component to the application. A component is a subset of the
+     * application functionality. You must provide a interface or class name or
+     * a list of interfaces and class name that are part of the component.
      *
-     * The Component ID should be a human-readable name for the component, one or two
-     * words without spaces and URL-safe.
+     * The Component ID should be a human-readable name for the component, one
+     * or two words without spaces and URL-safe.
      *
      * @history
      * 2014.04.15:
@@ -139,22 +143,28 @@ interface iApiDocumentation
      * @history
      * 2014.04.15:
      *   (AT)  Initial definition
+     * 2014.05.30:
+     *   (AT)  Add actions parameter; allows AngularJS application to search all
+     *         resource information and actions
      *
-     * @version 2014.04.15
+     * @version 2014.05.30
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @Path /:prefix/resources
      * @Path /:prefix/component/:component_id
      * @Methods GET
+     * @GetValue set actions
      * @XmlRootElement resources
      * @XmlObjectName resource
      *
      * @param string $component_id
      *   Component ID
+     * @param bool $actions
+     *   Whether to include the resource's actions
      * @return \Cougar\RestService\Models\Resource[]
      *   List of available resources for the given component
      */
-    public function getResources($component_id);
+    public function getResources($component_id, $actions = false);
 
     /**
      * Describes the given resource. The description includes the list of

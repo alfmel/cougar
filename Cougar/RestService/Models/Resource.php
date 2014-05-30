@@ -9,24 +9,30 @@ use Cougar\Util\Arrays;
  * Resources are the building blocks of the REST API. A resource will represent
  * application data and it will have certain actions associated with it.
  *
- * @Views list
+ * @Views list list_with_actions
  */
 class Resource extends Model
 {
     /**
-     * @var string Resource ID
+     * @var string Resource ID (based on the name, must be unique)
      */
     public $resourceId;
 
     /**
-     * @var string Resource name (must be unique)
+     * @var string Resource name
      */
     public $name;
 
     /**
+     * @var string Short description for the user
+     */
+    public $shortDescription;
+
+    /**
      * @View __default__ hidden
      * @View list hidden
-     * @var string Class that describes the resource
+     * @View list_with_actions hidden
+     * @var string Internal class name for the resource
      */
     public $class;
 

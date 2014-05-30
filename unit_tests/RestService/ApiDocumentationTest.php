@@ -88,6 +88,7 @@ class ApiDocumentationTest extends \PHPUnit_Framework_TestCase
             $resources[0]->name);
         $this->assertEquals('\Cougar\UnitTests\RestService\Stuff',
             $resources[0]->class);
+        $this->assertEquals('Stuff structure', $resources[0]->shortDescription);
         $this->assertCount(5, $resources[0]->actions);
 
         // Convert resource to an array and make sure actions are not included
@@ -110,6 +111,8 @@ class ApiDocumentationTest extends \PHPUnit_Framework_TestCase
             $resources[0]->name);
         $this->assertEquals('\Cougar\UnitTests\RestService\Thing',
             $resources[0]->class);
+        $this->assertEquals('A thing (hopefully great)',
+            $resources[0]->shortDescription);
         $this->assertCount(2, $resources[0]->actions);
 
         // Convert resource to an array and make sure actions are not included
@@ -246,7 +249,7 @@ class ApiDocumentationTest extends \PHPUnit_Framework_TestCase
             $resource->resourceId);
         $this->assertEquals("Cougar.UnitTests.RestService.Thing",
             $resource->name);
-        $this->assertEquals("A thing (hopefully great)",
+        $this->assertEquals("A thing (hopefully great). Second sentence.",
             $resource->description);
         $this->assertCount(2, $resource->values);
 
@@ -399,7 +402,7 @@ class Stuff
 }
 
 /**
- * A thing (hopefully great)
+ * A thing (hopefully great). Second sentence.
  */
 class Thing
 {

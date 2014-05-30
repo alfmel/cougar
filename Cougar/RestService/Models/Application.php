@@ -23,5 +23,14 @@ class Application extends Struct
      * @var string URL prefix
      */
     public $urlPrefix;
+
+    /**
+     * Return the api_documentation.html file to bootstrap the AngularJS-based
+     * documentation application.
+     */
+    public function __toHtml()
+    {
+        return file_get_contents(__DIR__ . "/../html/api_documentation.html");
+    }
 }
 ?>
