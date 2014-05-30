@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="cougarApiDocumentation">
+<head>
+    <meta charset="utf-8">
+    <title>{{application.name + ' | '}}API Documentation</title>
+    <style type="text/css">
+        body {margin: 0; padding: 0; font-family: sans-serif; color: #222; font-size: 98%}
+        a {color: #678; font-weight: bold; text-decoration: none;}
+        a:visited {color: #678;}
+        a:hover {text-decoration: underline;}
+        table {width: 100%; border-spacing: 0; border-collapse: collapse; font-size: 95%}
+        table th {background-color: #456; color: #fff; text-align: left;}
+        table th, table td {border: 1px solid #aaa; padding: 0.25em 0.75em; vertical-align: top;}
+        table td p {margin: 0; padding: 0}
+        #title {padding: 0.25em 1.5em; background-color: #345; box-shadow: 0 0.1em rgba(0,0,0,0.5); color: #fff}
+        #title h1 {margin: 0; text-shadow: 0.1em 0.1em rgba(0, 0, 0, 0.5); font-size: 250%;}
+        #title #description {background-color: #bbb; box-shadow: 0.1em 0.1em rgba(16,16,16,0.5); color: #000; margin: -0.25em 0 0.1em 2.5em; padding: 0.2em 1em; font-size: 115%; font-family: serif; font-style: italic}
+        #view {padding: 0.5em 1.5em;}
+        #view h2 {border-bottom: 1px solid #aaa; color: #444;}
+        #components {float: right; margin-top: 1.25em;}
+        #resources h3 {margin-top: 2em; border-bottom: 1px solid #aaa; color: #444; font-size: 125%;}
+        span.baseUrl {font-weight: bold; font-style: italic; color: #456;}
+        span.details {margin-left: 1em; padding: 0.2em 0.5em; font-size: 80%; border: 1px solid #aaa; text-transform: uppercase;}
+        #authenticationRequired {border: 1px solid #600; border-left: 0.5em solid #600; padding: 0.25em 0.5em; color: #600; font-weight: bold}
+        #authentication {border: 1px solid #345; border-left: 0.5em solid #345; padding: 0.25em 0.5em;}
+        div.request {border: 1px solid #456; border-left: 0.5em solid #456; padding: 0.25em 0.75em; margin: 0.5em 0;}
+        span.constraint {font-style: italic; color: #444;}
+        div.template {display: none}
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-route.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-resource.js"></script>
+    <script>
+        // Define Angular modules
+        cougarApiDoc = angular.module('cougarApiDocumentation', ['ngRoute', 'cougarApiDocServices']);
+
+        cougarApiDocServices = angular.module('cougarApiDocServices', ['ngResource']);
+
+
+        // Define the routes for each of the views
+        cougarApiDoc.config(['$routeProvider',
+            function($routeProvider)
+        {
+            $routeProvider
+                .when('/resources', {template: document.getElementById('resources.template').innerHTML, controller: 'ResourcesController'})
+                .when('/resources/:componentId', {template: document.getElementById('resources.template').innerHTML, controller: 'ResourcesController'})
+                .when('/resource/:resourceId', {template: document.getElementById('resource.template').innerHTML, controller: 'ResourceController'})
+                .when('/resource/:resourceId/:actionId', {template: document.getElementById('action.template').innerHTML, controller: 'ActionController'})
+                .otherwise({redirectTo: '/resources'})
+        }]);
+
+
+        // Define the Angular data controllers; they will fetch the data directly using $http
+        cougarApiDoc.controller('ApplicationController', ['$rootScope', '$http',
+            function ApplicationController($rootScope, $http)
+        {
+            $http.get("documentation").success(
+                function(data)
+                {
+                    $rootScope.application = data;
+                });
+        }]);
+
+        cougarApiDoc.controller('ComponentsController', ['$scope', '$routeParams', '$http',
+            function ComponentsController($scope, $routeParams, $http)
+        {
+            $http.get("documentation/components").success(
+                function(data)
+                {
+                    $scope.components = data;
+                });
+        }]);
+
+        cougarApiDoc.controller('ResourcesController', ['$scope', '$routeParams', '$http',
+            function ResourcesController($scope, $routeParams, $http)
+            {
+                $scope.resources = [];
+
+                if ($routeParams.componentId)
+                {
+                    var uri = 'documentation/component/' + $routeParams.componentId;
+                }
+                else
+                {
+                    var uri = 'documentation/resources';
+                }
+                uri += '?actions';
+
+                $http.get(uri).success(function(data) {
+                    $scope.resources = data;
+                });
+            }]);
+
+        cougarApiDoc.controller('ResourceController', ['$scope', '$routeParams', '$http',
+            function ResourceController($scope, $routeParams, $http)
+        {
+            $http.get("documentation/resource/" + $routeParams.resourceId).success(
+                function(data)
+                {
+                    $scope.resource = data;
+                });
+        }]);
+
+        cougarApiDoc.controller('ActionsController', ['$scope', '$routeParams', '$http',
+            function ActionsController($scope, $routeParams, $http)
+        {
+            if ($scope.resource.resourceId)
+            {
+                $http.get('documentation/resource/' + $scope.resource.resourceId + '/actions').success(
+                    function(data)
+                    {
+                        $scope.actions = data;
+                    });
+            }
+            else if ($routeParams.resourceId)
+            {
+                $http.get('documentation/resource/' + $routeParams.resourceId + '/actions').success(
+                    function(data)
+                    {
+                        $scope.actions = data;
+                    });
+            }
+            else
+            {
+                $scope.actions = [];
+            }
+        {
+
+        }
+        }]);
+
+        cougarApiDoc.controller('ActionController', ['$scope', '$routeParams', '$http',
+            function ActionCtonroller($scope, $routeParams, $http)
+        {
+            $http.get('documentation/resource/' + $routeParams.resourceId + '/' + $routeParams.actionId).success(
+                function(data)
+                {
+                    $scope.action = data;
+                });
+        }]);
+    </script>
+</head>
+<body>
+    <div id="title" ng-controller="ApplicationController">
+        <h1>{{application.name}}</h1>
+        <div id="description">{{application.description}}</div>
+    </div>
+    <div id="view" ng-view></div>
+
+    <!-- The following div elements define the view templates -->
+    <div id="resources.template" class="template">
+        <div id="components">
+            <input ng-model="query" placeholder="Search...">
+            <!-- TODO Fix the component drop-down and have it update the list to show resources for the selected component
+            <select ng-model="componentModel" data-ng-options="component.componentId as component.name for component in components" ng-controller="ComponentsController">
+                <option value="" class="italic">Filter by component...</option>
+            </select>
+            -->
+        </div>
+        <h2>Application Resources</h2>
+        <p>All URIs are relative to <span class="baseUrl">{{application.urlPrefix}}</span>.</p>
+        <div id="resources" ng-repeat="resource in resources | filter:query">
+            <h3>{{resource.name}}</h3>
+            <p><span ng-if="resource.shortDescription">{{resource.shortDescription}}</span>
+                <span ng-if="! resource.shortDescription">(Description not available)</span>
+                <span class="details"><a ng-href="#/resource/{{resource.resourceId}}">full details</a></span>
+            </p>
+            <!-- <div ng-controller="ActionsController"> -->
+                <table>
+                    <tr>
+                        <th>Action</th>
+                        <th>HTTP Method</th>
+                        <th>URI</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr ng-repeat="action in resource.actions | filter:query">
+                        <td><a href="#/resource/{{resource.resourceId}}/{{action.actionId}}">{{action.name}}</a></td>
+                        <td><p ng-repeat="httpMethod in action.httpMethods">{{httpMethod}}</p></td>
+                        <td><p ng-repeat="path in action.paths">{{path}}</p></td>
+                        <td>{{action.shortDescription}}</td>
+                    </tr>
+                </table>
+            <!-- </div> -->
+        </div>
+    </div>
+
+    <div id="resource.template" class="template">
+        <h2>{{resource.name}}</h2>
+        <p>{{resource.description}}</p>
+        <h3>Fields and Values</h3>
+        <table>
+            <tr>
+                <th>Field name</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr ng-repeat="value in resource.values">
+                <td>{{value.name}}</td>
+                <td><span ng-if="value.list">list of </span>
+                    <span ng-if="value.isResource"><a href="#/resource/{{value.type}}">{{value.type}}</a></span>
+                    <span ng-if="! value.isResource">{{value.type}}</span>
+                    <span ng-if="value.optional"> (optional)</span>
+                </td>
+                <td>{{value.description}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="action.template" class="template">
+        <div ng-controller="ResourceController">
+            <h2>{{resource.name + ': ' + action.name}}</h2>
+        </div>
+        <p>{{action.description}}</p>
+        <div id="authenticationRequired" ng-if="action.authentication == 'required'">Authentication: {{action.authentication}}</div>
+        <div id="authentication" ng-if="action.authentication != 'required'">Authentication: {{action.authentication}}</div>
+        <h3>HTTP Request</h3>
+        <div ng-repeat="httpMethod in action.httpMethods">
+            <div class="request" ng-repeat="path in action.paths">{{httpMethod}} {{application.urlPrefix + path}}</div>
+        </div>
+        <h3>Parameters</h3>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr ng-repeat="parameter in action.parameters">
+                <td>{{parameter.name}}</td>
+                <td>{{parameter.location}}</td>
+                <td><span ng-if="parameter.list">list of </span>{{parameter.type}}
+                    <span class="constraint" ng-if="parameter.constraint"> {{parameter.constraint}}</span></td>
+                <td>{{parameter.description}}</td>
+            </tr>
+        </table>
+        <h3>Return Value</h3>
+        <table>
+            <tr>
+                <th width="40%">Type</th>
+                <th width="60%">Description</th>
+            </tr>
+            <tr>
+                <td>
+                    <span ng-if="action.returnValue.list">list of </span>
+                    <span class="type">{{action.returnValue.type}}</span>
+                </td>
+                <td>{{action.returnValue.description}}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
