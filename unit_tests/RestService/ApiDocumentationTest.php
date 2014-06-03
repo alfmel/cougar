@@ -89,7 +89,7 @@ class ApiDocumentationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('\Cougar\UnitTests\RestService\Stuff',
             $resources[0]->class);
         $this->assertEquals('Stuff structure', $resources[0]->shortDescription);
-        $this->assertCount(5, $resources[0]->actions);
+        $this->assertCount(6, $resources[0]->actions);
 
         // Convert resource to an array and make sure actions are not included
         $resource = $resources[0]->__toArray();
@@ -128,18 +128,20 @@ class ApiDocumentationTest extends \PHPUnit_Framework_TestCase
     {
         $actions = $this->object->getResourceActions(
             "Cougar.UnitTests.RestService.Stuff");
-        $this->assertCount(5, $actions);
+        $this->assertCount(6, $actions);
         $this->assertEquals("list", $actions[0]->actionId);
         $this->assertEquals("read", $actions[1]->actionId);
         $this->assertEquals("create", $actions[2]->actionId);
         $this->assertEquals("update", $actions[3]->actionId);
         $this->assertEquals("delete", $actions[4]->actionId);
+        $this->assertEquals("eat", $actions[5]->actionId);
 
         $this->assertEquals("none", $actions[0]->authentication);
         $this->assertEquals("none", $actions[1]->authentication);
         $this->assertEquals("required", $actions[2]->authentication);
         $this->assertEquals("required", $actions[3]->authentication);
         $this->assertEquals("required", $actions[4]->authentication);
+        $this->assertEquals("optional", $actions[5]->authentication);
 
         // Convert action to an array and make sure details are not included
         $action = $actions[0]->__toArray();
@@ -348,6 +350,17 @@ interface iComponentX
      *   ID of the stuff you want to delete
      */
     public function deleteStuff($stuff_id);
+
+    /**
+     * Eat stuff. Testing the ability to name the action.
+     *
+     * @Path /path/to/stuff/to/eat
+     * @Methods POST
+     * @Action eat
+     * @Resource \Cougar\UnitTests\RestService\Stuff
+     * @Authentication optional
+     */
+    public function eatStuff();
 }
 
 /**

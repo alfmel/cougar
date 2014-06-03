@@ -26,8 +26,11 @@ use Cougar\Exceptions\NotFoundException;
  * 2014.05.30:
  *   (AT)  Added the actions parameter to getResources() to be able to retrieve
  *         actions in one call
+ * 2014.06.03:
+ *   (AT)  Fixed issue where action name was not properly set when the @Action
+ *         annotation was used
  *
- * @version 2014.05.30
+ * @version 2014.06.03
  * @package Cougar
  * @license MIT
  *
@@ -994,8 +997,11 @@ class ApiDocumentation implements iApiDocumentation
      * @history
      * 2014.04.30:
      *   (AT)  Initial implementation
+     * 2014.06.03:
+     *   (AT)  Make sure action name is properly set when using the @Action
+     *         annotation
      *
-     * @version 2014.04.30
+     * @version 2014.06.03
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $method_info
@@ -1014,7 +1020,7 @@ class ApiDocumentation implements iApiDocumentation
         // See if the action annotation is defined
         if ($method_info["action"])
         {
-            $action->name = $action;
+            $action->name = $method_info["action"];
         }
         else
         {
