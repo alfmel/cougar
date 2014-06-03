@@ -54,35 +54,48 @@
         cougarApiDoc.controller('ApplicationController', ['$rootScope', '$http',
             function ApplicationController($rootScope, $http)
         {
-            $http.get("documentation").success(
+            // Get the "document" name from the URI; we'll use it to determine the full path to the services
+            var path = location.pathname;
+            if (path.substr(path.length - 1) == "/")
+            {
+                path = path.substr(0, path.length - 1);
+            }
+
+            $rootScope.uriPrefix = path.substr(path.lastIndexOf('/') + 1);
+
+            $http.get($rootScope.uriPrefix).success(
                 function(data)
                 {
                     $rootScope.application = data;
                 });
         }]);
 
-        cougarApiDoc.controller('ComponentsController', ['$scope', '$routeParams', '$http',
-            function ComponentsController($scope, $routeParams, $http)
+        cougarApiDoc.controller('ComponentsController', ['$scope', '$rootScope', '$routeParams', '$http', '$location',
+            function ComponentsController($scope, $rootScope, $routeParams, $http, $location)
         {
-            $http.get("documentation/components").success(
+            $http.get($rootScope.uriPrefix + '/components').success(
                 function(data)
                 {
                     $scope.components = data;
                 });
+
+            $scope.componentSelected = function(componentId) {
+                $location.path('/resources/' + componentId);
+            }
         }]);
 
-        cougarApiDoc.controller('ResourcesController', ['$scope', '$routeParams', '$http',
-            function ResourcesController($scope, $routeParams, $http)
+        cougarApiDoc.controller('ResourcesController', ['$scope', '$rootScope', '$routeParams', '$http',
+            function ResourcesController($scope, $rootScope, $routeParams, $http)
             {
                 $scope.resources = [];
 
                 if ($routeParams.componentId)
                 {
-                    var uri = 'documentation/component/' + $routeParams.componentId;
+                    var uri = $rootScope.uriPrefix + '/component/' + $routeParams.componentId;
                 }
                 else
                 {
-                    var uri = 'documentation/resources';
+                    var uri = $rootScope.uriPrefix + '/resources';
                 }
                 uri += '?actions';
 
@@ -91,48 +104,23 @@
                 });
             }]);
 
-        cougarApiDoc.controller('ResourceController', ['$scope', '$routeParams', '$http',
-            function ResourceController($scope, $routeParams, $http)
+        cougarApiDoc.controller('ResourceController', ['$scope', '$rootScope', '$routeParams', '$http',
+            function ResourceController($scope, $rootScope, $routeParams, $http)
         {
-            $http.get("documentation/resource/" + $routeParams.resourceId).success(
-                function(data)
-                {
-                    $scope.resource = data;
-                });
-        }]);
-
-        cougarApiDoc.controller('ActionsController', ['$scope', '$routeParams', '$http',
-            function ActionsController($scope, $routeParams, $http)
-        {
-            if ($scope.resource.resourceId)
+            if ($routeParams.resourceId)
             {
-                $http.get('documentation/resource/' + $scope.resource.resourceId + '/actions').success(
+                $http.get($rootScope.uriPrefix + '/resource/' + $routeParams.resourceId).success(
                     function(data)
                     {
-                        $scope.actions = data;
+                        $scope.resource = data;
                     });
             }
-            else if ($routeParams.resourceId)
-            {
-                $http.get('documentation/resource/' + $routeParams.resourceId + '/actions').success(
-                    function(data)
-                    {
-                        $scope.actions = data;
-                    });
-            }
-            else
-            {
-                $scope.actions = [];
-            }
-        {
-
-        }
         }]);
 
-        cougarApiDoc.controller('ActionController', ['$scope', '$routeParams', '$http',
-            function ActionCtonroller($scope, $routeParams, $http)
+        cougarApiDoc.controller('ActionController', ['$scope', '$rootScope', '$routeParams', '$http',
+            function ActionCtonroller($scope, $rootScope, $routeParams, $http)
         {
-            $http.get('documentation/resource/' + $routeParams.resourceId + '/' + $routeParams.actionId).success(
+            $http.get($rootScope.uriPrefix + '/resource/' + $routeParams.resourceId + '/' + $routeParams.actionId).success(
                 function(data)
                 {
                     $scope.action = data;
@@ -151,11 +139,10 @@
     <div id="resources.template" class="template">
         <div id="components">
             <input ng-model="query" placeholder="Search...">
-            <!-- TODO Fix the component drop-down and have it update the list to show resources for the selected component
-            <select ng-model="componentModel" data-ng-options="component.componentId as component.name for component in components" ng-controller="ComponentsController">
-                <option value="" class="italic">Filter by component...</option>
+            <select ng-model="componentModel" data-ng-options="component.componentId as component.name for component in components" ng-controller="ComponentsController"
+                ng-change="componentSelected(componentModel)">
+                <option value="" class="italic">All Components</option>
             </select>
-            -->
         </div>
         <h2>Application Resources</h2>
         <p>All URIs are relative to <span class="baseUrl">{{application.urlPrefix}}</span>.</p>
@@ -165,7 +152,6 @@
                 <span ng-if="! resource.shortDescription">(Description not available)</span>
                 <span class="details"><a ng-href="#/resource/{{resource.resourceId}}">full details</a></span>
             </p>
-            <!-- <div ng-controller="ActionsController"> -->
                 <table>
                     <tr>
                         <th>Action</th>
@@ -180,7 +166,6 @@
                         <td>{{action.shortDescription}}</td>
                     </tr>
                 </table>
-            <!-- </div> -->
         </div>
     </div>
 
