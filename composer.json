@@ -1,5 +1,5 @@
 {
-    "name": "cougar/cougar",
+    "name": "alfmel/cougar",
     "type": "library",
     "description": "Framework for quickly developing and documenting REST APIs",
     "keywords": ["REST","API", "framework"],
