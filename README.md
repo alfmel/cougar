@@ -58,14 +58,38 @@ that walks you through the development of a Cougar-based application.
 
 ## Installing Cougar
 
-The easiest way to install Cougar for use is via Pear:
+The easiest way to install Cougar is through Composer. In your project's
+directory, add a composer.json file:
+
+```json
+{
+    "require": {
+        "alfmel/cougar": "dev-master"
+    }
+}
+```
+
+Then have composer install it for you:
+
+```bash
+composer.phar install
+```
+
+Cougar will be installed in the vendor directly.
+
+Don't let the dev-master version scare you away. Cougar is developed using
+continuous delivery. That means it only receives small, incremental changes.
+Every release is tested and ready for production use.
+
+You may also try installing via PEAR. However, PEAR is deprecated and does not
+contain the latest changes:
 
 ```bash
   pear channel-discover alfmel.github.com/pear
   pear install cougar/cougar
 ```
 
-To develop Cougar, clone from github and follow the instructions in INSTALL.txt:
+You may also clone from github and follow the instructions in INSTALL.txt:
 
 ```bash
   git clone https://github.com/alfmel/cougar
