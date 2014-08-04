@@ -3,8 +3,6 @@
 namespace Cougar\Util;
 
 use SimpleXMLElement;
-use stdClass;
-use Cougar\Exceptions\NotImplementedException;
 
 # Initialize the framework (disabled; should have been done by application)
 #require_once(__DIR__ . "/../../cougar.php");
@@ -17,8 +15,12 @@ use Cougar\Exceptions\NotImplementedException;
  *   (AT)  Initial release
  * 2014.02.20:
  *   (AT)  Modify toArray and toObject signatures
+ * 2014.05.20:
+ *   (AT)  Add support for iXmlSerializable
+ * 2014.08.04:
+ *   (AT)  Implement toObject() and toArray()
  *
- * @version 2014.02.20
+ * @version 2014.08.04
  * @package Cougar
  * @license MIT
  *
@@ -41,8 +43,10 @@ class Xml implements iXml
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.05.20:
+     *   (AT)  Add support for iXmlSerializable
      *
-     * @version 2013.09.30
+     * @version 2014.05.20
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param mixed $data
@@ -52,7 +56,7 @@ class Xml implements iXml
      * @param string $child_element
      *   Optional name of the child elements (default: object)
      * @param bool $child_as_list
-     *   Whether the child should be treated as a list of other bojects
+     *   Whether the child should be treated as a list of other object
      * @return SimpleXMLElement XML representation of the data
      */
     public static function toXml($data, $root_element = null,
@@ -70,35 +74,41 @@ class Xml implements iXml
         }
         
         # See if the object is a date/time object
-        if (is_object($data))
+        if (is_object($data) && $data instanceof DateTime)
         {
-            if ($data instanceof DateTime)
-            {
-                # Convert the data to a string
-                $data = (string) $data;
-            }
+            # Convert the data to a string
+            $data = (string) $data;
         }
-        
+
         # See if we have an object
         if (is_object($data))
         {
-            # Get the root element from the class name if not overridden
-            if ($root_element == "response")
+            # See if the object implements iXmlSerializable
+            if ($data instanceof iXmlSerializable)
             {
-                $class = get_class($data);
-                $slash_rpos = strrpos($class, "\\");
-                if ($slash_rpos !== false)
-                {
-                    $class = substr($class, $slash_rpos + 1);
-                }
-                $root_element = $class;
+                # Let the object do its own XML export
+                $xml = $data->xmlSerialize();
             }
-            
-            # Initialize the root element
-            $xml = new \SimpleXMLElement("<" . $root_element . "/>");
-            
-            # Iterate through the object's properties
-            self::iteratableToXml($xml, $data, $child_element);
+            else
+            {
+                # Get the root element from the class name if not overridden
+                if ($root_element == "response")
+                {
+                    $class = get_class($data);
+                    $slash_rpos = strrpos($class, "\\");
+                    if ($slash_rpos !== false)
+                    {
+                        $class = substr($class, $slash_rpos + 1);
+                    }
+                    $root_element = $class;
+                }
+
+                # Initialize the root element
+                $xml = new \SimpleXMLElement("<" . $root_element . "/>");
+
+                # Iterate through the object's properties
+                self::toXmlRecursive($xml, $data, $child_element);
+            }
         }
         # See if we have an array
         else if (is_array($data))
@@ -107,9 +117,9 @@ class Xml implements iXml
             $xml = new \SimpleXMLElement("<" . $root_element . "/>");
             
             # Iterate through the array
-            self::iteratableToXml($xml, $data, $child_element, $child_as_list);            
+            self::toXmlRecursive($xml, $data, $child_element, $child_as_list);
         }
-        # Assume we have a string
+        # Assume we have a scalar
         else
         {
             # Initialize the XML object
@@ -144,17 +154,38 @@ class Xml implements iXml
      *   (AT)  Initial release
      * 2013.11.25:
      *   (AT)  Implement the method
+     * 2014.08.04:
+     *   (AT)  Make improvements based on the actual implementation of toObject
      *
-     * @version 2013.11.25
+     * @version 2014.08.04
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param \SimpleXMLElement $xml_data
      *   XML object to convert
-     * @return array Array representation of XML data
+     * @return mixed Array representation of XML data
      */
     public static function toArray(SimpleXMLElement $xml_data)
     {
-        return (array) self::toObject($xml_data);
+        $object = self::toObject($xml_data);
+
+        if ($object instanceof \stdClass)
+        {
+            // Convert everything to an array
+            $object = json_decode(json_encode($object), true);
+        }
+        else if (is_array($object))
+        {
+            // convert all objects to an array
+            foreach($object as &$value)
+            {
+                if ($value instanceof \stdClass)
+                {
+                    $value = json_decode(json_encode($value), true);
+                }
+            }
+        }
+
+        return $object;
     }
     
     /**
@@ -163,19 +194,197 @@ class Xml implements iXml
      * string value of the root element.
      *
      * @history
-     * 2013.09.30:
-     *   (AT)  Initial release
+     * 2014.08.04:
+     *   (AT)  Initial implementation
      *
-     * @version 2013.09.30
+     * @version 2014.08.04
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param \SimpleXMLElement $xml_data
      *   XML object to convert
+     * @param boolean $ignore_id_attribute
+     *   Whether to ignore ID attributes
      * @return mixed Object representation of XML data
      */
-    public static function toObject(SimpleXMLElement $xml_data)
+    public static function toObject(SimpleXMLElement $xml_data,
+        $ignore_id_attribute = false)
     {
-        throw new NotImplementedException("Not implemented");
+        // See if we have attributes or children
+        if (! count($xml_data->attributes()) && ! count($xml_data->children()))
+        {
+            // This is a simple value; return as string or float
+            $value = (string) $xml_data[0];
+
+            if (is_numeric($value))
+            {
+                $value = (float) $value;
+            }
+            else if ($value == "false")
+            {
+                $value = false;
+            }
+            else if ($value == "true")
+            {
+                $value = true;
+            }
+
+            return $value;
+        }
+
+        // See if there is a naming conflict between properties and elements,
+        // and if certain children are an array
+        $has_attributes = false;
+        $names = array();
+        $duplicate_names = array();
+        $child_names = array();
+        $array_names = array();
+        foreach($xml_data->attributes() as $name => $value)
+        {
+            $has_attributes = true;
+            $names[] = $name;
+        }
+
+        foreach($xml_data->children() as $name => $value)
+        {
+            if (in_array($name, $names))
+            {
+                $duplicate_names[] = $name;
+            }
+
+            if (in_array($name, $child_names))
+            {
+                if (! in_array($name, $array_names))
+                {
+                    $array_names[] = $name;
+                }
+            }
+            else
+            {
+                $child_names[] = $name;
+            }
+        }
+
+        // See if we are dealing win an actual object or an array
+        if (! $has_attributes && count($child_names) == 1 &&
+            count($array_names) == 1)
+        {
+            // Object is a simple array
+            $object = array();
+
+            foreach($xml_data->children() as $child)
+            {
+                // See if we have an ID (use as key)
+                $key = (string) $child["id"];
+
+                // See if the child has children
+                if (count($child->children()))
+                {
+                    // Add them recursively
+                    if ($key)
+                    {
+                        $object[$key] = self::toObject($child, true);
+                    }
+                    else
+                    {
+                        $object[] = self::toObject($child);
+                    }
+                }
+                else
+                {
+                    // Just add the value
+                    $value = (string) $child;
+
+                    if (is_numeric($value))
+                    {
+                        $value = (float) $value;
+                    }
+                    else if ($value == "false")
+                    {
+                        $value = false;
+                    }
+                    else if ($value == "true")
+                    {
+                        $value = true;
+                    }
+
+                    if ($key)
+                    {
+                        $object[$key] = $value;
+                    }
+                    else
+                    {
+                        $object[] = $value;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // This is an object
+            $object = new \stdClass();
+
+            // Add the attributes, adding a _ where necessary
+            foreach($xml_data->attributes() as $name => $value)
+            {
+                // See if we are ignoring ID attributes
+                if ($name == "id" && $ignore_id_attribute)
+                {
+                    continue;
+                }
+
+                // See if the name has been duplicated
+                if (in_array($name, $duplicate_names))
+                {
+                    $name = "_" . $name;
+                }
+
+                // Add the value
+                $object->$name = (string) $value;
+                if (is_numeric($object->$name))
+                {
+                    $object->$name = (float) $object->$name;
+                }
+                else if ($object->$name == "false")
+                {
+                    $object->$name = false;
+                }
+                else if ($object->$name == "true")
+                {
+                    $object->$name = true;
+                }
+            }
+
+            // Add the values
+            foreach($xml_data->children() as $name => $value)
+            {
+                // See if the value has children
+                if (count($xml_data->$name->children()))
+                {
+                    // Add them recursively
+                    $object->$name = self::toObject($value);
+                }
+                else
+                {
+                    // Add the value
+                    $object->$name = (string) $value;
+                    if (is_numeric($object->$name))
+                    {
+                        $object->$name = (float) $object->$name;
+                    }
+                    else if ($object->$name == "false")
+                    {
+                        $object->$name = false;
+                    }
+                    else if ($object->$name == "true")
+                    {
+                        $object->$name = true;
+                    }
+                }
+            }
+        }
+
+        // Return the object
+        return $object;
     }
 
     
@@ -209,8 +418,11 @@ class Xml implements iXml
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.05.22:
+     *   (AT)  Renamed from iterableToXml to toXmlRecursive
+     *   (AT)  Added support for iXmlSerializable
      *
-     * @version 2013.09.30
+     * @version 2014.05.22
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param \SimpleXMLElement $xml
@@ -222,7 +434,7 @@ class Xml implements iXml
      * @param bool $child_as_list
      *   Treat elements in an array as a list of other objects
      */
-    protected static function iteratableToXml(SimpleXMLElement $xml, $data,
+    protected static function toXmlRecursive(SimpleXMLElement $xml, $data,
         $child_element, $child_as_list = false)
     {
         # See if our data is an object
@@ -254,9 +466,9 @@ class Xml implements iXml
                     {
                         $child = $xml->addChild($element);
                     }
-                    
+
                     # Iterate through this one more time
-                    self::iteratableToXml($child, $value, $element);
+                    self::toXmlRecursive($child, $value, $element);
                 }
                 else
                 {
@@ -289,8 +501,15 @@ class Xml implements iXml
                 # Go through the array
                 foreach($data as $element => $value)
                 {
-                    # See if the value is an object or array
-                    if (is_object($value) || is_array($value))
+                    # See if the value implements iXmlSerializable
+                    if (is_object($value) && $value instanceof iXmlSerializable)
+                    {
+                        # Add the XML generated by the object
+                        $child = $value->xmlSerialize();
+                        $xml->{$child->getName()}[] = $child;
+                    }
+                    # Handle objects and arrays
+                    else if (is_object($value) || is_array($value))
                     {
                         # Create the child entry
                         if (is_numeric($element) || is_numeric($element[0])
@@ -305,8 +524,9 @@ class Xml implements iXml
                         }
 
                         # Iterate through this one more time
-                        self::iteratableToXml($child, $value, $element);
+                        self::toXmlRecursive($child, $value, $element);
                     }
+                    # Handle basic types
                     else
                     {
                         if (is_numeric($element) || is_numeric($element[0])
@@ -364,15 +584,23 @@ class Xml implements iXml
                 # Go through the array
                 foreach($data as $id => $value)
                 {
-                    # See if the value is an object or array
-                    if (is_object($value) || is_array($value))
+                    # See if the value implements iXmlSerializable
+                    if (is_object($value) && $value instanceof iXmlSerializable)
+                    {
+                        # Add the XML generated by the object
+                        $child = $value->xmlSerialize();
+                        $xml->{$child->getName()}[] = $child;
+                    }
+                    # Handle objects and arrays
+                    else if (is_object($value) || is_array($value))
                     {
                         # Create the child entry
                         $child = $xml->addChild($child_element);
 
                         # Iterate through this one more time
-                        self::iteratableToXml($child, $value, $child_element);
+                        self::toXmlRecursive($child, $value, $child_element);
                     }
+                    # Handle basic types
                     else
                     {
                         # See if the value is a boolean

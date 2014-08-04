@@ -2,6 +2,7 @@
 
 namespace Cougar\UnitTests\Util;
 
+use Cougar\Util\iXmlSerializable;
 use SimpleXMLElement;
 use Cougar\Util\Xml;
 
@@ -60,7 +61,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      */
     public function testToXmlWithNumberAndRootElement() {
         $number = 3.14;
@@ -88,7 +89,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      */
     public function testToXmlWithBooleanAndRootElement() {
         $root_element = "result";
@@ -103,7 +104,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithNonAssociativeArray() {
@@ -124,14 +125,14 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
                 $expected_xml->addChild($child_element, $value);
             }
         }
-        
+
         $this->assertEquals($expected_xml->asXML(),
             Xml::toXml($array)->asXML());
     }
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithNonAssociativeArrayAndNamedElements() {
@@ -159,7 +160,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithNonAssociativeArrayAndNamedElementsWithObject() {
@@ -193,7 +194,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithNonAssociativeJaggedArray() {
@@ -230,7 +231,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithAssociativeArray() {
@@ -251,14 +252,14 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
                 $expected_xml->addChild($element, $value);
             }
         }
-        
+
         $this->assertEquals($expected_xml->asXML(),
             Xml::toXml($array, $root_element)->asXML());
     }
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithAssociativeArrayAsList() {
@@ -281,14 +282,14 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
                 $child->addAttribute("id", $element);
             }
         }
-        
+
         $this->assertEquals($expected_xml->asXML(),
             Xml::toXml($array, $root_element, "child", true)->asXML());
     }
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithAssociativeArrayNumericIndexes() {
@@ -325,7 +326,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithAssociativeJaggedArray() {
@@ -354,7 +355,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithAssociativeArrayWithObject() {
@@ -388,7 +389,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      */
     public function testToXmlWithSimpleObject() {
         $object = new \StdClass();
@@ -410,7 +411,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers \Cougar\Util\Xml::toXml
-     * @covers \Cougar\Util\Xml::iteratableToXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithComplexObject() {
@@ -489,25 +490,279 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers \Cougar\Util\Xml::toArray
-     * @todo   Implement testToArray().
+     * @covers \Cougar\Util\Xml::toXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      */
-    public function testToArray() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+    public function testToXmlWithXmlSerializable()
+    {
+        $object = new TestXmlSerializable();
+
+        $this->assertEquals($object->xmlSerialize()->asXML(),
+            Xml::toXml($object)->asXML());
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
+     */
+    public function testToXmlWithArrayOfXmlSerializable()
+    {
+        $array = array(new TestXmlSerializable(),
+            new TestXmlSerializable(),
+            new TestXmlSerializable());
+
+        $expected_xml = new SimpleXMLElement("<response/>");
+        foreach($array as $element)
+        {
+            $element_dom = dom_import_simplexml($element->xmlSerialize());
+            $element_xml = $element->xmlSerialize();
+            $expected_xml->{$element_xml->getName()}[] = (string) $element_xml;
+        }
+
+        $this->assertEquals($expected_xml->asXML(),
+            Xml::toXml($array)->asXML());
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toArray
+     * @depends testToXmlWithAssociativeArray
+     */
+    public function testToArrayWithAssociativeArray() {
+        $array = array("a" => 1, "b" => 2, "c" => 3, "d" => 4, "e" => 5,
+            "boolean" => true);
+
+        $xml = Xml::toXml($array);
+
+        $new_array = Xml::toArray($xml);
+
+        $this->assertEquals($array, $new_array);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toArray
+     * @depends testToXmlWithAssociativeArrayAsList
+     */
+    public function testToArrayWithAssociativeArrayAsList() {
+        $array = array("a" => 1, "b" => 2, "c" => 3, "d" => 4, "e" => 5,
+            "boolean" => true);
+
+        $xml = Xml::toXml($array, "associative_array", "child", true);
+
+        $new_array = Xml::toArray($xml);
+
+        $this->assertEquals($array, $new_array);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toArray
+     * @depends testToXmlWithAssociativeArrayNumericIndexes
+     */
+    public function testToArrayWithAssociativeArrayNumericIndexes() {
+        $array = array(
+            "2012" => array("begin" => "2012-01-01", "end" => "2012-12-31"),
+            "2013" => array("begin" => "2013-01-01", "end" => "2013-12-31"),
+            "2014" => array("begin" => "2013-01-01", "end" => "2014-12-31"),
+            "-1" => array("begin" => true, "end" => false)
         );
+
+        $xml = Xml::toXml($array, "associative_array", "child", true);
+
+        $new_array = Xml::toArray($xml);
+
+        $this->assertEquals($array, $new_array);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toArray
+     * @depends testToXmlWithAssociativeJaggedArray
+     */
+    public function testToArrayWithAssociativeJaggedArray() {
+        $array = array("a" => 1, "b" => 2, "c" => 3, "d" => 4, "e" => 5,
+            "extra" => array("x" => "foo", "y" => "bar", "z" => "baz"));
+
+        $xml = Xml::toXml($array);
+
+        $new_array = Xml::toArray($xml);
+
+        $this->assertEquals($array, $new_array);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toArray
+     * @depends testToXmlWithAssociativeArrayWithObject
+     */
+    public function testToObjectWithAssociativeArrayWithObject() {
+        $object = new \stdClass();
+        $object->property = "value";
+        $array = array("a" => 1, "b" => 2, "c" => 3, "d" => 4, "e" => 5,
+            "object" => $object);
+
+        $xml = Xml::toXml($array);
+
+        $array["object"] = (array) $array["object"];
+
+        $object = Xml::toArray($xml);
+
+        $this->assertEquals($array, $object);
     }
 
     /**
      * @covers \Cougar\Util\Xml::toObject
-     * @todo   Implement testToObject().
+     * @depends testToXmlWithStringAndRootElement
      */
-    public function testToObject() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+    public function testToObjectWithString() {
+        $greeting = "Hello World!";
+        $root_element = "greeting";
+
+        $xml = Xml::toXml($greeting, $root_element);
+
+        $object = Xml::toObject($xml);
+
+        $this->assertEquals($greeting, $object);
     }
 
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithNumber
+     */
+    public function testToObjectWithNumber() {
+        $number = 3.14;
+
+        $xml = Xml::toXml($number);
+
+        $object = Xml::toObject($xml);
+
+        $this->assertEquals($number, $object);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithBoolean
+     */
+    public function testToObjectWithBoolean() {
+        $bool = true;
+
+        $xml = Xml::toXml($bool);
+
+        $object = Xml::toObject($xml);
+
+        $this->assertEquals($bool, $object);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithNonAssociativeArray
+     */
+    public function testToObjectWithNonAssociativeArray() {
+        $array = array("a", "b", "c", "d", "e", false);
+
+        $xml = Xml::toXml($array);
+
+        $object = Xml::toObject($xml);
+
+        $this->assertEquals($array, $object);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithNonAssociativeArrayAndNamedElementsWithObject
+     */
+    public function testToObjectWithNonAssociativeArrayWithObject() {
+        $object = new \stdClass();
+        $object->property = "M";
+        $object->boolean = true;
+        $array = array("a", "b", "c", "d", "e", true, $object);
+
+        $xml = Xml::toXml($array);
+
+        $object = Xml::toObject($xml);
+
+        $this->assertEquals($array, $object);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithNonAssociativeJaggedArray
+     */
+    public function testToObjectWithNonAssociativeJaggedArray() {
+        $array = array("a", "b", "c", "d", "e",
+            array("x", "y", "z", false));
+
+        $xml = Xml::toXml($array);
+
+        $object = Xml::toObject($xml);
+
+        $this->assertEquals($array, $object);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithSimpleObject
+     */
+    public function testToObjectWithSimpleObject() {
+        $object = new \StdClass();
+        $object->property1 = "value1";
+        $object->property2 = "value2";
+        $object->property3 = "value3";
+        $object->property4 = "value4";
+
+        $xml = Xml::toXml($object);
+
+        $new_object = Xml::toObject($xml);
+
+        $this->assertEquals($object, $new_object);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithComplexObject
+     */
+    public function testToObjectWithComplexObject() {
+        $object = new \stdClass();
+        $object->property1 = "value1";
+        $object->property2 = "value2";
+        $object->property3 = "value3";
+        $object->property4 = "value4";
+        $object->subClass = new \stdClass();
+        $object->subClass->subProperty1 = "subvalue1";
+        $object->subClass->subProperty2 = "subvalue2";
+        $object->array = array("a", "b", "c", "d", "e");
+        $object->jaggedArray = array("a", "b", "c", "d", "e",
+            array("x", "y", "z"));
+        $object->associativeArray =
+            $array = array("a" => 1, "b" => 2, "c" => 3, "d" => 4, "e" => 5);
+        $object->jaggedAssociativeArray =
+            array("a" => 1, "b" => 2, "c" => 3, "d" => 4, "e" => 5,
+                "extra" => array("x" => "foo", "y" => "bar", "z" => "baz"));
+
+        $xml = Xml::toXml($object);
+
+        $new_object = Xml::toObject($xml);
+
+        $object->array = json_decode(json_encode($object->array));
+        $object->jaggedArray = json_decode(json_encode($object->jaggedArray));
+        $object->associativeArray =
+            json_decode(json_encode($object->associativeArray));
+        $object->jaggedAssociativeArray =
+            json_decode(json_encode($object->jaggedAssociativeArray));
+
+        $this->assertEquals($object, $new_object);
+    }
 }
+
+require_once(__DIR__  . "/../../Cougar/Util/iXmlSerializable.php");
+
+class TestXmlSerializable implements iXmlSerializable
+{
+    public function xmlSerialize()
+    {
+        $xml = new SimpleXMLElement("<serializable/>");
+        $xml_names = $xml->addChild("names");
+        $xml_names->addChild("name", "John");
+        $xml_names->addChild("name", "Mary");
+        $xml_names->addChild("name", "Steve");
+
+        return $xml;
+    }
+}
+?>
