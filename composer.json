@@ -1,0 +1,23 @@
+{
+    "name": "alfmel/cougar",
+    "type": "library",
+    "description": "Framework for quickly developing and documenting REST APIs",
+    "keywords": ["REST","API", "framework"],
+    "homepage": "http://github.com/alfmel/cougar",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Al Trevino",
+            "email": "alf@mypals.org",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cougar\\": "Cougar"
+        }
+    }
+}

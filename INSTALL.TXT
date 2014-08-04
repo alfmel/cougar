@@ -1,12 +1,7 @@
 INSTALLATION INSTRUCTIONS
 -------------------------
 
-If you are installing for regular use, the easiest is via Pear:
-
-  pear channel-discover alfmel.github.com/pear
-  pear install cougar/cougar
-
-If you are installing for development, get it straight from Github:
+To install Cougar directly from Github:
 
   git clone https://github.com/alfmel/cougar
 
@@ -18,4 +13,17 @@ symlink the following to /usr/bin or /usr/local/bin:
   /path/to/cougar/Cougar/PDO/cougar-create-pdo-connection-file
   /path/to/cougar/Cougar/Util/cougar-obfuscate-string
 
-Enjoy!
+You may also use Composer to add Cougar to your project. In your composer.json
+file, add the following:
+
+  {
+      "require": {
+          "alfmel/cougar": "dev-master"
+      }
+  }
+
+Then run:
+
+  composer.phar install
+
+Cougar will be added to your project's vendor directory.
