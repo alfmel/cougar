@@ -117,10 +117,10 @@ namespace Cougar\RestService;
  *   is omitted, the $body variable will used. Optionally, you may specify that
  *   the data must be parsed and that the resulting object should be passed
  *   instead. If the data comes in XML, using XML will return data in a
- *   SimpleXmlObject. If the data comes in as JSON and OBJECT is specified, it will
- *   be parsed and return as an instance of stdClass (or assoc. array if ARRAY is
- *   used. Finally if the incoming data is a serialized PHP object, use PHP to
- *   unserialize it.
+ *   SimpleXmlObject. If the data comes in as JSON and OBJECT is specified, it
+ *   will be parsed and return as an instance of stdClass (or assoc. array if
+ *   ARRAY is used. Finally if the incoming data is a serialized PHP object, use
+ *   PHP to unserialize it.
  * 
  * @Authentication required|optional
  *   Tells the security object to authenticate. If authentication is required

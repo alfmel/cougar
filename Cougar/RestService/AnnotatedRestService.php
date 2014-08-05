@@ -54,8 +54,10 @@ use Cougar\Exceptions\NotAcceptableException;
  *         annotation
  * 2014.03.24:
  *   (AT)  Avoid using global variables for PATH and METHOD
+ * 2014.08.05:
+ *   (AT)  Properly handle XML, JSON and PHP in the Returns annotation
  *
- * @version 2014.03.24
+ * @version 2014.08.05
  * @package Cougar
  * @license MIT
  *
@@ -135,8 +137,11 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      *   (AT)  Add $ to end of regex to be more exact on path matching
      *   (AT)  Make sure to set the parameter name when the parameter contains a
      *         regular expression
+     * 2014.08.05:
+     *   (AT)  Internally convert the Returns and Accepts annotations to
+     *         lowercase to improve and simplify mimetype detection
      *
-     * @version 2014.03.14
+     * @version 2014.08.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param object $object_reference
@@ -208,10 +213,12 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                                 mb_strtoupper($annotation->value));
                             break;
                         case "Accepts":
-                            $binding->accepts = $annotation->value;
+                            $binding->accepts =
+                                mb_strtolower($annotation->value);
                             break;
                         case "Returns":
-                            $binding->returns = $annotation->value;
+                            $binding->returns =
+                                mb_strtolower($annotation->value);
                             break;
                         case "XmlRootElement":
                         case "RootElement":
@@ -560,9 +567,10 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
      *         to be used in regex classes
      * 2014.03.24:
      *   (AT)  Access path and method variables directly from the object
+     * 2014.08.05:
+     *   (AT)  Handle JSON, XML and PHP Returns types properly
      *
-     * @version 2014.03.24
-     *
+     * @version 2014.08.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @throws \Cougar\Exceptions\Exception
@@ -649,7 +657,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
 
                         # See if there is a specific mimetype this method
                         # accepts
-                        switch(strtolower($binding->accepts))
+                        switch($binding->accepts)
                         {
                             case "json":
                                 if ($this->header("Content-type") !=
@@ -727,7 +735,22 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
         {
             if ($binding->returns)
             {
-                $response_types[] = $binding->returns;
+                switch($binding->returns)
+                {
+                    case "json":
+                        $response_types[] = "application/json";
+                        break;
+                    case "xml":
+                        $response_types[] = "application/xml";
+                        $response_types[] = "text/xml";
+                        break;
+                    case "php":
+                        $response_types[] = "application/vnd.php.serialized";
+                        break;
+                    default:
+                        $response_types[] = $binding->returns;
+                        break;
+                }
             }
             else
             {
@@ -771,6 +794,24 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                     $binding = $potential_binding;
                     break 2;
                 }
+                else if ($potential_binding->returns == "json" &&
+                    $response_type == "application/json")
+                {
+                    $binding = $potential_binding;
+                    break 2;
+                }
+                else if ($potential_binding->returns == "xml" &&
+                    $response_type == "application/xml")
+                {
+                    $binding = $potential_binding;
+                    break 2;
+                }
+                else if ($potential_binding->returns == "xml" &&
+                    $response_type == "text/xml")
+                {
+                    $binding = $potential_binding;
+                    break 2;
+                }
                 else if (! $potential_binding->returns)
                 {
                     $binding = $potential_binding;
@@ -778,7 +819,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
                 }
             }
         }
-        
+
         # If we don't have a binding, send a NotAcceptable exception
         if (! $binding)
         {

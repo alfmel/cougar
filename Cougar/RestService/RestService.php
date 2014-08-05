@@ -1439,10 +1439,10 @@ class RestService implements iRestService
             }
             else
             {
-                # Extract the mime type andd define an empty array for params
+                # Extract the mime type and define an empty array for params
                 $entry["mimetype"] = $raw_entry;
             }
-            
+
             # Break-up the mime type into its type and subtype
             $entry["type"] = substr($entry["mimetype"], 0,
                 strpos($entry["mimetype"], "/"));
