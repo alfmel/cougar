@@ -72,8 +72,11 @@ use Cougar\Exceptions\RecordNotFoundException;
  * 2014.04.24:
  *   (AT)  When querying, make sure objects that implement the iModel interface
  *         are validated
+ * 2014.08.05:
+ *   (AT)  Cast all values before fetching the record to ensure values are
+ *         handled properly
  *
- * @version 2014.04.24
+ * @version 2014.08.05
  * @package Cougar
  * @license MIT
  *
@@ -868,7 +871,7 @@ trait tPdoModel
         # See if we just need to flag a property as deleted
         if ($this->__deleteProperty)
         {
-            # Prepare the UPDATE staement
+            # Prepare the UPDATE statement
             $statement = "UPDATE " . $this->__table . " " .
                 "SET " . $this->__columnMap[$this->__deleteProperty] .
                     "= :" . $this->__deleteProperty . " ".
@@ -1385,8 +1388,11 @@ trait tPdoModel
      * 2014.04.02:
      *   (AT)  Switch from using __defaultValues to __previousValues and
      *         __persistenceValues
+     * 2014.08.05:
+     *   (AT)  Cast values before making the query to ensure all values are
+     *         passed properly
      *
-     * @version 2014.04.02
+     * @version 2014.08.05
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     protected function getRecord()
@@ -1410,6 +1416,9 @@ trait tPdoModel
         
         if ($cached_record === false)
         {
+            # Cast the values
+            $this->__performCasts();
+
             # See if the columns need aliases
             $columns = array();
             foreach($this->__columnMap as $property => $column)

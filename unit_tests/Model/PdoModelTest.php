@@ -1788,6 +1788,52 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
 
         $this->fail("Expected exception was not thrown");
     }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::getRecord
+     * @covers \Cougar\Model\PdoModel::getCacheKey
+     */
+    public function testLoadModelWithDateTimePrimarykey() {
+        $object = null;
+
+        $security = new Security();
+
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->never())
+            ->method("set");
+
+        $pdo_statement = $this->getMockBuilder("\\PDOStatement")
+            ->disableArgumentCloning()
+            ->getMock();
+        $pdo_statement->expects($this->at(0))
+            ->method("setFetchMode");
+        $pdo_statement->expects($this->at(1))
+            ->method("execute")
+            ->with($this->equalTo(array("date" => "2014-01-02")))
+            ->will($this->returnValue(true));
+        $pdo_statement->expects($this->at(2))
+            ->method("fetch");
+        $pdo_statement->expects($this->at(3))
+            ->method("fetch")
+            ->will($this->returnValue(false));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("sqlite::memory:"));
+        $pdo->expects($this->once())
+            ->method("prepare")
+            ->with($this->equalTo(
+                "SELECT date, open, close " .
+                "FROM business_hours WHERE date = :date"))
+            ->will($this->returnValue($pdo_statement));
+
+        $object = new PdoModelDatePrimaryKey($security, $cache, $pdo,
+            array("date" => "2014-01-02 12:13:14"));
+        $this->assertInstanceOf('\Cougar\Util\DateTime', $object->date);
+    }
 }
 
 require_once(__DIR__ . "/../../Cougar/Model/iArrayExportable.php");
@@ -1930,5 +1976,32 @@ class PdoModelNoQueryUnitTest extends \Cougar\Model\PdoModel
      * @var int ID
      */
     public $id;
+}
+
+/**
+ * @Table business_hours
+ * @Allow CREATE READ UPDATE DELETE
+ * @PrimaryKey date
+ * @NoCache
+ */
+class PdoModelDatePrimaryKey extends \Cougar\Model\PdoModel
+{
+    /**
+     * @DateTimeFormat Date
+     * @var DateTime
+     */
+    public $date;
+
+    /**
+     * @DateTimeformat Time
+     * @var DateTime
+     */
+    public $open;
+
+    /**
+     * @DateTimeformat Time
+     * @var DateTime
+     */
+    public $close;
 }
 ?>
