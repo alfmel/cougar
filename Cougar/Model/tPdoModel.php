@@ -75,6 +75,8 @@ use Cougar\Exceptions\RecordNotFoundException;
  * 2014.08.05:
  *   (AT)  Cast all values before fetching the record to ensure values are
  *         handled properly
+ *   (AT)  Properly handle query parameters that contain embedded query
+ *         parameters
  *
  * @version 2014.08.05
  * @package Cougar
@@ -999,65 +1001,9 @@ trait tPdoModel
             }
         }
 
-        # Go through the query properties
-        foreach($parameters as $parameter)
-        {
-            if ($this->__caseInsensitive)
-            {
-                $alias = strtolower($parameter->property);
-            }
-            else
-            {
-                $alias = $parameter->property;
-            }
-
-            if (array_key_exists($alias, $query_aliases))
-            {
-                $property = $query_aliases[$alias];
-
-                # Make sure this column is visible if we are not querying unique
-                # values
-                if (! $this->__queryUnique)
-                {
-                    if ($this->__exportAlias[$property] ==
-                        $this->__columnMap[$property])
-                    {
-                        $columns[$property] = $this->__columnMap[$property];
-                        $key_map[$this->__columnMap[$property]] =
-                            $this->__columnMap[$property];;
-                    }
-                    else
-                    {
-                        $columns[$property] = $this->__columnMap[$property] .
-                            " AS " . $this->__exportAlias[$property];
-                        $key_map[$this->__exportAlias[$property]] =
-                            $this->__exportAlias[$property];
-                    }
-                }
-
-                # See if the property has a date/time value
-                if ($this->__type[$property] == "DateTime")
-                {
-                    switch($this->__dateTimeFormat[$property])
-                    {
-                        case "DateTime":
-                        default:
-                            $date_format = "Y-m-d H:i:s";
-                            break;
-                        case "Date":
-                            $date_format = "Y-m-d";
-                            break;
-                        case "Time":
-                            $date_format = "H:i:s";
-                            break;
-                    }
-
-                    # Convert the value
-                    $parameter->value = date($date_format,
-                        strtotime($parameter->value));
-                }
-            }
-        }
+        # Recursively iterate through the query parameters
+        $this->iterateQueryParameters($parameters, $query_aliases, $columns,
+            $key_map);
 
         # Prepare the array that will hold the parameter values
         $values = array();
@@ -1593,6 +1539,92 @@ trait tPdoModel
         }
 
         return $result;
+    }
+
+    /**
+     * Iterates through the query parameters to build the foundation of the SQL
+     * query.
+     *
+     * @history
+     * 2014.08.05
+     *   (AT)  Initial release
+     *
+     * @version 2014.08.05
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     */
+    protected function iterateQueryParameters(array $parameters,
+        array $query_aliases, array &$columns, &$key_map)
+    {
+        # Go through the query properties
+        foreach($parameters as $parameter)
+        {
+            // See if this is an array of query parameters
+            if (is_array($parameter->property))
+            {
+                // Iterate through these parameters
+                $this->iterateQueryParameters($parameter->property,
+                    $query_aliases, $columns, $key_map);
+
+                // Go to the next parameter
+                continue;
+            }
+
+            if ($this->__caseInsensitive)
+            {
+                $alias = strtolower($parameter->property);
+            }
+            else
+            {
+                $alias = $parameter->property;
+            }
+
+            if (array_key_exists($alias, $query_aliases))
+            {
+                $property = $query_aliases[$alias];
+
+                # Make sure this column is visible if we are not querying unique
+                # values
+                if (! $this->__queryUnique)
+                {
+                    if ($this->__exportAlias[$property] ==
+                        $this->__columnMap[$property])
+                    {
+                        $columns[$property] = $this->__columnMap[$property];
+                        $key_map[$this->__columnMap[$property]] =
+                            $this->__columnMap[$property];;
+                    }
+                    else
+                    {
+                        $columns[$property] = $this->__columnMap[$property] .
+                            " AS " . $this->__exportAlias[$property];
+                        $key_map[$this->__exportAlias[$property]] =
+                            $this->__exportAlias[$property];
+                    }
+                }
+
+                # See if the property has a date/time value
+                if ($this->__type[$property] == "DateTime")
+                {
+                    switch($this->__dateTimeFormat[$property])
+                    {
+                        case "DateTime":
+                        default:
+                            $date_format = "Y-m-d H:i:s";
+                            break;
+                        case "Date":
+                            $date_format = "Y-m-d";
+                            break;
+                        case "Time":
+                            $date_format = "H:i:s";
+                            break;
+                    }
+
+                    # Convert the value
+                    $parameter->value = date($date_format,
+                        strtotime($parameter->value));
+                }
+            }
+        }
     }
 
     /**

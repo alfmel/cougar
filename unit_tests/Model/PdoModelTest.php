@@ -1275,6 +1275,79 @@ class PdoModelTest extends \PHPUnit_Framework_TestCase {
      * @todo Until the cache supports grouped clearing, caching of queries has
      *       been disabled. Change the cache entries as necessary once it works.
      */
+    public function testQueryWithArrayOfQueryParameters() {
+        $parameters = array(
+            new QueryParameter(array(
+                new QueryParameter("firstName", "John", "**"),
+                new QueryParameter("firstName", "Jon", "**", "OR"))),
+            new QueryParameter("lastName", "Doe", "**")
+        );
+
+        $security = new Security();
+        /*
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->once())
+            ->method("get")
+            ->with("unittest.model.query." .
+                md5(serialize($parameters) . "array.__default__"))
+            ->will($this->returnValue(false));
+        $cache->expects($this->once())
+            ->method("set")
+            ->will($this->returnValue(false));
+        */
+        $cache = $this->getMock("\\Cougar\\Cache\\Cache");
+        $cache->expects($this->never())
+            ->method("get");
+        $cache->expects($this->never())
+            ->method("set");
+
+        $pdo_statement = $this->getMock("\\PDOStatement");
+        $pdo_statement->expects($this->once())
+            ->method("execute")
+            ->with($this->equalTo(array(
+                "firstName" => "%John%",
+                "firstName_1" => "%Jon%",
+                "lastName" => "%Doe%")))
+            ->will($this->returnValue(true));
+        $pdo_statement->expects($this->at(1))
+            ->method("fetchAll")
+            ->will($this->returnValue(array(array(
+                "userId" => "12345",
+                "lastName" => "Doe",
+                "firstName" => "John",
+                "emailAddress" => "john.doe@example.com",
+                "phone" => "800-555-1212",
+                "active" => "1",
+                "attributes" => json_encode(array("a" =>1, "b" => 2))))));
+
+        $pdo = $this->getMock("\\PDO",
+            array("prepare"),
+            array("sqlite::memory:"));
+        $pdo->expects($this->once())
+            ->method("prepare")
+            ->with($this->equalTo(
+                "SELECT userId, lastName, firstName, emailAddress AS email, " .
+                "phone, birthDate, active, attributes " .
+                "FROM user  WHERE (firstName LIKE :firstName " .
+                "OR firstName LIKE :firstName_1) AND " .
+                "lastName LIKE :lastName " .
+                "LIMIT 10000 OFFSET 0"))
+            ->will($this->returnValue($pdo_statement));
+
+        $object = new PdoModelUnitTest($security, $cache, $pdo);
+        $query_result = $object->query($parameters);
+        $this->assertCount(1, $query_result);
+        $this->assertArrayHasKey("userId", $query_result[0]);
+        $this->assertEquals("12345", $query_result[0]["userId"]);
+    }
+
+    /**
+     * @covers \Cougar\Model\PdoModel::__construct
+     * @covers \Cougar\Model\PdoModel::query
+     *
+     * @todo Until the cache supports grouped clearing, caching of queries has
+     *       been disabled. Change the cache entries as necessary once it works.
+     */
     public function testQueryOciRenameKeys() {
         // This test only works if we have the OCI driver installed
         if (! in_array("oci", PDO::getAvailableDrivers()))
