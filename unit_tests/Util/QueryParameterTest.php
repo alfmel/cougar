@@ -541,7 +541,8 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
     {
         $parameters = QueryParameter::fromUri("?this=that");
         $this->assertCount(1, $parameters);
-        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter",
+            $parameters[0]);
         $this->assertEquals("this", $parameters[0]->property);
         $this->assertEquals("that", $parameters[0]->value);
         $this->assertEquals("AND", $parameters[0]->mode);
@@ -556,7 +557,8 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
     {
         $parameters = QueryParameter::fromUri("?this<that");
         $this->assertCount(1, $parameters);
-        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter",
+            $parameters[0]);
         $this->assertEquals("this", $parameters[0]->property);
         $this->assertEquals("that", $parameters[0]->value);
         $this->assertEquals("AND", $parameters[0]->mode);
@@ -571,7 +573,8 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
     {
         $parameters = QueryParameter::fromUri("?this<=that");
         $this->assertCount(1, $parameters);
-        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter",
+            $parameters[0]);
         $this->assertEquals("this", $parameters[0]->property);
         $this->assertEquals("that", $parameters[0]->value);
         $this->assertEquals("AND", $parameters[0]->mode);
@@ -586,7 +589,8 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
     {
         $parameters = QueryParameter::fromUri("?this**that");
         $this->assertCount(1, $parameters);
-        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter",
+            $parameters[0]);
         $this->assertEquals("this", $parameters[0]->property);
         $this->assertEquals("that", $parameters[0]->value);
         $this->assertEquals("AND", $parameters[0]->mode);
@@ -602,21 +606,24 @@ class QueryParameterTest extends \PHPUnit_Framework_TestCase {
         $parameters = QueryParameter::fromUri(
             "?this=that&blue!=green|red>=circle");
         $this->assertCount(3, $parameters);
-        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[0]);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter",
+            $parameters[0]);
         $this->assertEquals("this", $parameters[0]->property);
         $this->assertEquals("that", $parameters[0]->value);
         $this->assertEquals("AND", $parameters[0]->mode);
         $this->assertEquals("=", $parameters[0]->operator);
         $this->assertFalse($parameters[0]->orNull);
         
-        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[1]);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter",
+            $parameters[1]);
         $this->assertEquals("blue", $parameters[1]->property);
         $this->assertEquals("green", $parameters[1]->value);
         $this->assertEquals("AND", $parameters[1]->mode);
         $this->assertEquals("!=", $parameters[1]->operator);
         $this->assertFalse($parameters[1]->orNull);
         
-        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter", $parameters[2]);
+        $this->assertInstanceOf("\\Cougar\\Util\\QueryParameter",
+            $parameters[2]);
         $this->assertEquals("red", $parameters[2]->property);
         $this->assertEquals("circle", $parameters[2]->value);
         $this->assertEquals("OR", $parameters[2]->mode);
