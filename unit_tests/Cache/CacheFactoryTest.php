@@ -17,9 +17,18 @@ class CacheFactoryTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers Cougar\Cache\CacheFactory::getLocalCache
      */
+    public function testGetMemoryCache() {
+        $cache = CacheFactory::getMemoryCache();
+        $this->assertinstanceOf("Cougar\\Cache\\Cache", $cache);
+        $this->assertEquals("memory", $cache->getCacheType());
+    }
+
+    /**
+     * @covers Cougar\Cache\CacheFactory::getLocalCache
+     */
     public function testGetLocalCache() {
         $cache = CacheFactory::getLocalCache();
-        $this->assertinstanceOf("Cougar\Cache\Cache", $cache);
+        $this->assertinstanceOf("Cougar\\Cache\\Cache", $cache);
         switch($cache->getCacheType())
         {
             case "apc":
@@ -44,7 +53,7 @@ class CacheFactoryTest extends \PHPUnit_Framework_TestCase {
             
         }
         $cache = CacheFactory::getApplicationCache();
-        $this->assertinstanceOf("Cougar\Cache\Cache", $cache);
+        $this->assertinstanceOf("Cougar\\Cache\\Cache", $cache);
         if ($test_memcache)
         {
             $this->assertEquals("memcache", $cache->getCacheType());

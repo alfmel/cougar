@@ -7,15 +7,32 @@ use Cougar\Exceptions\ServiceUnavailableException;
 #require_once(__DIR__ . "/../../cougar.php");
 
 /**
- * The abstract methods getLocalCache and getApplicationCache will return a 
- * Cache object either for a local cache or the system's specified Memcache
- * application cache.
+ * The abstract methods getMemoryCache, getLocalCache and getApplicationCache
+ * will return a Cache object either for a memory, local cache or the system's
+ * specified application cache.
+ *
+ * The application cache is defined using the APPLICATION_CACHE_CONFIGURATION
+ * constant (using hidef to define the constant is highly recommended). The
+ * value of APPLICATION_CACHE_CONFIGURATION must specify a cache type and an
+ * list of servers and ports for memcache and memcached. The possible values
+ * are:
+ *
+ *   none
+ *   memory
+ *   local
+ *   memcache server1[:port1] [server2[:port2] ...]
+ *   memcached server1[:port1] [server2[:port2] ...]
  *
  * @history
  * 2013.09.30:
  *   (AT)  Initial release
+ * 2014.08.06:
+ *   (AT)  Add getMemoryCache()
+ *   (AT)  Fixed problem when using memcached in configuration in
+ *         getApplicationCache()
+ *   (AT)  Documented the use of the APPLICATION_CACHE_CONFIGURATION constant
  *
- * @version 2013.09.30
+ * @version 2014.08.06
  * @package Cougar
  * @license MIT
  *
@@ -28,9 +45,31 @@ class CacheFactory
     /***************************************************************************
      * PUBLIC STATIC PROPERTIES AND METHODS
      **************************************************************************/
-    
+
     /**
-     * Returns a local cache (APC, Wincache or internal)
+     * Returns a memory cache
+     *
+     * @history
+     * 2014.08.06:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.08.06
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @return \Cougar\Cache\Cache Memory cache object
+     */
+    static public function getMemoryCache()
+    {
+        if (self::$memoryCache === null)
+        {
+            self::$memoryCache = new Cache("memory");
+        }
+
+        return self::$memoryCache;
+    }
+
+    /**
+     * Returns a local cache (APC, Wincache or memory)
      *
      * @history
      * 2013.09.30:
@@ -54,13 +93,16 @@ class CacheFactory
     /**
      * Creates a new connection to the application cache. The application cache
      * configuration should be defined using the APPLICATION_CACHE_CONFIGURATION
-     * constant.
+     * constant. (See the documentation for the CacheFactory for details.)
      *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.08.06:
+     *   (AT)  Fixed problem when using memcached in configuration
+     *   (AT)  Improve parsing of configuration constant
      *
-     * @version 2013.09.30
+     * @version 2014.08.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @return \Cougar\Cache\Cache Application cache object
@@ -96,10 +138,10 @@ class CacheFactory
             else
             {
                 # Split the configuration on blank space
-                $config = explode(" ", APPLICATION_CACHE_CONFIGURATION);
+                $config = preg_split('/\s+/u', APPLICATION_CACHE_CONFIGURATION);
                 
                 # See which kind of cache we have
-                switch($config[0])
+                switch(strtolower($config[0]))
                 {
                     case "memcache":
                         $memcache = new \Memcache();
@@ -151,7 +193,7 @@ class CacheFactory
                         }
                         
                         # Create the cache object
-                        self::$applicationCache = new Cache($memcache);
+                        self::$applicationCache = new Cache($memcached);
                         break;
                     case "local":
                         self::$applicationCache = new Cache("local");
@@ -176,7 +218,12 @@ class CacheFactory
     /***************************************************************************
      * PROTECTED STATIC PROPERTIES AND METHODS
      **************************************************************************/
-    
+
+    /**
+     * @var Cache Memory cache reference
+     */
+    protected static $memoryCache = null;
+
     /**
      * @var Cache Local cache reference
      */
