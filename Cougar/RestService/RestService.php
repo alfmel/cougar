@@ -2,8 +2,10 @@
 
 namespace Cougar\RestService;
 
+use Cougar\Exceptions\BadRequestException;
 use Cougar\Util\Format;
 use Cougar\Util\QueryParameter;
+use Cougar\Util\Xml;
 use Cougar\Exceptions\Exception;
 use Cougar\Exceptions\NotAcceptableException;
 
@@ -756,17 +758,23 @@ class RestService implements iRestService
      * type of object. These are:
      * 
      *   XML    - Parse the body as XML and return as a SimpleXML object
-     *   OBJECT - Parse the body as a JSON object and return as an object
-     *   ARRAY  - Parse the body as a JSON object and return as an assoc. array
-     *   PHP    - Parse the body as a serialized PHP data
-     * 
+     *   OBJECT - Parse the body as a JSON, XML or PHP serialized object and
+     *            return as an object
+     *   ARRAY  - Parse the body as a JSON or XML object and return as an assoc.
+     *            array
+     *   PHP    - Parse the body as serialized PHP data
+     *
+     * If parsing fails the call will throw a BadRequestException.
+     *
      * If no parse type is specified, the body will be returned as a string.
      *
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.08:06:
+     *   (AT)  Allow conversion of XML to object or array, or PHP to object
      *
-     * @version 2013.09.30
+     * @version 2014.08.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      * 
      * @param string $parse_type xml|object|array|php
@@ -790,23 +798,69 @@ class RestService implements iRestService
         }
         
         # See if we will be parsing the data
-        switch(strtolower($parse_type))
+        if ($this->body)
         {
-            case "xml":
-                return new \SimpleXMLElement($this->body);
-                break;
-            case "object":
-                return json_decode($this->body);
-                break;
-            case "array":
-                return json_decode($this->body, true);
-                break;
-            case "php":
-                return unserialize($this->body);
-                break;
-            default:
-                return $this->body;
-                break;
+            switch(strtolower($parse_type))
+            {
+                case "xml":
+                    return new \SimpleXMLElement($this->body);
+                    break;
+                case "object":
+                    try
+                    {
+                        return Xml::toObject(
+                            new \SimpleXMLElement($this->body));
+                    }
+                    catch (\Exception $e)
+                    {
+                        try
+                        {
+                            return unserialize($this->body);
+                        }
+                        catch (\Exception $e)
+                        {
+                            $object = json_decode($this->body);
+
+                            if ($object === null)
+                            {
+                                throw new BadRequestException(
+                                    "Body must be a valid JSON, XML or " .
+                                    "serialized PHP object");
+                            }
+
+                            return $object;
+                        }
+                    }
+                    break;
+                case "array":
+                    try
+                    {
+                        return Xml::toArray(new \SimpleXMLElement($this->body));
+                    }
+                    catch (\Exception $e)
+                    {
+                        $object = json_decode($this->body, true);
+
+                        if ($object === null)
+                        {
+                            throw new BadRequestException(
+                                "Body must be a valid JSON or XML object");
+                        }
+
+                        return $object;
+                    }
+                    break;
+                case "php":
+                    return unserialize($this->body);
+                    break;
+                default:
+                    return $this->body;
+                    break;
+            }
+        }
+        else
+        {
+            return $this->body;
         }
     }
     
