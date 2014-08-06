@@ -4,6 +4,7 @@ namespace Cougar\Model;
 
 use Cougar\Security\iSecurity;
 use Cougar\Cache\iCache;
+use Cougar\Cache\Cache;
 use Cougar\Cache\CacheFactory;
 use Cougar\RestClient\iRestClient;
 use Cougar\Util\Annotations;
@@ -27,8 +28,10 @@ use Cougar\Exceptions\NotImplementedException;
  *   (AT)  Initial release
  * 2014.03.18:
  *   (AT)  Add support for endPersistence()
+ * 2014.08.06:
+ *   (AT)  Turn the execution cache into a proper memory cache
  *
- * @version 2014.03.18
+ * @version 2014.08.06
  * @package Cougar
  * @license MIT
  *
@@ -50,8 +53,10 @@ trait tWsModel
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.08.06:
+     *   (AT)  Turn the execution cache into a proper memory cache
      *
-     * @version 2013.09.30
+     * @version 2014.08.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param iSecurity $security Security context
@@ -65,9 +70,11 @@ trait tWsModel
     public function __construct(iSecurity $security, iCache $cache,
         iRestClient $rest_client, $object = null, $view = null, $strict = true)
     {
-        # Get a local cache
+        # Get a local and a memory cache
+        # TODO: Set through static property(?)
         $local_cache = CacheFactory::getLocalCache();
-        
+        $execution_cache = CacheFactory::getMemoryCache();
+
         # Store the object references
         $this->__security = $security;
         $this->__cache = $cache;
@@ -84,12 +91,8 @@ trait tWsModel
         $this->__constructModel(null, $view);
         
         # See if the execution cache has the object properties
-        $parsed_annotations = false;
-        if (array_key_exists($class, self::$__executionCache))
-        {
-            $parsed_annotations = self::$__executionCache[$class];
-        }
-        else
+        $parsed_annotations = $execution_cache->get($cache_key);
+        if (! $parsed_annotations)
         {
             # See if the annotations came from the cache
             if ($this->__annotations->cached)
@@ -588,7 +591,8 @@ trait tWsModel
                 "voidCacheEntries" => $this->__voidCacheEntries,
                 "noCache" => $this->__noCache
             );
-            self::$__executionCache[$class] = $parsed_annotations;
+
+            $execution_cache->set($cache_key, $parsed_annotations);
             $local_cache->set($cache_key, $parsed_annotations,
                 Annotations::$cacheTime);
         }

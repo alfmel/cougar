@@ -2,6 +2,7 @@
 
 namespace Cougar\Model;
 
+use Cougar\Cache\Cache;
 use Cougar\Cache\CacheFactory;
 use Cougar\Util\Annotations;
 use Cougar\Util\DateTime;
@@ -50,8 +51,10 @@ use Cougar\Exceptions\BadRequestException;
  * 2014.05.29:
  *   (AT)  Fix minor bugs where properties with objects or arrays of objects
  *         were returned inside another array
+ * 2014.08.06:
+ *   (AT)  Turn the execution cache into a proper memory cache
  *
- * @version 2014.05.29
+ * @version 2014.08.06
  * @package Cougar
  * @license MIT
  *
@@ -76,8 +79,10 @@ trait tModel
      *   (AT)  Don't clobber cached annotations when loading parsed annotations
      *         from cache
      *   (AT)  Switch from using __defaultValues to __previousValues
+     * 2014.08.06:
+     *   (AT)  Turn the execution cache into a proper memory cache
      *
-     * @version 2014.04.02
+     * @version 2014.08.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param mixed $object
@@ -94,22 +99,18 @@ trait tModel
         # Store the value of the requested view (avoid clobbering later)
         $requested_view = $view;
         
-        # Get a local cache
+        # Get a local cache and a memory cache
         # TODO: Set through static property(?)
         $local_cache = CacheFactory::getLocalCache();
+        $execution_cache = CacheFactory::getMemoryCache();
         
         # Create our cache keys
         $class = get_class($this) . ".Model";
         $cache_key = Annotations::$annotationsCachePrefix . "." . $class;
         
         # See if the execution cache has the object properties
-        $parsed_annotations = false;
-        if (array_key_exists($class, self::$__executionCache))
-        {
-            # Get the parsed annotations from the cache
-            $parsed_annotations = self::$__executionCache[$class];
-        }
-        else
+        $parsed_annotations = $execution_cache->get($cache_key);
+        if (! $parsed_annotations)
         {
             # Get the annotations
             $this->__annotations =
@@ -333,7 +334,7 @@ trait tModel
                 "defaultValues" => $this->__defaultValues
             );
 
-            self::$__executionCache[$class] = $parsed_annotations;
+            $execution_cache->set($cache_key, $parsed_annotations);
             $local_cache->set($cache_key, $parsed_annotations,
                 Annotations::$cacheTime);
         }
@@ -1138,11 +1139,6 @@ trait tModel
      * @var int Current position of the iterator
      */
     protected $__iterator = -1;
-    
-    /**
-     * @var array Execution record property cache
-     */
-    protected static $__executionCache = array();
 
     /**
      * Performs all property casts.

@@ -77,8 +77,10 @@ use Cougar\Exceptions\RecordNotFoundException;
  *         handled properly
  *   (AT)  Properly handle query parameters that contain embedded query
  *         parameters
+ * 2014.08.06:
+ *   (AT)  Turn the execution cache into a proper memory cache
  *
- * @version 2014.08.05
+ * @version 2014.08.06
  * @package Cougar
  * @license MIT
  *
@@ -108,8 +110,10 @@ trait tPdoModel
      * 2014.04.02:
      *   (AT)  Switch from using __defaultValues to __previousValues and
      *         __persistenceValues
+     * 2014.08.06:
+     *   (AT)  Turn the execution cache into a proper memory cache
      *
-     * @version 2014.04.02
+     * @version 2014.08.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param \Cougar\Security\iSecurity $security
@@ -132,7 +136,8 @@ trait tPdoModel
         # Get a local cache
         # TODO: Set through static property(?)
         $local_cache = CacheFactory::getLocalCache();
-        
+        $execution_cache = CacheFactory::getMemoryCache();
+
         # Store the object references
         $this->__security = $security;
         $this->__cache = $cache;
@@ -149,12 +154,8 @@ trait tPdoModel
         $this->__constructModel(null, $view);
 
         # See if the execution cache has the object properties
-        $parsed_annotations = false;
-        if (array_key_exists($class, self::$__executionCache))
-        {
-            $parsed_annotations = self::$__executionCache[$class];
-        }
-        else
+        $parsed_annotations = $execution_cache->get($cache_key);
+        if (! $parsed_annotations)
         {
             # See if the annotations came from the cache
             if ($this->__annotations->cached)
@@ -422,7 +423,8 @@ trait tPdoModel
                 "columnMap" => $this->__columnMap,
                 "readOnly" => $this->__readOnly
             );
-            self::$__executionCache[$class] = $parsed_annotations;
+
+            $execution_cache->set($cache_key, $parsed_annotations);
             $local_cache->set($cache_key, $parsed_annotations,
                 Annotations::$cacheTime);
         }
