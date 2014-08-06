@@ -78,7 +78,7 @@ class Config implements iConfig
         {
             $caller["file"] = "(Unknown)";
         }
-        $call_cache_key = self::$cachePrefix . ".caller." .
+        $call_cache_key = self::$cachePrefix . ".Caller." .
             md5($caller["file"] . ":" . $caller["function"]) . "." .
             $config_file;
         
@@ -127,7 +127,8 @@ class Config implements iConfig
         }
         
         # See if the contents of the file are in the cache
-        $file_cache_key = self::$cachePrefix . ".file." . $file["filename"];
+        $file_cache_key = self::$cachePrefix . ".FileContents." .
+            $file["filename"];
         $values = $local_cache->get($file_cache_key);
         
         # See if we need to reload the file
@@ -204,7 +205,7 @@ class Config implements iConfig
      * @var string Cache prefix
      */
 
-    public static $cachePrefix = "cougar.config";
+    public static $cachePrefix = "Cougar.Config";
 
     /**
      * @var string Cache time

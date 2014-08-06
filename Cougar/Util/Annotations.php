@@ -77,12 +77,12 @@ class Annotations implements iAnnotations
     /**
      * @var string Annotations cache prefix
      */
-    public static $fileMtimeCachePrefix = "cougar.framework.file.mtime";
+    public static $fileMtimeCachePrefix = "Cougar.File.Mtime";
     
     /**
      * @var string Annotations cache prefix
      */
-    public static $annotationsCachePrefix = "cougar.framework.annotations";
+    public static $annotationsCachePrefix = "Cougar.Annotations";
     
     /**
      * @var int Cache duration time (24 hours by default)
@@ -149,7 +149,7 @@ class Annotations implements iAnnotations
         }
         else
         {
-            $class_cache_key = $object_class_name . ".partial";
+            $class_cache_key = $object_class_name . ".Partial";
         }
 
         // See if we have an entry in the execution cache
@@ -304,7 +304,7 @@ class Annotations implements iAnnotations
 
         // Figure out the cache key
         $cache_key = self::$annotationsCachePrefix . "." . $object_class_name .
-            ".inherited." . implode(",", $exclude_class_list) . "." .
+            ".Inherited." . implode(",", $exclude_class_list) . "." .
             (int) $inherit_from_traits . "." . (int) $inherit_from_interfaces;
 
         // See if we have an entry in the execution cache

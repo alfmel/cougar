@@ -169,7 +169,7 @@ class AnnotatedRestService extends RestService implements iAnnotatedRestService
         
         # Create our own cache key
         $cache_key = Annotations::$annotationsCachePrefix . $class .
-            ".annotatedrestservice.bindings";
+            ".AnnotatedRestService.Bindings";
 
         # Get the annotations
         $annotations = Annotations::extractFromObjectWithInheritance(
