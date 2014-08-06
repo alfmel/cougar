@@ -46,8 +46,11 @@ use Cougar\Exceptions\NotAcceptableException;
  *   (AT)  Add support for more HTTP status codes
  * 2014.04.04:
  *   (AT)  Fixed typo that would lead to an exception
+ * 2014.08:06:
+ *   (AT)  Allow conversion of XML to object or array, or PHP to object in
+ *         body()
  *
- * @version 2014.04.04
+ * @version 2014.08.06
  * @package Cougar
  * @license MIT
  *
@@ -752,11 +755,11 @@ class RestService implements iRestService
             }
         }
     }
-    
+
     /**
      * Returns the body of the request, optionally parsing it as a specified
      * type of object. These are:
-     * 
+     *
      *   XML    - Parse the body as XML and return as a SimpleXML object
      *   OBJECT - Parse the body as a JSON, XML or PHP serialized object and
      *            return as an object
@@ -776,8 +779,9 @@ class RestService implements iRestService
      *
      * @version 2014.08.06
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
-     * 
+     *
      * @param string $parse_type xml|object|array|php
+     * @throws \Cougar\Exceptions\BadRequestException
      * @return mixed Body
      */
     public function body($parse_type = null)
