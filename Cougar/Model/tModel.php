@@ -99,7 +99,7 @@ trait tModel
         $local_cache = CacheFactory::getLocalCache();
         
         # Create our cache keys
-        $class = get_class($this) . ".model";
+        $class = get_class($this) . ".Model";
         $cache_key = Annotations::$annotationsCachePrefix . "." . $class;
         
         # See if the execution cache has the object properties

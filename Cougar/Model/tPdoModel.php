@@ -142,7 +142,7 @@ trait tPdoModel
         $this->__cachePrefix .= "." . get_class($this);
         
         # Create our own cache keys
-        $class = get_class($this) . ".pdomodel";
+        $class = get_class($this) . ".PdoModel";
         $cache_key = Annotations::$annotationsCachePrefix . "." . $class;
         
         # Call the parent constructor
@@ -1157,7 +1157,7 @@ trait tPdoModel
     /**
      * @var string Cache prefix
      */
-    protected $__cachePrefix = "byu.model";
+    protected $__cachePrefix = "Cougar.Model";
     
     /**
      * @var array Cache entries to void on modification of this object
@@ -1489,7 +1489,7 @@ trait tPdoModel
         }
         else
         {
-            $cache_key = $this->__cachePrefix . ".query." .
+            $cache_key = $this->__cachePrefix . ".Query." .
                 md5($query_statement. ":" . serialize($query_parameters) .
                     $class_name . "." . $this->__currentView);
             $result = $this->__cache->get($cache_key);

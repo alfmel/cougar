@@ -77,7 +77,7 @@ trait tWsModel
         $this->__cachePrefix .= "." . get_class($this);
         
         # Create our own cache keys
-        $class = get_class($this) . ".wsmodel";
+        $class = get_class($this) . ".WsModel";
         $cache_key = Annotations::$annotationsCachePrefix . "." . $class;
         
         # Call the parent constructor
@@ -883,7 +883,7 @@ trait tWsModel
         $results = false;
         if (! $this->__noCache)
         {
-            $cache_key = $this->__cachePrefix . ".query." .
+            $cache_key = $this->__cachePrefix . ".Query." .
                 md5(serialize($parameters) . $class_name);
             $results = $this->__cache->get($cache_key);
         }
@@ -965,7 +965,7 @@ trait tWsModel
     /**
      * @var string Cache prefix
      */
-    protected $__cachePrefix = "byu.model";
+    protected $__cachePrefix = "Cougar.Model";
     
     /**
      * @var array Cache entries to void on modification of this object
