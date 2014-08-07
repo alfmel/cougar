@@ -19,8 +19,10 @@ use SimpleXMLElement;
  *   (AT)  Add support for iXmlSerializable
  * 2014.08.04:
  *   (AT)  Implement toObject() and toArray()
+ * 2014.08.07:
+ *   (AT)  Remove use of htmlentities() in toXml()
  *
- * @version 2014.08.04
+ * @version 2014.08.07
  * @package Cougar
  * @license MIT
  *
@@ -421,6 +423,9 @@ class Xml implements iXml
      * 2014.05.22:
      *   (AT)  Renamed from iterableToXml to toXmlRecursive
      *   (AT)  Added support for iXmlSerializable
+     * 2014.08.07:
+     *   (AT)  Add child values indirectly; this allows the full XML entities
+     *         parser in SimpleXMLElement to work without using htmlentities()
      *
      * @version 2014.05.22
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
@@ -488,7 +493,7 @@ class Xml implements iXml
                     else
                     {
                         # Add the value
-                        $xml->addChild($element, htmlentities($value));
+                        $xml->addChild($element)[0] = $value;
                     }
                 }
             }
@@ -550,8 +555,8 @@ class Xml implements iXml
                             else
                             {
                                 # Add the value
-                                $child = $xml->addChild($child_element,
-                                    htmlentities($value));
+                                $child = $xml->addChild($child_element);
+                                $child[0] = $value;
                             }
                             $child->addAttribute("id", $element);
                         }
@@ -573,7 +578,7 @@ class Xml implements iXml
                             else
                             {
                                 # Add the value
-                                $xml->addChild($element, htmlentities($value));
+                                $xml->addChild($element)[0] = $value;
                             }
                         }
                     }
@@ -619,8 +624,7 @@ class Xml implements iXml
                         else
                         {
                             # Add the value
-                            $xml->addChild($child_element,
-                                htmlentities($value));
+                            $xml->addChild($child_element)[0] = $value;
                         }
                     }
                 }

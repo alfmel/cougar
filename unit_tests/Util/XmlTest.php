@@ -412,6 +412,26 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
     /**
      * @covers \Cougar\Util\Xml::toXml
      * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
+     */
+    public function testToXmlWithSimpleObjectAndUnicode() {
+        $object = new \StdClass();
+        $object->id = 12345;
+        $object->name = "↝eñe↜";
+
+        $expected_xml =
+            new SimpleXMLElement("<stdClass/>");
+        foreach($object as $element => $value)
+        {
+            $expected_xml->addChild($element)[0] = $value;
+        }
+
+        $this->assertEquals($expected_xml->asXML(),
+            Xml::toXml($object)->asXML());
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toXml
+     * @covers \Cougar\Util\toXmlRecursive::toXmlRecursive
      * @covers \Cougar\Util\Xml::arrayIsAssociative
      */
     public function testToXmlWithComplexObject() {
@@ -705,6 +725,22 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
         $object->property2 = "value2";
         $object->property3 = "value3";
         $object->property4 = "value4";
+
+        $xml = Xml::toXml($object);
+
+        $new_object = Xml::toObject($xml);
+
+        $this->assertEquals($object, $new_object);
+    }
+
+    /**
+     * @covers \Cougar\Util\Xml::toObject
+     * @depends testToXmlWithSimpleObjectAndUnicode
+     */
+    public function testToObjectWithSimpleObjectAndUnicode() {
+        $object = new \StdClass();
+        $object->id = 12345;
+        $object->name = "↝eñe↜";
 
         $xml = Xml::toXml($object);
 
