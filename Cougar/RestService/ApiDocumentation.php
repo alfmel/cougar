@@ -29,8 +29,10 @@ use Cougar\Exceptions\NotFoundException;
  * 2014.06.03:
  *   (AT)  Fixed issue where action name was not properly set when the @Action
  *         annotation was used
+ * 2014.08.20:
+ *   (AT)  Properly handle @GetQuery and @GetArray annotations
  *
- * @version 2014.06.03
+ * @version 2014.08.20
  * @package Cougar
  * @license MIT
  *
@@ -823,8 +825,17 @@ class ApiDocumentation implements iApiDocumentation
                     }
                     $method_info["get"][] = $param;
                     break;
+                case "GetArray":
+                    $param = array("type" => "Query",
+                        "var" => $annotation->value,
+                        "param" => $annotation->value);
+                    $method_info["get"][] = $param;
+                    break;
                 case "GetQuery":
-                    $method_info["query"] = true;
+                    $param = array("type" => "Query +",
+                        "var" => $annotation->value,
+                        "param" => $annotation->value);
+                    $method_info["get"][] = $param;
                     break;
                 case "PostValue":
                     $param = array_combine(array("type", "var", "param"),
@@ -1000,8 +1011,10 @@ class ApiDocumentation implements iApiDocumentation
      * 2014.06.03:
      *   (AT)  Make sure action name is properly set when using the @Action
      *         annotation
+     * 2014.08.20:
+     *   (AT)  Properly handle @GetQuery and @GetArray annotations
      *
-     * @version 2014.06.03
+     * @version 2014.08.20
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param array $method_info
@@ -1221,7 +1234,7 @@ class ApiDocumentation implements iApiDocumentation
                     break;
                 case "object":
                 case "array":
-                    $parameter->type = "JSON";
+                    $parameter->type = "Object";
                     break;
                 case "php":
                     $parameter->type = "Serialized PHP object";

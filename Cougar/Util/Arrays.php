@@ -15,6 +15,8 @@ use Cougar\Model\iModel;
  *   (AT)  Initial release
  * 2014.03.06:
  *   (AT)  Add renameKeys() method
+ * 2014.08.20:
+ *   (AT)  Add renameKeysExtended() method
  *
  * @version 2014.03.06
  * @package Cougar
