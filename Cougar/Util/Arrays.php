@@ -139,6 +139,64 @@ class Arrays implements iArrays
     }
 
     /**
+     * Renames the keys in an array of associative arrays with extended
+     * functionality. This is much like the renameKeys() method except that
+     * it is recursive and the key map does not have to be complete.
+     *
+     * For example, if you wish to keep a key name the same, you do not need to
+     * specify it in the map. Additionally, if you wish to remove a specific
+     * array member, you may specify this by leaving the key's value empty in
+     * the key map.
+     *
+     * @history
+     * 2014.08.20
+     *   (AT)  Initial release
+     *
+     * @version 2014.08.20
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param array $data Array on which to rename the keys
+     * @param array $key_map Assoc. array mapping old key names to the new ones
+     * @return array Re-keyed array
+     */
+    public static function renameKeysExtended(array $data, array $key_map)
+    {
+        // Create the new array
+        $array = array();
+
+        // Go through each element in the array
+        foreach($data as $key => &$value)
+        {
+            // See if the key is in the key map
+            if (array_key_exists($key, $key_map))
+            {
+                $key = $key_map[$key];
+
+                // See if the key will be skipped
+                if (! $key)
+                {
+                    continue;
+                }
+            }
+
+            // See if the value is another array
+            if (is_array($value))
+            {
+                // Save the value with its new key name and its renamed keys
+                $array[$key] = Arrays::renameKeysExtended($value, $key_map);
+            }
+            else
+            {
+                // Save the value with the new key
+                $array[$key] = $value;
+            }
+        }
+
+        // Return the new array
+        return $array;
+    }
+
+    /**
      * Sorts a 2-dimensional array with a record set or an array of objects by
      * the specified indexes in the second array or properties in the object,
      * in ascending order.

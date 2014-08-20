@@ -220,6 +220,142 @@ class ArraysTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers \Cougar\Util\Arrays::renameKeysExtended
+     */
+    public function testRenameKeysExtendedWithList()
+    {
+        // Define an array to test
+        $array = array(
+            array(
+                "record_id" => 1,
+                "first_name" => "Peter",
+                "LAST_NAME" => "Stevens",
+                "age" => 45,
+                "phoneNumbers" => array("office" => "800-555-1212")
+            ),
+            array(
+                "record_id" => 2,
+                "first_name" => "John",
+                "LAST_NAME" => "Stevens",
+                "age" => 45,
+                "phoneNumbers" => array("cell" => "735-555-1212")
+            ),
+            array(
+                "record_id" => 3,
+                "first_name" => "John",
+                "LAST_NAME" => "Smith",
+                "age" => 45,
+                "phoneNumbers" => array("office" => "800-555-1212",
+                    array("home" => "735-555-1212"))
+            ),
+            array(
+                "record_id" => 4,
+                "first_name" => "Mark",
+                "LAST_NAME" => "Johnson",
+                "age" => 58,
+                "phoneNumbers" => array()
+            ),
+            array(
+                "record_id" => 5,
+                "first_name" => "Michael",
+                "LAST_NAME" => "Zimmerman",
+                "age" => 19
+            )
+        );
+
+        // Define the key map
+        $key_map = array(
+            "record_id" => "id",
+            "first_name" => "firstName",
+            "LAST_NAME" => "lastName",
+            "age" => "",
+            "cell" => "cellular"
+        );
+
+        // Define the array we expect to receive
+        $expected_array = array(
+            array(
+                "id" => 1,
+                "firstName" => "Peter",
+                "lastName" => "Stevens",
+                "phoneNumbers" => array("office" => "800-555-1212")
+            ),
+            array(
+                "id" => 2,
+                "firstName" => "John",
+                "lastName" => "Stevens",
+                "phoneNumbers" => array("cellular" => "735-555-1212")
+            ),
+            array(
+                "id" => 3,
+                "firstName" => "John",
+                "lastName" => "Smith",
+                "phoneNumbers" => array("office" => "800-555-1212",
+                    array("home" => "735-555-1212"))
+            ),
+            array(
+                "id" => 4,
+                "firstName" => "Mark",
+                "lastName" => "Johnson",
+                "phoneNumbers" => array()
+            ),
+            array(
+                "id" => 5,
+                "firstName" => "Michael",
+                "lastName" => "Zimmerman",
+            )
+        );
+
+        // Rename the keys
+        $modified_array = Arrays::renameKeysExtended($array, $key_map);
+
+        // Make sure the arrays match
+        $this->assertEquals($expected_array, $modified_array);
+    }
+
+    /**
+     * @covers \Cougar\Util\Arrays::renameKeysExtended
+     */
+    public function testRenameKeysExtendedWithobject()
+    {
+        // Define an array to test
+        $array = array(
+            "record_id" => 1,
+            "first_name" => "Peter",
+            "LAST_NAME" => "Stevens",
+            "age" => 45,
+            "phoneNumbers" => array("office" => "800-555-1212",
+                "home" => "735-555-1212",
+                "cell" => "735-555-1212")
+        );
+
+        // Define the key map
+        $key_map = array(
+            "record_id" => "id",
+            "first_name" => "firstName",
+            "LAST_NAME" => "lastName",
+            "age" => "",
+            "cell" => "cellular",
+            "home" => ""
+        );
+
+        // Define the array we expect to receive
+        $expected_array = array(
+            "id" => 1,
+            "firstName" => "Peter",
+            "lastName" => "Stevens",
+            "phoneNumbers" => array("office" => "800-555-1212",
+                "cellular" => "735-555-1212")
+        );
+
+        // Rename the keys
+        $modified_array = Arrays::renameKeysExtended($array, $key_map);
+
+        // Make sure the arrays match
+        $this->assertEquals($expected_array, $modified_array);
+    }
+
+    /**
      * @covers \Cougar\Util\Arrays::dataSort
      */
     public function testDataSort() {
