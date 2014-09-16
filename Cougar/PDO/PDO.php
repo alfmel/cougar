@@ -22,8 +22,10 @@ use Cougar\Model\iModel;
  *   (AT)  Initial release
  * 2014.03.27:
  *   (AT)  Handle PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE fetch modes
+ * 2014.09.16:
+ *   (AT)  Add support for pdo-via-oci8 PDO driver
  *
- * @version 2014.03.27
+ * @version 2014.09.16
  * @package Cougar
  * @license MIT
  *
@@ -211,8 +213,10 @@ class PDO extends \PDO implements iPDO
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.08.26:
+     *   (AT)  Small code clean-ups
      *
-     * @version 2013.09.30
+     * @version 2014.08.26
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      *
      * @param string $statement
@@ -248,9 +252,9 @@ class PDO extends \PDO implements iPDO
                     $classname_object);
                 break;
             case 4:
+            default:
                 $result = $this->pdo->query($statement, $fetch_mode,
                     $classname_object, $ctorargs);
-            default:
                 break;
         }
         
@@ -738,7 +742,7 @@ class PDO extends \PDO implements iPDO
      * 
      * @param string $statement
      * @param array $driver_options
-     * @return PDOStatement
+     * @return \PDOStatement
      */
     public function prepare($statement, $driver_options = null)
     {
@@ -812,9 +816,29 @@ class PDO extends \PDO implements iPDO
         return $this->pdo->setAttribute($attribute, $value);
     }
 
-    
+    /**
+     * Whether to use the PDO via OCI8 driver for PDO connections to Oracle.
+     * If not explicitly set to true, the class will use the standard PDO OCI
+     * driver.
+     *
+     * @history
+     * 2014.09.12:
+     *   (AT)  Initial implementation
+     *
+     * @version 2014.09.12
+     * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
+     *
+     * @param bool $use_php_via_oci8 True to use the PDO via OCI8 driver, false
+     *   to use the native PDO OCI driver.
+     */
+    public static function usePdoViaOci8($use_php_via_oci8)
+    {
+        self::$phpOci8 = (bool) $use_php_via_oci8;
+    }
+
+
     /***************************************************************************
-     * PROTECTED PROTPERTIES AND METHODS
+     * PROTECTED PROPERTIES AND METHODS
      **************************************************************************/
     
     /**
@@ -842,6 +866,10 @@ class PDO extends \PDO implements iPDO
      */
     protected $driver_options = "";
 
+    /**
+     * @var bool Whether to use PDO via OCI8 driver
+     */
+    protected static $phpOci8 = false;
 
     /**
      * Establish the PDO connection.
@@ -849,8 +877,10 @@ class PDO extends \PDO implements iPDO
      * @history
      * 2013.09.30:
      *   (AT)  Initial release
+     * 2014.09.16:
+     *   (AT)  Add support for PDO via OCI8 driver
      *
-     * @version 2013.09.30
+     * @version 2014.08.26
      * @author (AT) Alberto Trevino, Brigham Young Univ. <alberto@byu.edu>
      */
     protected function establishConnection()
@@ -860,12 +890,23 @@ class PDO extends \PDO implements iPDO
         {
             return;
         }
-        
-        # Run the parent constructor
-        $this->pdo = new \PDO($this->dsn, $this->username,
-            strrev(str_rot13(base64_decode($this->password))),
-            $this->driver_options);
-        
+
+        # Create the connection using the appropriate PDO driver
+        if (self::$phpOci8 && substr($this->dsn, 0, 3) == "oci")
+        {
+            // Get a PHP PDO via OCI8 object
+            $this->pdo = new OCI8\PDO($this->dsn, $this->username,
+                strrev(str_rot13(base64_decode($this->password))),
+                $this->driver_options);
+        }
+        else
+        {
+            // Get a standard PDO object
+            $this->pdo = new \PDO($this->dsn, $this->username,
+                strrev(str_rot13(base64_decode($this->password))),
+                $this->driver_options);
+        }
+
         # Null out the connection parameters (for improved security
         $this->dsn = null;
         $this->username = null;
